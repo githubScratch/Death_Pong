@@ -1,0 +1,63 @@
+[gd_scene load_steps=10 format=3 uid="uid://il58hnsuqbax"]
+
+[ext_resource type="Texture2D" uid="uid://d2k5o6te68vlj" path="res://SPRITES/New Piskel (1).png" id="1_50rdc"]
+[ext_resource type="Script" uid="uid://dah58rok04vy3" path="res://PLAYERS/wizard_2.gd" id="1_tepv2"]
+[ext_resource type="PackedScene" uid="uid://ct4ajy6y060p0" path="res://PLAYERS/spell_2.tscn" id="2_6k5m6"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_plknh"]
+size = Vector2(32, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l2my5"]
+atlas = ExtResource("1_50rdc")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i80fn"]
+atlas = ExtResource("1_50rdc")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_am8ev"]
+atlas = ExtResource("1_50rdc")
+region = Rect2(0, 192, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gxmnd"]
+atlas = ExtResource("1_50rdc")
+region = Rect2(192, 192, 192, 192)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_5more"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l2my5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i80fn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_am8ev")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gxmnd")
+}],
+"loop": true,
+"name": &"default",
+"speed": 6.0
+}]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="CharacterBody2D" type="CharacterBody2D" parent="."]
+position = Vector2(0, -20)
+collision_mask = 2
+script = ExtResource("1_tepv2")
+instance_scene = ExtResource("2_6k5m6")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D"]
+shape = SubResource("RectangleShape2D_plknh")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="CharacterBody2D"]
+position = Vector2(-1.90735e-06, -12)
+rotation = 3.14159
+scale = Vector2(0.333, -0.333)
+sprite_frames = SubResource("SpriteFrames_5more")
+autoplay = "default"
+frame_progress = 0.723077
