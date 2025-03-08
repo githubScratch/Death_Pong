@@ -37,7 +37,7 @@ func _ready():
 	var initial_direction = Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)).normalized()
 	apply_central_impulse(initial_direction * min_speed)
 
-func _physics_process(delta):
+func _physics_process(_delta):
 	# Update debug label
 	#debug_label.text = "Speed: " + str(int(linear_velocity.length()))
 	#debug_label.modulate = Color.WHITE
