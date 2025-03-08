@@ -45,16 +45,17 @@ animations = [{
 
 [node name="Node2D" type="Node2D"]
 
-[node name="CharacterBody2D" type="CharacterBody2D" parent="."]
+[node name="CharacterBody2D" type="CharacterBody2D" parent="." groups=["wizard"]]
+z_index = 2
 position = Vector2(0, -20)
 collision_mask = 2
 script = ExtResource("1_34mad")
 instance_scene = ExtResource("2_71sb5")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D"]
+[node name="shape" type="CollisionShape2D" parent="CharacterBody2D"]
 shape = SubResource("RectangleShape2D_bd25x")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="CharacterBody2D"]
+[node name="sprite" type="AnimatedSprite2D" parent="CharacterBody2D"]
 position = Vector2(-1.90735e-06, -12)
 scale = Vector2(0.333333, 0.333333)
 sprite_frames = SubResource("SpriteFrames_2tmfn")

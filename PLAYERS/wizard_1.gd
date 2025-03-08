@@ -8,16 +8,36 @@ var JUMP_VELOCITY = -800.0
 var DBL_JUMP_VELOCITY = -600
 var DIVE_VELOCITY = 1400
 
+@onready var shape: CollisionShape2D = $shape
+@onready var sprite: AnimatedSprite2D = $sprite
 @export var instance_scene: PackedScene
+
 var current_instance: Node = null
+var hit_the_ground = false
 
 ### WIZARD 1 ###
 
 func _physics_process(delta: float) -> void:
-	# Add the gravity.
+	
+	
+	# Add the gravity and stretch.
 	if not is_on_floor():
 		velocity += get_gravity() * 2 * delta
+		if abs(velocity.y) > 350.0:
+			sprite.scale.y = 0.4
+			sprite.scale.x = 0.25
+			hit_the_ground = false
+	if not hit_the_ground and is_on_floor():
+		hit_the_ground = true
+		sprite.scale.y = 0.15
+		sprite.scale.x = 0.6
 
+	
+	sprite.scale.x = lerpf(sprite.scale.x, 0.333, 1 - pow(0.01, delta))
+	sprite.scale.y = lerpf(sprite.scale.y, 0.333, 1 - pow(0.01, delta))
+	shape.scale.x = lerpf(sprite.scale.x, 1, 1 - pow(0.01, delta))
+	shape.scale.y = lerpf(sprite.scale.y, 1, 1 - pow(0.01, delta))
+	
 	# Handle jump.
 	if Input.is_action_just_pressed("up1"):
 		create_new_instance()
@@ -32,6 +52,8 @@ func _physics_process(delta: float) -> void:
 			velocity.y = DIVE_VELOCITY
 		if is_on_floor():
 			SPEED = DASH
+			sprite.scale.y = 0.15
+			sprite.scale.x = 0.6
 			#set_collision_layer(2)
 			await get_tree().create_timer(0.1).timeout
 			#set_collision_layer(1)
@@ -43,6 +65,10 @@ func _physics_process(delta: float) -> void:
 	var direction := Input.get_axis("left1", "right1")
 	if direction:
 		velocity.x = direction * SPEED
+		if direction > 0:
+			sprite.flip_h = false  # Face right
+		elif direction < 0:
+			sprite.flip_h = true   # Face left
 	else:
 		velocity.x = move_toward(velocity.x, 0, SPEED)
 

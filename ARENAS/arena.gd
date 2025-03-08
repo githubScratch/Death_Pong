@@ -37,3 +37,17 @@ func reset_ball():
 	#ball.position = Vector2(get_viewport_rect().size.x / 2, get_viewport_rect().size.y / 2)
 	#await get_tree().create_timer(1.0).timeout
 	#ball.apply_central_impulse(Vector2(randf_range(-200, 200), randf_range(-200, 200)))
+
+#Time Slow Zones
+func _on_zone_left_body_entered(body: Node2D) -> void:
+	if body.is_in_group("ball"):
+		Engine.time_scale = 0.35
+func _on_zone_left_body_exited(body: Node2D) -> void:
+	if body.is_in_group("ball"):
+		Engine.time_scale = 1.0
+func _on_zone_right_body_entered(body: Node2D) -> void:
+	if body.is_in_group("ball"):
+		Engine.time_scale = 0.35
+func _on_zone_right_body_exited(body: Node2D) -> void:
+	if body.is_in_group("ball"):
+		Engine.time_scale = 1.0

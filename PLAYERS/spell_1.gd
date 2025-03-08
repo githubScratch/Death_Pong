@@ -4,7 +4,7 @@ extends Area2D
 class_name DeflectionShield
 
 # How powerful the deflection force should be
-@export var deflection_force: float = 600.0
+@export var deflection_force: float = 1200.0
 
 # Add a label to display debug info
 var debug_label: Label

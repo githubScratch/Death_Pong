@@ -5,7 +5,7 @@ class_name Ball
 
 # Properties
 @export var min_speed: float = 200.0
-@export var max_speed: float = 800.0
+@export var max_speed: float = 1000.0
 
 
 # Debug variables to track forces

@@ -4,8 +4,8 @@
 [ext_resource type="Texture2D" uid="uid://cko7vsk2xq7mw" path="res://SPRITES/circle_03.png" id="1_x8fbi"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_41u45"]
-friction = 0.2
-bounce = 0.7
+friction = 0.05
+bounce = 1.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_41u45"]
 radius = 8.0
@@ -13,6 +13,7 @@ radius = 8.0
 [node name="Node2D" type="Node2D"]
 
 [node name="RigidBody2D" type="RigidBody2D" parent="." groups=["ball"]]
+z_index = 4
 collision_layer = 4
 collision_mask = 14
 physics_material_override = SubResource("PhysicsMaterial_41u45")

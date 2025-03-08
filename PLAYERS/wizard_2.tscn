@@ -51,13 +51,13 @@ collision_mask = 2
 script = ExtResource("1_tepv2")
 instance_scene = ExtResource("2_6k5m6")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D"]
+[node name="shape" type="CollisionShape2D" parent="CharacterBody2D" groups=["wizard"]]
+z_index = 2
 shape = SubResource("RectangleShape2D_plknh")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="CharacterBody2D"]
+[node name="sprite" type="AnimatedSprite2D" parent="CharacterBody2D"]
 position = Vector2(-1.90735e-06, -12)
-rotation = 3.14159
-scale = Vector2(0.333, -0.333)
+scale = Vector2(0.333, 0.333)
 sprite_frames = SubResource("SpriteFrames_5more")
 autoplay = "default"
 frame_progress = 0.723077
