@@ -1,23 +1,57 @@
-[gd_scene load_steps=2 format=3 uid="uid://bqr4juerdkoda"]
+[gd_scene load_steps=3 format=3 uid="uid://bqr4juerdkoda"]
 
+[ext_resource type="Script" uid="uid://b63xq1g8gmrrf" path="res://MENUS/menu.gd" id="1_8iini"]
 [ext_resource type="FontFile" uid="uid://dg8i0skfgpb02" path="res://SPRITES/Vermin Vibes 1989.ttf" id="1_lti8b"]
 
 [node name="Node2D" type="Node2D"]
+script = ExtResource("1_8iini")
 
 [node name="CenterContainer" type="CenterContainer" parent="."]
 offset_right = 1152.0
 offset_bottom = 648.0
 
-[node name="Label" type="Label" parent="CenterContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer"]
 z_index = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = ExtResource("1_lti8b")
 theme_override_font_sizes/font_size = 140
-text = "WIZARD
-     BALLS"
+text = "WIZARDS'
+      BALLS"
+
+[node name="Begin" type="Button" parent="CenterContainer/VBoxContainer"]
+z_index = 1
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("1_lti8b")
+theme_override_font_sizes/font_size = 40
+text = "START"
+
+[node name="Options" type="Button" parent="CenterContainer/VBoxContainer"]
+z_index = 1
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("1_lti8b")
+theme_override_font_sizes/font_size = 40
+text = "OPTIONS
+"
+
+[node name="Quit" type="Button" parent="CenterContainer/VBoxContainer"]
+z_index = 1
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("1_lti8b")
+theme_override_font_sizes/font_size = 40
+text = "QUIT"
 
 [node name="ColorRect" type="ColorRect" parent="."]
 offset_right = 1152.0
 offset_bottom = 648.0
 color = Color(0, 0, 0, 1)
+
+[connection signal="pressed" from="CenterContainer/VBoxContainer/Begin" to="." method="_on_begin_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/Options" to="." method="_on_options_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/Quit" to="." method="_on_quit_pressed"]

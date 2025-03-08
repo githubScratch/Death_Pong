@@ -1,26 +1,27 @@
-[gd_scene load_steps=16 format=3 uid="uid://dgpeqxyiiriwx"]
+[gd_scene load_steps=17 format=3 uid="uid://dgpeqxyiiriwx"]
 
 [ext_resource type="Script" uid="uid://dg4utk7dcltn2" path="res://ARENAS/arena.gd" id="1_3ujay"]
 [ext_resource type="PackedScene" uid="uid://6pxseqnx1718" path="res://PLAYERS/wizard_1.tscn" id="1_4j1kj"]
 [ext_resource type="PackedScene" uid="uid://il58hnsuqbax" path="res://PLAYERS/wizard_2.tscn" id="2_uo83q"]
 [ext_resource type="PackedScene" uid="uid://y5oxfkoo8240" path="res://ARENAS/ball.tscn" id="3_uo83q"]
 [ext_resource type="PackedScene" uid="uid://cjh86iplxrtmc" path="res://MENUS/HUD.tscn" id="5_0fd2y"]
+[ext_resource type="Texture2D" uid="uid://cn2njurkxp3iq" path="res://ARENAS/2d_lights_and_shadows_neutral_point_light.webp" id="5_55po1"]
 [ext_resource type="Shader" uid="uid://c3fmb76te1444" path="res://ARENAS/VHS.gdshader" id="6_2udws"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_444vf"]
 size = Vector2(1146, 67.25)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_uo83q"]
-size = Vector2(192, 40)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_3ujay"]
-size = Vector2(32, 128)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_0fd2y"]
-size = Vector2(31, 127.5)
-
 [sub_resource type="CircleShape2D" id="CircleShape2D_2udws"]
 radius = 152.84
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_3ujay"]
+size = Vector2(24, 128)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0fd2y"]
+size = Vector2(24, 127.5)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_uo83q"]
+size = Vector2(192, 40)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_55po1"]
 shader = ExtResource("6_2udws")
@@ -45,35 +46,6 @@ shader_parameter/warp_amount = 1.0
 shader_parameter/clip_warp = false
 shader_parameter/vignette_intensity = 0.4
 shader_parameter/vignette_opacity = 0.5
-
-[sub_resource type="Animation" id="Animation_2udws"]
-resource_name = "platforms"
-length = 14.0
-loop_mode = 1
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Arena/Left_Plat:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 2, 3.9, 5.86667, 7.9, 9.9, 10.9, 12.9, 13.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1),
-"update": 0,
-"values": [Vector2(320, 384), Vector2(320, 384), Vector2(128, 384), Vector2(128, 384), Vector2(320, 384), Vector2(320, 384), Vector2(384, 384), Vector2(384, 384), Vector2(320, 384)]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("Arena/Right_Plat:position")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 2.03333, 3.9, 5.86667, 7.93333, 9.9, 10.9, 12.9, 13.9),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1),
-"update": 0,
-"values": [Vector2(640, 384), Vector2(640, 384), Vector2(832, 384), Vector2(832, 384), Vector2(640, 384), Vector2(640, 384), Vector2(576, 384), Vector2(576, 384), Vector2(640, 384)]
-}
 
 [sub_resource type="Animation" id="Animation_55po1"]
 length = 0.001
@@ -101,6 +73,83 @@ tracks/1/keys = {
 "update": 0,
 "values": [Vector2(640, 384)]
 }
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Arena/walls/left:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 0)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Arena/walls/right:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_2udws"]
+resource_name = "platforms"
+length = 16.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Arena/Left_Plat:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 2, 3.9, 5.86667, 7.9, 9.9, 10.9, 12.9, 13.9),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(320, 384), Vector2(320, 384), Vector2(128, 384), Vector2(128, 384), Vector2(320, 384), Vector2(320, 384), Vector2(384, 384), Vector2(384, 384), Vector2(320, 384)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Arena/Right_Plat:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 2.03333, 3.9, 5.86667, 7.93333, 9.9, 11.0333, 12.9, 13.9),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(640, 384), Vector2(640, 384), Vector2(832, 384), Vector2(832, 384), Vector2(640, 384), Vector2(640, 384), Vector2(576, 384), Vector2(576, 384), Vector2(640, 384)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Arena/walls/left:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.0333333, 2.03333, 3.96667, 5.9, 7.96667, 9.96667, 12.0667, 14.0333, 16.0333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(0, 0), Vector2(0, -128), Vector2(0, -128), Vector2(0, 0), Vector2(0, 0), Vector2(0, 128), Vector2(0, 128), Vector2(0, -31.6372)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Arena/walls/right:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 2.03333, 4, 5.93333, 7.93333, 9.96667, 12.0333, 14.0667),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(0, 0), Vector2(0, -128), Vector2(0, -128), Vector2(0, 0), Vector2(0, 0), Vector2(0, 128), Vector2(0, 128)]
+}
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_a13du"]
 _data = {
@@ -110,6 +159,7 @@ _data = {
 
 [node name="Node2D" type="Node2D"]
 script = ExtResource("1_3ujay")
+instance_scene = ExtResource("3_uo83q")
 
 [node name="Arena" type="Node2D" parent="."]
 
@@ -129,14 +179,95 @@ collision_mask = 7
 
 [node name="CollisionPolygon2D2" type="CollisionPolygon2D" parent="Arena/walls/right"]
 position = Vector2(1088, 0)
-polygon = PackedVector2Array(0, 0, 64, 0, 64, 640, 0, 640, 0, 384, 32, 384, 32, 256, 0, 256)
+polygon = PackedVector2Array(0, -448, 64, -448, 64, 1088, 0, 1088, 0, 384, 32, 384, 32, 256, 0, 256)
+
+[node name="ColorRect6" type="ColorRect" parent="Arena/walls/right"]
+offset_left = 1088.0
+offset_top = -448.0
+offset_right = 1152.0
+offset_bottom = 1088.0
+color = Color(0, 0, 0, 1)
+
+[node name="Zone_Right" type="Area2D" parent="Arena/walls/right"]
+collision_layer = 4
+collision_mask = 4
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="Arena/walls/right/Zone_Right"]
+visible = false
+position = Vector2(1088, 320)
+shape = SubResource("CircleShape2D_2udws")
+
+[node name="Goal_Right" type="Area2D" parent="Arena/walls/right"]
+collision_layer = 4
+collision_mask = 4
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="Arena/walls/right/Goal_Right"]
+position = Vector2(1108, 320)
+shape = SubResource("RectangleShape2D_3ujay")
+
+[node name="Polygon2D2" type="Polygon2D" parent="Arena/walls/right/Goal_Right"]
+visible = false
+z_index = -2
+position = Vector2(1024, 0)
+color = Color(1, 1, 1, 0.243137)
+polygon = PackedVector2Array(64, 168, 104, 176, 112, 464, 56, 472, 0, 456, -56, 408, -88, 328, -72, 256, -32, 208, 8, 184)
+
+[node name="greengoal" type="ColorRect" parent="Arena/walls/right/Goal_Right"]
+offset_left = 1088.0
+offset_top = 256.0
+offset_right = 1120.0
+offset_bottom = 384.0
+color = Color(0, 0.175341, 0.0765429, 1)
+
+[node name="PointLight2D" type="PointLight2D" parent="Arena/walls/right/Goal_Right"]
+z_index = 3
+position = Vector2(32, 312)
+color = Color(0.676316, 0.00118941, 0.801176, 1)
+energy = 10.0
+texture = ExtResource("5_55po1")
+texture_scale = 1.5
 
 [node name="left" type="StaticBody2D" parent="Arena/walls"]
 collision_layer = 2
 collision_mask = 7
 
+[node name="ColorRect5" type="ColorRect" parent="Arena/walls/left"]
+offset_top = -448.0
+offset_right = 64.0
+offset_bottom = 1088.0
+color = Color(0, 0, 0, 1)
+
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Arena/walls/left"]
-polygon = PackedVector2Array(0, 0, 64, 0, 64, 256, 32, 256, 32, 384, 64, 384, 64, 640, 0, 640)
+polygon = PackedVector2Array(0, -448, 64, -448, 64, 256, 32, 256, 32, 384, 64, 384, 64, 1088, 0, 1088)
+
+[node name="Goal_Left" type="Area2D" parent="Arena/walls/left"]
+collision_layer = 4
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Arena/walls/left/Goal_Left"]
+position = Vector2(44, 319.75)
+shape = SubResource("RectangleShape2D_0fd2y")
+
+[node name="Polygon2D" type="Polygon2D" parent="Arena/walls/left/Goal_Left"]
+visible = false
+z_index = -2
+color = Color(1, 1, 1, 0.243137)
+polygon = PackedVector2Array(64, 168, 104, 176, 152, 200, 184, 232, 216, 296, 216, 344, 200, 400, 160, 440, 112, 464, 56, 472, 0, 456, 8, 184)
+
+[node name="purpgoal" type="ColorRect" parent="Arena/walls/left/Goal_Left"]
+offset_left = 32.0
+offset_top = 256.0
+offset_right = 64.0
+offset_bottom = 384.0
+color = Color(0.256245, 2.1346e-05, 0.230627, 1)
+
+[node name="PointLight2D2" type="PointLight2D" parent="Arena/walls/left/Goal_Left"]
+z_index = 3
+position = Vector2(1104, 320)
+color = Color(0.218437, 0.520235, 0, 1)
+energy = 10.0
+texture = ExtResource("5_55po1")
+texture_scale = 1.5
 
 [node name="bottom" type="StaticBody2D" parent="Arena/walls"]
 position = Vector2(576, 609.625)
@@ -150,17 +281,6 @@ shape = SubResource("RectangleShape2D_444vf")
 offset_top = 576.0
 offset_right = 1152.0
 offset_bottom = 648.0
-color = Color(0, 0, 0, 1)
-
-[node name="ColorRect5" type="ColorRect" parent="Arena/walls"]
-offset_right = 64.0
-offset_bottom = 640.0
-color = Color(0, 0, 0, 1)
-
-[node name="ColorRect6" type="ColorRect" parent="Arena/walls"]
-offset_left = 1088.0
-offset_right = 1152.0
-offset_bottom = 640.0
 color = Color(0, 0, 0, 1)
 
 [node name="ColorRect7" type="ColorRect" parent="Arena/walls"]
@@ -182,21 +302,6 @@ offset_right = 1408.0
 offset_bottom = 904.0
 color = Color(0, 0, 0, 1)
 
-[node name="Left_Plat" type="StaticBody2D" parent="Arena"]
-position = Vector2(320, 384)
-collision_layer = 2
-collision_mask = 7
-
-[node name="ColorRect8" type="ColorRect" parent="Arena/Left_Plat"]
-z_index = 1
-offset_right = 192.0
-offset_bottom = 40.0
-color = Color(0, 0, 0, 1)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Arena/Left_Plat"]
-position = Vector2(96, 20)
-shape = SubResource("RectangleShape2D_uo83q")
-
 [node name="Right_Plat" type="StaticBody2D" parent="Arena"]
 position = Vector2(640, 384)
 collision_layer = 2
@@ -212,59 +317,26 @@ color = Color(0, 0, 0, 1)
 position = Vector2(96, 20)
 shape = SubResource("RectangleShape2D_uo83q")
 
+[node name="Left_Plat" type="StaticBody2D" parent="Arena"]
+position = Vector2(320, 384)
+collision_layer = 2
+collision_mask = 7
+
+[node name="ColorRect8" type="ColorRect" parent="Arena/Left_Plat"]
+z_index = 1
+offset_right = 192.0
+offset_bottom = 40.0
+color = Color(0, 0, 0, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Arena/Left_Plat"]
+position = Vector2(96, 20)
+shape = SubResource("RectangleShape2D_uo83q")
+
 [node name="player1" parent="." instance=ExtResource("1_4j1kj")]
 position = Vector2(192, 568)
 
 [node name="player2" parent="." instance=ExtResource("2_uo83q")]
 position = Vector2(960, 568)
-
-[node name="Ball" parent="." instance=ExtResource("3_uo83q")]
-position = Vector2(576, 560)
-
-[node name="Goal_Right" type="Area2D" parent="."]
-collision_layer = 4
-collision_mask = 4
-
-[node name="CollisionShape2D2" type="CollisionShape2D" parent="Goal_Right"]
-position = Vector2(1104, 320)
-shape = SubResource("RectangleShape2D_3ujay")
-
-[node name="greengoal" type="ColorRect" parent="Goal_Right"]
-offset_left = 1088.0
-offset_top = 256.0
-offset_right = 1120.0
-offset_bottom = 384.0
-color = Color(0, 0.175341, 0.0765429, 1)
-
-[node name="Goal_Left" type="Area2D" parent="."]
-collision_layer = 4
-collision_mask = 4
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Goal_Left"]
-position = Vector2(47.5, 319.75)
-shape = SubResource("RectangleShape2D_0fd2y")
-
-[node name="purpgoal" type="ColorRect" parent="Goal_Left"]
-offset_left = 32.0
-offset_top = 256.0
-offset_right = 64.0
-offset_bottom = 384.0
-color = Color(0.256245, 2.1346e-05, 0.230627, 1)
-
-[node name="Zone_Right" type="Area2D" parent="."]
-collision_layer = 4
-collision_mask = 4
-
-[node name="Polygon2D2" type="Polygon2D" parent="Zone_Right"]
-z_index = -2
-position = Vector2(1024, 0)
-color = Color(1, 1, 1, 0.243137)
-polygon = PackedVector2Array(64, 168, 104, 176, 112, 464, 56, 472, 0, 456, -56, 408, -88, 328, -72, 256, -32, 208, 8, 184)
-
-[node name="CollisionShape2D2" type="CollisionShape2D" parent="Zone_Right"]
-visible = false
-position = Vector2(1088, 320)
-shape = SubResource("CircleShape2D_2udws")
 
 [node name="Zone_Left" type="Area2D" parent="."]
 collision_layer = 4
@@ -274,11 +346,6 @@ collision_mask = 4
 visible = false
 position = Vector2(64, 320)
 shape = SubResource("CircleShape2D_2udws")
-
-[node name="Polygon2D" type="Polygon2D" parent="Zone_Left"]
-z_index = -2
-color = Color(1, 1, 1, 0.243137)
-polygon = PackedVector2Array(64, 168, 104, 176, 152, 200, 184, 232, 216, 296, 216, 344, 200, 400, 160, 440, 112, 464, 56, 472, 0, 456, 8, 184)
 
 [node name="HUD" parent="." instance=ExtResource("5_0fd2y")]
 
@@ -299,9 +366,9 @@ libraries = {
 autoplay = "platforms"
 speed_scale = 0.25
 
-[connection signal="body_entered" from="Goal_Right" to="." method="_on_goal_right_body_entered"]
-[connection signal="body_entered" from="Goal_Left" to="." method="_on_goal_left_body_entered"]
-[connection signal="body_entered" from="Zone_Right" to="." method="_on_zone_right_body_entered"]
-[connection signal="body_exited" from="Zone_Right" to="." method="_on_zone_right_body_exited"]
+[connection signal="body_entered" from="Arena/walls/right/Zone_Right" to="." method="_on_zone_right_body_entered"]
+[connection signal="body_exited" from="Arena/walls/right/Zone_Right" to="." method="_on_zone_right_body_exited"]
+[connection signal="body_entered" from="Arena/walls/right/Goal_Right" to="." method="_on_goal_right_body_entered"]
+[connection signal="body_entered" from="Arena/walls/left/Goal_Left" to="." method="_on_goal_left_body_entered"]
 [connection signal="body_entered" from="Zone_Left" to="." method="_on_zone_left_body_entered"]
 [connection signal="body_exited" from="Zone_Left" to="." method="_on_zone_left_body_exited"]
