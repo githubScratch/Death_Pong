@@ -1,7 +1,11 @@
-[gd_scene load_steps=11 format=3 uid="uid://ct4ajy6y060p0"]
+[gd_scene load_steps=12 format=3 uid="uid://ct4ajy6y060p0"]
 
 [ext_resource type="Texture2D" uid="uid://y358y2w6rnmf" path="res://SPRITES/475.png" id="1_rbx67"]
 [ext_resource type="Script" uid="uid://cnnna2t78kfvw" path="res://PLAYERS/spell_1.gd" id="2_wuwwc"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rbx67"]
+atlas = ExtResource("1_rbx67")
+region = Rect2(128, 192, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_a03le"]
 atlas = ExtResource("1_rbx67")
@@ -35,6 +39,9 @@ animations = [{
 "speed": 20.0
 }, {
 "frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rbx67")
+}, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_a03le")
 }, {
@@ -132,7 +139,6 @@ scale = Vector2(3.3, 3.3)
 sprite_frames = SubResource("SpriteFrames_00ppf")
 animation = &"hold"
 autoplay = "hold"
-frame_progress = 0.746457
 
 [node name="Area2D" type="Area2D" parent="."]
 position = Vector2(0, 32)

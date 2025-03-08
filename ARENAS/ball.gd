@@ -23,10 +23,10 @@ func _ready():
 	self.linear_damp = linear_damp
 	
 	# Create physics material
-	var physics_material = PhysicsMaterial.new()
-	physics_material.bounce = 0.7
-	physics_material.friction = 0.2
-	self.physics_material_override = physics_material
+	#var physics_material = PhysicsMaterial.new()
+	#physics_material.bounce = 0.7
+	#physics_material.friction = 0.2
+	#self.physics_material_override = physics_material
 	
 	# Add debug label
 	#debug_label = Label.new()

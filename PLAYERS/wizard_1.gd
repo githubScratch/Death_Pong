@@ -32,7 +32,9 @@ func _physics_process(delta: float) -> void:
 			velocity.y = DIVE_VELOCITY
 		if is_on_floor():
 			SPEED = DASH
+			set_collision_layer(2)
 			await get_tree().create_timer(0.1).timeout
+			set_collision_layer(1)
 			SPEED = INIT_SPEED
 
 	

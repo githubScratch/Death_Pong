@@ -1,10 +1,10 @@
 [gd_scene load_steps=5 format=3 uid="uid://y5oxfkoo8240"]
 
-[ext_resource type="Script" uid="uid://bdulix6lfw4mi" path="res://ball.gd" id="1_41u45"]
+[ext_resource type="Script" uid="uid://bdulix6lfw4mi" path="res://ARENAS/ball.gd" id="1_41u45"]
 [ext_resource type="Texture2D" uid="uid://cko7vsk2xq7mw" path="res://SPRITES/circle_03.png" id="1_x8fbi"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_41u45"]
-friction = 0.99
+friction = 0.2
 bounce = 0.7
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_41u45"]
@@ -16,7 +16,7 @@ radius = 8.0
 collision_layer = 4
 collision_mask = 14
 physics_material_override = SubResource("PhysicsMaterial_41u45")
-gravity_scale = 0.2
+gravity_scale = 0.6
 lock_rotation = true
 linear_damp = 0.5
 angular_damp = 1.0

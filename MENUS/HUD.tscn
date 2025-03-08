@@ -1,0 +1,37 @@
+[gd_scene load_steps=3 format=3 uid="uid://cjh86iplxrtmc"]
+
+[ext_resource type="FontFile" uid="uid://dg8i0skfgpb02" path="res://SPRITES/Vermin Vibes 1989.ttf" id="1_6vvky"]
+[ext_resource type="Script" uid="uid://wsqvvw12o0gy" path="res://MENUS/HUD.gd" id="1_mmi4x"]
+
+[node name="Node2D" type="Node2D"]
+script = ExtResource("1_mmi4x")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Player1Score" type="Label" parent="CanvasLayer"]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 50.0
+offset_bottom = 119.0
+theme_override_colors/font_color = Color(0.639239, 0.00425822, 0.998999, 1)
+theme_override_fonts/font = ExtResource("1_6vvky")
+theme_override_font_sizes/font_size = 80
+text = "0
+"
+horizontal_alignment = 1
+
+[node name="Player2Score" type="Label" parent="CanvasLayer"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -50.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = 119.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(0, 0.698039, 0.101961, 1)
+theme_override_fonts/font = ExtResource("1_6vvky")
+theme_override_font_sizes/font_size = 80
+text = "0
+"
+horizontal_alignment = 1
