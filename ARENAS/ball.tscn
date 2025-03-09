@@ -25,8 +25,10 @@ script = ExtResource("1_41u45")
 max_speed = 2000.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D"]
+visible = false
 shape = SubResource("CircleShape2D_41u45")
 
 [node name="Sprite2D" type="Sprite2D" parent="RigidBody2D"]
+z_index = 1
 scale = Vector2(0.05, 0.05)
 texture = ExtResource("1_x8fbi")
