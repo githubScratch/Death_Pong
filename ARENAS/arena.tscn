@@ -1,12 +1,13 @@
-[gd_scene load_steps=17 format=3 uid="uid://dgpeqxyiiriwx"]
+[gd_scene load_steps=24 format=3 uid="uid://dgpeqxyiiriwx"]
 
 [ext_resource type="Script" uid="uid://dg4utk7dcltn2" path="res://ARENAS/arena.gd" id="1_3ujay"]
 [ext_resource type="PackedScene" uid="uid://6pxseqnx1718" path="res://PLAYERS/wizard_1.tscn" id="1_4j1kj"]
 [ext_resource type="PackedScene" uid="uid://il58hnsuqbax" path="res://PLAYERS/wizard_2.tscn" id="2_uo83q"]
 [ext_resource type="PackedScene" uid="uid://y5oxfkoo8240" path="res://ARENAS/ball.tscn" id="3_uo83q"]
 [ext_resource type="PackedScene" uid="uid://cjh86iplxrtmc" path="res://MENUS/HUD.tscn" id="5_0fd2y"]
-[ext_resource type="Texture2D" uid="uid://cn2njurkxp3iq" path="res://ARENAS/2d_lights_and_shadows_neutral_point_light.webp" id="5_55po1"]
+[ext_resource type="Texture2D" uid="uid://cn2njurkxp3iq" path="res://SPRITES/2d_lights_and_shadows_neutral_point_light.webp" id="5_55po1"]
 [ext_resource type="Shader" uid="uid://c3fmb76te1444" path="res://ARENAS/VHS.gdshader" id="6_2udws"]
+[ext_resource type="Theme" uid="uid://dka4pq4oxkc3b" path="res://MENUS/Menu_Theme.tres" id="8_a13du"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_444vf"]
 size = Vector2(1146, 67.25)
@@ -157,6 +158,260 @@ _data = {
 &"platforms": SubResource("Animation_2udws")
 }
 
+[sub_resource type="Animation" id="Animation_yjyfw"]
+resource_name = "Player_1_Victory"
+length = 2.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Player_1_Victory:process_mode")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.0333333, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [4, 0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Player_1_Victory:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.0333333, 0.966667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(1, 1, 1, 1)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Player_1_Victory/CenterContainer/VBoxContainer/HBoxContainer:modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(1, 1.96667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(1, 1, 1, 1)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Player_1_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch1:focus_neighbor_left")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(1.93333),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [NodePath(".")]
+}
+
+[sub_resource type="Animation" id="Animation_05y3v"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Player_1_Victory:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Player_1_Victory/CenterContainer/VBoxContainer/HBoxContainer:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Player_1_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch1:focus_neighbor_left")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [NodePath("")]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Player_2_Victory:modulate")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 0)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer:modulate")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 0)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Player_2_Victory:process_mode")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Player_1_Victory:process_mode")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [4]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("Pause:modulate")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 0)]
+}
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("Pause/CenterContainer/VBoxContainer/HBoxContainer:modulate")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_uu0rc"]
+resource_name = "Player_2_Victory"
+length = 2.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Player_2_Victory:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.0333333, 0.966667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(1, 1, 1, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.933333, 1.96667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(1, 1, 1, 1)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Player_2_Victory:process_mode")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.0666667, 0.9),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [4, 0]
+}
+
+[sub_resource type="Animation" id="Animation_a13du"]
+resource_name = "Pause"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Pause:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.0666667, 0.966667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(1, 1, 1, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Pause/CenterContainer/VBoxContainer/HBoxContainer:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.933333),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_bbeva"]
+resource_name = "Clear"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Pause:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.0333333, 0.2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_bbeva"]
+_data = {
+&"Clear": SubResource("Animation_bbeva"),
+&"Pause": SubResource("Animation_a13du"),
+&"Player_1_Victory": SubResource("Animation_yjyfw"),
+&"Player_2_Victory": SubResource("Animation_uu0rc"),
+&"RESET": SubResource("Animation_05y3v")
+}
+
 [node name="Node2D" type="Node2D"]
 script = ExtResource("1_3ujay")
 instance_scene = ExtResource("3_uo83q")
@@ -238,6 +493,7 @@ offset_bottom = 1088.0
 color = Color(0, 0, 0, 1)
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Arena/walls/left"]
+z_index = -1
 polygon = PackedVector2Array(0, -448, 64, -448, 64, 256, 32, 256, 32, 384, 64, 384, 64, 1088, 0, 1088)
 
 [node name="Goal_Left" type="Area2D" parent="Arena/walls/left"]
@@ -359,12 +615,149 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+[node name="Platforms" type="AnimationPlayer" parent="."]
 libraries = {
 &"": SubResource("AnimationLibrary_a13du")
 }
 autoplay = "platforms"
 speed_scale = 0.25
+
+[node name="Player_1_Victory" type="Control" parent="."]
+process_mode = 4
+modulate = Color(1, 1, 1, 0)
+z_index = 2
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1152.0
+offset_bottom = 648.0
+
+[node name="ColorRect" type="ColorRect" parent="Player_1_Victory"]
+layout_mode = 0
+offset_right = 1152.0
+offset_bottom = 648.0
+color = Color(0, 0, 0, 0.666667)
+
+[node name="CenterContainer" type="CenterContainer" parent="Player_1_Victory"]
+layout_mode = 0
+offset_right = 1152.0
+offset_bottom = 648.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Player_1_Victory/CenterContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Player_1_Victory/CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme = ExtResource("8_a13du")
+theme_override_colors/font_color = Color(0.639216, 0.00392157, 1, 1)
+text = "PURPLE WIZARD WINS"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Player_1_Victory/CenterContainer/VBoxContainer"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+alignment = 1
+
+[node name="Rematch1" type="Button" parent="Player_1_Victory/CenterContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+theme = ExtResource("8_a13du")
+text = "REMATCH"
+
+[node name="Menu1" type="Button" parent="Player_1_Victory/CenterContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+theme = ExtResource("8_a13du")
+text = "QUIT"
+
+[node name="Player_2_Victory" type="Control" parent="."]
+modulate = Color(1, 1, 1, 0)
+z_index = 2
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1152.0
+offset_bottom = 648.0
+
+[node name="ColorRect" type="ColorRect" parent="Player_2_Victory"]
+layout_mode = 0
+offset_right = 1152.0
+offset_bottom = 648.0
+color = Color(0, 0, 0, 0.666667)
+
+[node name="CenterContainer" type="CenterContainer" parent="Player_2_Victory"]
+layout_mode = 0
+offset_right = 1152.0
+offset_bottom = 648.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Player_2_Victory/CenterContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Player_2_Victory/CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme = ExtResource("8_a13du")
+theme_override_colors/font_color = Color(0, 0.698039, 0.101961, 1)
+text = "GREEN WIZARD WINS"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Player_2_Victory/CenterContainer/VBoxContainer"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+alignment = 1
+
+[node name="Rematch2" type="Button" parent="Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+focus_neighbor_left = NodePath(".")
+theme = ExtResource("8_a13du")
+text = "REMATCH"
+
+[node name="Menu2" type="Button" parent="Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+theme = ExtResource("8_a13du")
+text = "QUIT"
+
+[node name="Pause" type="Control" parent="."]
+process_mode = 3
+modulate = Color(1, 1, 1, 0)
+z_index = 2
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1152.0
+offset_bottom = 648.0
+
+[node name="ColorRect" type="ColorRect" parent="Pause"]
+layout_mode = 0
+offset_right = 1152.0
+offset_bottom = 648.0
+color = Color(0, 0, 0, 0.666667)
+
+[node name="CenterContainer" type="CenterContainer" parent="Pause"]
+layout_mode = 0
+offset_right = 1152.0
+offset_bottom = 648.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Pause/CenterContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Pause/CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme = ExtResource("8_a13du")
+text = "GAME PAUSED"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Pause/CenterContainer/VBoxContainer"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+alignment = 1
+
+[node name="Continue1" type="Button" parent="Pause/CenterContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+theme = ExtResource("8_a13du")
+text = "CONTINUE"
+
+[node name="Menu3" type="Button" parent="Pause/CenterContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+theme = ExtResource("8_a13du")
+text = "QUIT"
+
+[node name="Victory_Screens" type="AnimationPlayer" parent="."]
+process_mode = 3
+libraries = {
+&"": SubResource("AnimationLibrary_bbeva")
+}
 
 [connection signal="body_entered" from="Arena/walls/right/Zone_Right" to="." method="_on_zone_right_body_entered"]
 [connection signal="body_exited" from="Arena/walls/right/Zone_Right" to="." method="_on_zone_right_body_exited"]
@@ -372,3 +765,10 @@ speed_scale = 0.25
 [connection signal="body_entered" from="Arena/walls/left/Goal_Left" to="." method="_on_goal_left_body_entered"]
 [connection signal="body_entered" from="Zone_Left" to="." method="_on_zone_left_body_entered"]
 [connection signal="body_exited" from="Zone_Left" to="." method="_on_zone_left_body_exited"]
+[connection signal="pressed" from="Player_1_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch1" to="." method="_on_rematch_1_pressed"]
+[connection signal="pressed" from="Player_1_Victory/CenterContainer/VBoxContainer/HBoxContainer/Menu1" to="." method="_on_menu_1_pressed"]
+[connection signal="pressed" from="Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch2" to="." method="_on_rematch_2_pressed"]
+[connection signal="pressed" from="Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer/Menu2" to="." method="_on_menu_2_pressed"]
+[connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1" to="." method="_on_continue_pressed"]
+[connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1" to="." method="_on_continue_1_pressed"]
+[connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Menu3" to="." method="_on_menu_3_pressed"]

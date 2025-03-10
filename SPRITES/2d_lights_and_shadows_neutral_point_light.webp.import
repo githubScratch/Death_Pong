@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cn2njurkxp3iq"
-path="res://.godot/imported/2d_lights_and_shadows_neutral_point_light.webp-3136cc40bed7b9ade1cb2b90f7e0ed37.ctex"
+path="res://.godot/imported/2d_lights_and_shadows_neutral_point_light.webp-60a034dda292ef3a5044f17292af0820.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://ARENAS/2d_lights_and_shadows_neutral_point_light.webp"
-dest_files=["res://.godot/imported/2d_lights_and_shadows_neutral_point_light.webp-3136cc40bed7b9ade1cb2b90f7e0ed37.ctex"]
+source_file="res://SPRITES/2d_lights_and_shadows_neutral_point_light.webp"
+dest_files=["res://.godot/imported/2d_lights_and_shadows_neutral_point_light.webp-60a034dda292ef3a5044f17292af0820.ctex"]
 
 [params]
 

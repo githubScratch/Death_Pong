@@ -1,23 +1,15 @@
-extends Node2D
+extends Control
+@onready var begin: Button = $CenterContainer/VBoxContainer/Begin
 
-
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
-
+func _ready():
+	begin.grab_focus()
 
 func _on_begin_pressed() -> void:
-	pass # Replace with function body.
-
+	get_tree().change_scene_to_file("res://ARENAS/arena.tscn")
 
 func _on_options_pressed() -> void:
+	#get_tree().change_scene_to_file("res://OptionsMenu.tscn")
 	pass # Replace with function body.
-
 
 func _on_quit_pressed() -> void:
-	pass # Replace with function body.
+	get_tree().quit()
