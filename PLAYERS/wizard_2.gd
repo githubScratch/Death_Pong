@@ -19,12 +19,6 @@ var hit_the_ground = false
 
 func _physics_process(delta: float) -> void:
 	
-	# Reset scales
-	sprite.scale.x = lerpf(sprite.scale.x, 0.333, 1 - pow(0.01, delta))
-	sprite.scale.y = lerpf(sprite.scale.y, 0.333, 1 - pow(0.01, delta))
-	shape.scale.x = lerpf(sprite.scale.x, 1, 1 - pow(0.01, delta))
-	shape.scale.y = lerpf(sprite.scale.y, 1, 1 - pow(0.01, delta))
-	
 	# Add the gravity and stretch.
 	if not is_on_floor():
 		velocity += get_gravity() * 2 * delta
@@ -36,6 +30,12 @@ func _physics_process(delta: float) -> void:
 		hit_the_ground = true
 		sprite.scale.y = 0.15
 		sprite.scale.x = 0.6
+	
+	#Reset Stretch over time
+	sprite.scale.x = lerpf(sprite.scale.x, 0.333, 1 - pow(0.01, delta))
+	sprite.scale.y = lerpf(sprite.scale.y, 0.333, 1 - pow(0.01, delta))
+	shape.scale.x = lerpf(sprite.scale.x, 1, 1 - pow(0.01, delta))
+	shape.scale.y = lerpf(sprite.scale.y, 1, 1 - pow(0.01, delta))
 	
 	# Handle jump.
 	if Input.is_action_just_pressed("ui_up"):
@@ -59,7 +59,6 @@ func _physics_process(delta: float) -> void:
 			SPEED = INIT_SPEED
 
 	# Get the input direction and handle the movement/deceleration.
-	# As good practice, you should replace UI actions with custom gameplay actions.
 	var direction := Input.get_axis("ui_left", "ui_right")
 	if direction:
 		velocity.x = direction * SPEED
@@ -73,7 +72,7 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 
 func create_new_instance():
-	# First, remove any existing instance
+	# First, remove any existing spell
 	if is_instance_valid(current_instance):
 		current_instance.queue_free()
 		current_instance = null

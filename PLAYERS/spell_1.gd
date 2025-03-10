@@ -10,11 +10,6 @@ class_name DeflectionShield
 var debug_label: Label
 
 func _ready():
-	# Create debug label
-	#debug_label = Label.new()
-	#debug_label.position = Vector2(0, -50)
-	#debug_label.text = "Force: " + str(deflection_force)
-	#add_child(debug_label)
 	pass
 
 func _on_body_entered(body):
@@ -40,9 +35,3 @@ func deflect_ball(ball, direction):
 # Directly set the ball's velocity
 		ball.linear_velocity = new_velocity
 		print("Set velocity directly: ", new_velocity.length())
-		
-		# Update debug label
-		#debug_label.text = "Hit! Force: " + str(deflection_force)
-		#debug_label.modulate = Color.GREEN
-	else:
-		print("Ball is not a RigidBody2D!")

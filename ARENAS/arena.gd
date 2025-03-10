@@ -14,13 +14,11 @@ var is_victory = false
 var current_instance: Node = null
 @export var instance_scene: PackedScene
 
-# Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	Engine.time_scale = 1.0
 	is_victory = false
 	create_new_instance()
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	if Input.is_action_just_pressed("ui_select"):
 		if not is_paused and not is_victory:
@@ -32,6 +30,7 @@ func _process(delta: float) -> void:
 			unpause_game()
 			print("UI accept pressed while paused")
 
+#Ball Reset
 func create_new_instance():
 	# First, remove any existing instance
 	if is_instance_valid(current_instance):
@@ -46,6 +45,7 @@ func create_new_instance():
 		get_tree().current_scene.add_child(instance)
 		current_instance = instance
 
+#Scoring
 func _on_goal_left_body_entered(body: Node2D) -> void:
 	if body.is_in_group("ball"):
 		player2_score += 1
@@ -57,7 +57,6 @@ func _on_goal_left_body_entered(body: Node2D) -> void:
 			is_victory = true
 			rematch_2.grab_focus()
 		else:
-			#await get_tree().create_timer(0.1).timeout
 			create_new_instance()
 func _on_goal_right_body_entered(body: Node2D) -> void:
 	if body.is_in_group("ball"):
@@ -96,7 +95,7 @@ func _on_zone_right_body_exited(body: Node2D) -> void:
 	if body.is_in_group("ball"):
 		Engine.time_scale = 1.0
 
-
+#UI
 func _on_rematch_1_pressed() -> void:
 	get_tree().change_scene_to_file("res://ARENAS/arena.tscn")
 func _on_rematch_2_pressed() -> void:
@@ -109,4 +108,5 @@ func _on_continue_1_pressed() -> void:
 	unpause_game()
 func _on_menu_3_pressed() -> void:
 	unpause_game()
+	is_paused = false
 	get_tree().change_scene_to_file("res://MENUS/Menu.tscn")

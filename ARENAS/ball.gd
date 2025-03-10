@@ -19,8 +19,6 @@ var _previous_position: Vector2
 func _ready():
 	_original_scale = scale
 	_previous_position = global_position
-	# Add to ball group
-	#add_to_group("ball")
 	
 	# Physics setup
 	contact_monitor = true
@@ -65,7 +63,7 @@ func _physics_process(_delta):
 	if linear_velocity.length() > max_speed:
 		linear_velocity = linear_velocity.normalized() * max_speed
 
-# This method is called from DeflectionShield
+
 func apply_deflection(force_vector):
 	# Store for debugging
 	last_applied_force = force_vector
