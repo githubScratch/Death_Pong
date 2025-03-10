@@ -75,11 +75,12 @@ func _on_goal_right_body_entered(body: Node2D) -> void:
 func pause():
 	get_tree().paused = true
 func unpause_game():
+	is_paused = false
 	continue_1.release_focus()
 	victory_screens.play("Clear")
 	await get_tree().create_timer(0.5).timeout
 	get_tree().paused = false
-	is_paused = false
+
 
 #Time Slow Zones
 func _on_zone_left_body_entered(body: Node2D) -> void:
@@ -107,6 +108,6 @@ func _on_menu_2_pressed() -> void:
 func _on_continue_1_pressed() -> void:
 	unpause_game()
 func _on_menu_3_pressed() -> void:
-	unpause_game()
 	is_paused = false
+	get_tree().paused = false
 	get_tree().change_scene_to_file("res://MENUS/Menu.tscn")
