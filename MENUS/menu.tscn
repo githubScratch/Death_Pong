@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://dydubtl8r07gj"]
+[gd_scene load_steps=6 format=3 uid="uid://dydubtl8r07gj"]
 
 [ext_resource type="Script" uid="uid://dr1jkq8sdnvhx" path="res://MENUS/Menu.gd" id="1_11dfe"]
 [ext_resource type="FontFile" uid="uid://dg8i0skfgpb02" path="res://SPRITES/Vermin Vibes 1989.ttf" id="1_phoou"]
 [ext_resource type="Shader" uid="uid://c3fmb76te1444" path="res://ARENAS/VHS.gdshader" id="3_g8rpa"]
+[ext_resource type="Theme" uid="uid://dka4pq4oxkc3b" path="res://MENUS/Menu_Theme.tres" id="3_m17v8"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_m17v8"]
 shader = ExtResource("3_g8rpa")
@@ -65,7 +66,7 @@ horizontal_alignment = 1
 [node name="Begin" type="Button" parent="CenterContainer/VBoxContainer"]
 z_index = 1
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme = ExtResource("3_m17v8")
 theme_override_fonts/font = ExtResource("1_phoou")
 theme_override_font_sizes/font_size = 40
 text = "START"
@@ -73,7 +74,7 @@ text = "START"
 [node name="Options" type="Button" parent="CenterContainer/VBoxContainer"]
 z_index = 1
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme = ExtResource("3_m17v8")
 theme_override_fonts/font = ExtResource("1_phoou")
 theme_override_font_sizes/font_size = 40
 text = "OPTIONS
@@ -82,7 +83,7 @@ text = "OPTIONS
 [node name="Quit" type="Button" parent="CenterContainer/VBoxContainer"]
 z_index = 1
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme = ExtResource("3_m17v8")
 theme_override_fonts/font = ExtResource("1_phoou")
 theme_override_font_sizes/font_size = 40
 text = "QUIT"

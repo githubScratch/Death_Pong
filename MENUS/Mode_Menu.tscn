@@ -1,4 +1,32 @@
-[gd_scene format=3 uid="uid://bld06026vsd1u"]
+[gd_scene load_steps=5 format=3 uid="uid://bld06026vsd1u"]
+
+[ext_resource type="Script" uid="uid://cnqvtmea2my6e" path="res://MENUS/mode_menu.gd" id="1_m5iyf"]
+[ext_resource type="Theme" uid="uid://dka4pq4oxkc3b" path="res://MENUS/Menu_Theme.tres" id="2_vllpc"]
+[ext_resource type="Shader" uid="uid://c3fmb76te1444" path="res://ARENAS/VHS.gdshader" id="3_vllpc"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5q1im"]
+shader = ExtResource("3_vllpc")
+shader_parameter/overlay = false
+shader_parameter/scanlines_opacity = 0.1
+shader_parameter/scanlines_width = 0.25
+shader_parameter/grille_opacity = 0.3
+shader_parameter/resolution = Vector2(640, 480)
+shader_parameter/pixelate = true
+shader_parameter/roll = true
+shader_parameter/roll_speed = 2.0
+shader_parameter/roll_size = 5.0
+shader_parameter/roll_variation = 1.8
+shader_parameter/distort_intensity = 0.01
+shader_parameter/noise_opacity = 0.05
+shader_parameter/noise_speed = 5.0
+shader_parameter/static_noise_intensity = 0.06
+shader_parameter/aberration = 0.00300005
+shader_parameter/brightness = 1.5
+shader_parameter/discolor = false
+shader_parameter/warp_amount = 1.0
+shader_parameter/clip_warp = false
+shader_parameter/vignette_intensity = 0.4
+shader_parameter/vignette_opacity = 0.5
 
 [node name="Control" type="Control"]
 layout_mode = 3
@@ -7,8 +35,10 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_m5iyf")
 
 [node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 0
 offset_right = 1152.0
 offset_bottom = 648.0
 color = Color(0, 0, 0, 1)
@@ -17,61 +47,134 @@ color = Color(0, 0, 0, 1)
 layout_mode = 0
 offset_right = 1152.0
 offset_bottom = 648.0
+theme = ExtResource("2_vllpc")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer"]
 layout_mode = 2
 
-[node name="Back" type="Button" parent="CenterContainer/HBoxContainer"]
+[node name="VBoxContainer4" type="VBoxContainer" parent="CenterContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer4"]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer4"]
+layout_mode = 2
+
+[node name="Back" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer4"]
 layout_mode = 2
 text = "Back"
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/HBoxContainer"]
+[node name="Label2" type="Label" parent="CenterContainer/HBoxContainer"]
 layout_mode = 2
-
-[node name="Label" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer"]
-layout_mode = 2
-text = "MAP"
-
-[node name="Button" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer"]
-layout_mode = 2
-text = "CAGE"
-
-[node name="Button2" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer"]
-layout_mode = 2
-text = "YONDER"
+text = "  "
 
 [node name="VBoxContainer3" type="VBoxContainer" parent="CenterContainer/HBoxContainer"]
 layout_mode = 2
 
-[node name="Label2" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer3"]
+[node name="Mode" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer3"]
 layout_mode = 2
-text = "MODE"
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 7
+text = "  MODE  "
 
-[node name="Button" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer3"]
+[node name="Label" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer3"]
 layout_mode = 2
-text = "RANDOM"
 
-[node name="Button2" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer3"]
+[node name="Pure" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer3"]
 layout_mode = 2
-text = "PURE"
+toggle_mode = true
+button_pressed = true
+text = "pure"
+
+[node name="Random" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer3"]
+layout_mode = 2
+toggle_mode = true
+text = "random"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="Map" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme = ExtResource("2_vllpc")
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 7
+text = "    MAP    "
+horizontal_alignment = 1
+
+[node name="Label" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Arena" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+toggle_mode = true
+button_pressed = true
+text = "ARENA"
+
+[node name="Yonder" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+toggle_mode = true
+text = "YONDER"
 
 [node name="VBoxContainer2" type="VBoxContainer" parent="CenterContainer/HBoxContainer"]
 layout_mode = 2
 
-[node name="Label3" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer2"]
+[node name="Victory" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer2"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 7
 text = "VICTORY"
 
-[node name="Button" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer2"]
+[node name="Label" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer2"]
 layout_mode = 2
-text = "TIME
-"
 
-[node name="Button2" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer2"]
+[node name="STOCK" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer2"]
 layout_mode = 2
-text = "STOCK
-"
+toggle_mode = true
+button_pressed = true
+text = "stock"
 
-[node name="Begin" type="Button" parent="CenterContainer/HBoxContainer"]
+[node name="TIME" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+toggle_mode = true
+text = "TIME"
+
+[node name="Label" type="Label" parent="CenterContainer/HBoxContainer"]
+layout_mode = 2
+text = "  "
+
+[node name="VBoxContainer5" type="VBoxContainer" parent="CenterContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer5"]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer5"]
+layout_mode = 2
+
+[node name="Begin" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer5"]
 layout_mode = 2
 text = "Begin"
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer"]
+material = SubResource("ShaderMaterial_5q1im")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer4/Back" to="." method="_on_back_pressed"]
+[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer3/Pure" to="." method="_on_pure_pressed"]
+[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer3/Random" to="." method="_on_random_pressed"]
+[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer/Arena" to="." method="_on_arena_pressed"]
+[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer/Yonder" to="." method="_on_yonder_pressed"]
+[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer2/STOCK" to="." method="_on_stock_pressed"]
+[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer2/TIME" to="." method="_on_time_pressed"]
+[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer5/Begin" to="." method="_on_begin_pressed"]

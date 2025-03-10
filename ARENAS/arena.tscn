@@ -474,10 +474,10 @@ offset_right = 1120.0
 offset_bottom = 384.0
 color = Color(0, 0.175341, 0.0765429, 1)
 
-[node name="PointLight2D" type="PointLight2D" parent="Arena/walls/right/Goal_Right"]
+[node name="PointLight2D2" type="PointLight2D" parent="Arena/walls/right/Goal_Right"]
 z_index = 3
-position = Vector2(32, 312)
-color = Color(0.676316, 0.00118941, 0.801176, 1)
+position = Vector2(1104, 320)
+color = Color(0.219608, 1, 0, 1)
 energy = 10.0
 texture = ExtResource("5_55po1")
 texture_scale = 1.5
@@ -495,6 +495,15 @@ color = Color(0, 0, 0, 1)
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Arena/walls/left"]
 z_index = -1
 polygon = PackedVector2Array(0, -448, 64, -448, 64, 256, 32, 256, 32, 384, 64, 384, 64, 1088, 0, 1088)
+
+[node name="Zone_Left" type="Area2D" parent="Arena/walls/left"]
+collision_layer = 4
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Arena/walls/left/Zone_Left"]
+visible = false
+position = Vector2(64, 320)
+shape = SubResource("CircleShape2D_2udws")
 
 [node name="Goal_Left" type="Area2D" parent="Arena/walls/left"]
 collision_layer = 4
@@ -515,12 +524,12 @@ offset_left = 32.0
 offset_top = 256.0
 offset_right = 64.0
 offset_bottom = 384.0
-color = Color(0.256245, 2.1346e-05, 0.230627, 1)
+color = Color(0.453232, 0.00963106, 0.682915, 1)
 
-[node name="PointLight2D2" type="PointLight2D" parent="Arena/walls/left/Goal_Left"]
+[node name="PointLight2D" type="PointLight2D" parent="Arena/walls/left/Goal_Left"]
 z_index = 3
-position = Vector2(1104, 320)
-color = Color(0.218437, 0.520235, 0, 1)
+position = Vector2(32, 312)
+color = Color(0.697733, 0.167776, 1, 1)
 energy = 10.0
 texture = ExtResource("5_55po1")
 texture_scale = 1.5
@@ -593,15 +602,6 @@ position = Vector2(192, 568)
 
 [node name="player2" parent="." instance=ExtResource("2_uo83q")]
 position = Vector2(960, 568)
-
-[node name="Zone_Left" type="Area2D" parent="."]
-collision_layer = 4
-collision_mask = 4
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Zone_Left"]
-visible = false
-position = Vector2(64, 320)
-shape = SubResource("CircleShape2D_2udws")
 
 [node name="HUD" parent="." instance=ExtResource("5_0fd2y")]
 
@@ -762,9 +762,9 @@ libraries = {
 [connection signal="body_entered" from="Arena/walls/right/Zone_Right" to="." method="_on_zone_right_body_entered"]
 [connection signal="body_exited" from="Arena/walls/right/Zone_Right" to="." method="_on_zone_right_body_exited"]
 [connection signal="body_entered" from="Arena/walls/right/Goal_Right" to="." method="_on_goal_right_body_entered"]
+[connection signal="body_entered" from="Arena/walls/left/Zone_Left" to="." method="_on_zone_left_body_entered"]
+[connection signal="body_exited" from="Arena/walls/left/Zone_Left" to="." method="_on_zone_left_body_exited"]
 [connection signal="body_entered" from="Arena/walls/left/Goal_Left" to="." method="_on_goal_left_body_entered"]
-[connection signal="body_entered" from="Zone_Left" to="." method="_on_zone_left_body_entered"]
-[connection signal="body_exited" from="Zone_Left" to="." method="_on_zone_left_body_exited"]
 [connection signal="pressed" from="Player_1_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch1" to="." method="_on_rematch_1_pressed"]
 [connection signal="pressed" from="Player_1_Victory/CenterContainer/VBoxContainer/HBoxContainer/Menu1" to="." method="_on_menu_1_pressed"]
 [connection signal="pressed" from="Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch2" to="." method="_on_rematch_2_pressed"]

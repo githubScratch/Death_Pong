@@ -8,8 +8,7 @@ func _on_begin_pressed() -> void:
 	get_tree().change_scene_to_file("res://ARENAS/arena.tscn")
 
 func _on_options_pressed() -> void:
-	#get_tree().change_scene_to_file("res://OptionsMenu.tscn")
-	pass # Replace with function body.
+	get_tree().change_scene_to_file("res://MENUS/Mode_Menu.tscn")
 
 func _on_quit_pressed() -> void:
 	get_tree().quit()

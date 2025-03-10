@@ -41,7 +41,7 @@ func create_new_instance():
 	if is_instance_valid(instance_scene):
 		await get_tree().create_timer(0.5).timeout
 		var instance = instance_scene.instantiate()
-		instance.global_position = Vector2(576,320)
+		instance.global_position = Vector2(576,70)
 		get_tree().current_scene.add_child(instance)
 		current_instance = instance
 
