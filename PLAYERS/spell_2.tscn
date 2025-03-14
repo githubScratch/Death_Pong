@@ -1,7 +1,8 @@
-[gd_scene load_steps=12 format=3 uid="uid://ct4ajy6y060p0"]
+[gd_scene load_steps=13 format=3 uid="uid://ct4ajy6y060p0"]
 
 [ext_resource type="Texture2D" uid="uid://y358y2w6rnmf" path="res://SPRITES/475.png" id="1_rbx67"]
 [ext_resource type="Script" uid="uid://cnnna2t78kfvw" path="res://PLAYERS/spell_1.gd" id="2_wuwwc"]
+[ext_resource type="AudioStream" uid="uid://dtnhs6dommt08" path="res://SFX/thump.wav" id="3_wuwwc"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_rbx67"]
 atlas = ExtResource("1_rbx67")
@@ -150,5 +151,8 @@ script = ExtResource("2_wuwwc")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
 position = Vector2(-7.62939e-06, 0)
 shape = SubResource("CircleShape2D_asf77")
+
+[node name="deflect_SFX" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("3_wuwwc")
 
 [connection signal="body_entered" from="Area2D" to="Area2D" method="_on_body_entered"]

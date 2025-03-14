@@ -6,7 +6,10 @@ extends Control
 @onready var yonder: Button = $CenterContainer/HBoxContainer/VBoxContainer/Yonder
 @onready var stock: Button = $CenterContainer/HBoxContainer/VBoxContainer2/STOCK
 @onready var time: Button = $CenterContainer/HBoxContainer/VBoxContainer2/TIME
+@onready var random_2: Button = $CenterContainer/HBoxContainer/VBoxContainer/Random2
 
+@onready var select: AudioStreamPlayer2D = $select
+@onready var move: AudioStreamPlayer2D = $move
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -15,7 +18,12 @@ func _ready() -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	pass
+	if Input.is_action_just_pressed("ui_down") or Input.is_action_just_pressed("ui_up") or Input.is_action_just_pressed("ui_left") or Input.is_action_just_pressed("ui_right"):
+		move.pitch_scale = randf_range(0.9, 1.1)
+		move.play()
+	if Input.is_action_just_pressed("ui_select"):
+		select.pitch_scale = randf_range(0.9, 1.1)
+		select.play()
 
 
 func _on_back_pressed() -> void:
@@ -35,9 +43,11 @@ func _on_random_pressed() -> void:
 func _on_arena_pressed() -> void:
 	arena.set_pressed_no_signal(true)
 	yonder.set_pressed_no_signal(false)
+	random_2.set_pressed_no_signal(false)
 func _on_yonder_pressed() -> void:
 	arena.set_pressed_no_signal(false)
 	yonder.set_pressed_no_signal(true)
+	random_2.set_pressed_no_signal(false)
 
 func _on_stock_pressed() -> void:
 	stock.set_pressed_no_signal(true)
@@ -45,3 +55,9 @@ func _on_stock_pressed() -> void:
 func _on_time_pressed() -> void:
 	stock.set_pressed_no_signal(false)
 	time.set_pressed_no_signal(true)
+
+
+func _on_random_2_pressed() -> void:
+	arena.set_pressed_no_signal(false)
+	yonder.set_pressed_no_signal(false)
+	random_2.set_pressed_no_signal(true)

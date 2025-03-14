@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3 uid="uid://dydubtl8r07gj"]
+[gd_scene load_steps=8 format=3 uid="uid://dydubtl8r07gj"]
 
 [ext_resource type="Script" uid="uid://dr1jkq8sdnvhx" path="res://MENUS/Menu.gd" id="1_11dfe"]
 [ext_resource type="FontFile" uid="uid://dg8i0skfgpb02" path="res://SPRITES/Vermin Vibes 1989.ttf" id="1_phoou"]
 [ext_resource type="Shader" uid="uid://c3fmb76te1444" path="res://ARENAS/VHS.gdshader" id="3_g8rpa"]
 [ext_resource type="Theme" uid="uid://dka4pq4oxkc3b" path="res://MENUS/Menu_Theme.tres" id="3_m17v8"]
+[ext_resource type="AudioStream" uid="uid://d3rmk854uqt17" path="res://SFX/ui select.wav" id="5_rlwtf"]
+[ext_resource type="AudioStream" uid="uid://du6i7igev8i55" path="res://SFX/Menu_Select2.wav" id="6_qvjdj"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_m17v8"]
 shader = ExtResource("3_g8rpa")
@@ -52,7 +54,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.639216, 0.00392157, 1, 1)
 theme_override_fonts/font = ExtResource("1_phoou")
 theme_override_font_sizes/font_size = 140
-text = "POWER WORD:"
+text = "WIZARD"
 
 [node name="Label2" type="Label" parent="CenterContainer/VBoxContainer"]
 z_index = 1
@@ -60,7 +62,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.698039, 0.101961, 1)
 theme_override_fonts/font = ExtResource("1_phoou")
 theme_override_font_sizes/font_size = 140
-text = "PONG"
+text = "BALLS"
 horizontal_alignment = 1
 
 [node name="Begin" type="Button" parent="CenterContainer/VBoxContainer"]
@@ -90,8 +92,10 @@ text = "QUIT"
 
 [node name="ColorRect" type="ColorRect" parent="."]
 layout_mode = 0
-offset_right = 1152.0
-offset_bottom = 648.0
+offset_left = -328.0
+offset_top = -232.0
+offset_right = 1448.0
+offset_bottom = 880.0
 color = Color(0, 0, 0, 1)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
@@ -103,6 +107,13 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="select" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("5_rlwtf")
+volume_db = -10.0
+
+[node name="move" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("6_qvjdj")
 
 [connection signal="pressed" from="CenterContainer/VBoxContainer/Begin" to="." method="_on_begin_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/Options" to="." method="_on_options_pressed"]

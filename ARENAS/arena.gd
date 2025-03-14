@@ -13,13 +13,28 @@ var is_paused = false
 var is_victory = false
 var current_instance: Node = null
 @export var instance_scene: PackedScene
+@onready var goal: AudioStreamPlayer2D = $goal
+@onready var spawn_ball: AudioStreamPlayer2D = $spawn_ball
+@onready var select: AudioStreamPlayer2D = $select
+@onready var move: AudioStreamPlayer2D = $move
 
 func _ready() -> void:
 	Engine.time_scale = 1.0
 	is_victory = false
 	create_new_instance()
+	
 
 func _process(delta: float) -> void:
+	if Input.is_action_just_pressed("ui_left") or Input.is_action_just_pressed("ui_right"):
+		if is_paused or is_victory:
+			move.pitch_scale = randf_range(0.9, 1.1)
+			move.play()
+	if Input.is_action_just_pressed("ui_select"):
+		if is_paused or is_victory:
+			select.pitch_scale = randf_range(0.9, 1.1)
+			select.play()
+	
+	
 	if Input.is_action_just_pressed("ui_select"):
 		if not is_paused and not is_victory:
 			pause()
@@ -44,12 +59,16 @@ func create_new_instance():
 		instance.global_position = Vector2(576,70)
 		get_tree().current_scene.add_child(instance)
 		current_instance = instance
+		spawn_ball.pitch_scale = randf_range(0.4, 0.6)
+		spawn_ball.play()
 
 #Scoring
 func _on_goal_left_body_entered(body: Node2D) -> void:
 	if body.is_in_group("ball"):
 		player2_score += 1
 		hud.update_score(player1_score, player2_score)
+		goal.pitch_scale = randf_range(0.9, 1.1)
+		goal.play()
 		if player2_score >= 5:
 			if is_instance_valid(current_instance):
 				current_instance.queue_free()
@@ -62,6 +81,8 @@ func _on_goal_right_body_entered(body: Node2D) -> void:
 	if body.is_in_group("ball"):
 		player1_score += 1
 		hud.update_score(player1_score, player2_score)
+		goal.pitch_scale = randf_range(0.9, 1.1)
+		goal.play()
 		if player1_score >= 5:
 			if is_instance_valid(current_instance):
 				current_instance.queue_free()

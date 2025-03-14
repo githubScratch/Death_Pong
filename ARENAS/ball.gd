@@ -3,6 +3,8 @@ extends RigidBody2D
 
 class_name Ball
 
+
+
 # Properties
 @export var min_speed: float = 200.0
 @export var max_speed: float = 1000.0
@@ -16,7 +18,19 @@ var _original_scale: Vector2
 var _velocity: Vector2 = Vector2.ZERO
 var _previous_position: Vector2
 
+@onready var wall_impact: AudioStreamPlayer2D = $"../wall_impact"
+var audio_pool = []
+@export var pool_size = 3
+@export var min_velocity_for_sound = 50.0  # Minimum velocity to play sound
+
 func _ready():
+	for i in range(pool_size):
+		var player = AudioStreamPlayer.new()
+		player.stream = wall_impact
+		add_child(player)
+		audio_pool.append(player)
+		print("Created ", audio_pool.size(), " audio players")
+	
 	_original_scale = scale
 	_previous_position = global_position
 	
@@ -88,3 +102,33 @@ func create_impact_effect():
 	
 	var tween = create_tween()
 	tween.tween_property(self, "modulate", original_color, 0.4)
+
+
+func _on_sfx_area_body_entered(body):  # Changed function name to match signal
+	print("Collision detected with: ", body.name)
+	print("Body type: ", body.get_class())
+	
+	if body is StaticBody2D and linear_velocity.length() > min_velocity_for_sound:
+		# Play sound with volume based on impact velocity
+		var impact_force = min(linear_velocity.length() / 1000.0, 1.0)
+		play_collision_sound(impact_force)  # Pass the volume scale, not the audio player
+		
+func play_collision_sound(volume_scale = 1.0):
+	print("Bwomp!")
+	wall_impact.pitch_scale = randf_range(0.9, 1.1)
+	wall_impact.play()
+	print("Audio pool size: ", audio_pool.size())  # Should be > 0
+	for player in audio_pool:
+		if not player.playing:
+			player.pitch_scale = randf_range(0.9, 1.1)
+			player.volume_db = linear_to_db(volume_scale)
+			player.play()
+			print("Bwomp!2")
+			wall_impact.pitch_scale = randf_range(0.9, 1.1)
+			wall_impact.play()
+			return
+	
+	# If all players are busy, use the first one
+	audio_pool[0].pitch_scale = randf_range(0.9, 1.1)
+	audio_pool[0].volume_db = linear_to_db(volume_scale)
+	audio_pool[0].play()

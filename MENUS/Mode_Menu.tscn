@@ -1,8 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://bld06026vsd1u"]
+[gd_scene load_steps=7 format=3 uid="uid://bld06026vsd1u"]
 
 [ext_resource type="Script" uid="uid://cnqvtmea2my6e" path="res://MENUS/mode_menu.gd" id="1_m5iyf"]
 [ext_resource type="Theme" uid="uid://dka4pq4oxkc3b" path="res://MENUS/Menu_Theme.tres" id="2_vllpc"]
 [ext_resource type="Shader" uid="uid://c3fmb76te1444" path="res://ARENAS/VHS.gdshader" id="3_vllpc"]
+[ext_resource type="AudioStream" uid="uid://d3rmk854uqt17" path="res://SFX/ui select.wav" id="4_phrjs"]
+[ext_resource type="AudioStream" uid="uid://du6i7igev8i55" path="res://SFX/Menu_Select2.wav" id="5_fke4p"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_5q1im"]
 shader = ExtResource("3_vllpc")
@@ -39,8 +41,10 @@ script = ExtResource("1_m5iyf")
 
 [node name="ColorRect" type="ColorRect" parent="."]
 layout_mode = 0
-offset_right = 1152.0
-offset_bottom = 648.0
+offset_left = -376.0
+offset_top = -208.0
+offset_right = 1440.0
+offset_bottom = 888.0
 color = Color(0, 0, 0, 1)
 
 [node name="CenterContainer" type="CenterContainer" parent="."]
@@ -112,12 +116,19 @@ layout_mode = 2
 layout_mode = 2
 toggle_mode = true
 button_pressed = true
-text = "ARENA"
+text = "PIT
+"
 
 [node name="Yonder" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 toggle_mode = true
 text = "YONDER"
+
+[node name="Random2" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme = ExtResource("2_vllpc")
+toggle_mode = true
+text = "RANDOM"
 
 [node name="VBoxContainer2" type="VBoxContainer" parent="CenterContainer/HBoxContainer"]
 layout_mode = 2
@@ -170,11 +181,19 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="select" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_phrjs")
+volume_db = -10.0
+
+[node name="move" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("5_fke4p")
+
 [connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer4/Back" to="." method="_on_back_pressed"]
 [connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer3/Pure" to="." method="_on_pure_pressed"]
 [connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer3/Random" to="." method="_on_random_pressed"]
 [connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer/Arena" to="." method="_on_arena_pressed"]
 [connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer/Yonder" to="." method="_on_yonder_pressed"]
+[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer/Random2" to="." method="_on_random_2_pressed"]
 [connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer2/STOCK" to="." method="_on_stock_pressed"]
 [connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer2/TIME" to="." method="_on_time_pressed"]
 [connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer5/Begin" to="." method="_on_begin_pressed"]

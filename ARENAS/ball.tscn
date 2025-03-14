@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://y5oxfkoo8240"]
+[gd_scene load_steps=7 format=3 uid="uid://y5oxfkoo8240"]
 
 [ext_resource type="Script" uid="uid://bdulix6lfw4mi" path="res://ARENAS/ball.gd" id="1_41u45"]
 [ext_resource type="Texture2D" uid="uid://cko7vsk2xq7mw" path="res://SPRITES/circle_03.png" id="1_x8fbi"]
+[ext_resource type="AudioStream" uid="uid://cjvvgvl850g8g" path="res://SFX/thwomp.wav" id="3_s0u7k"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_41u45"]
 friction = 0.05
@@ -9,6 +10,9 @@ bounce = 1.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_41u45"]
 radius = 8.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_s0u7k"]
+radius = 12.0
 
 [node name="Node2D" type="Node2D"]
 
@@ -32,3 +36,15 @@ shape = SubResource("CircleShape2D_41u45")
 z_index = 1
 scale = Vector2(0.05, 0.05)
 texture = ExtResource("1_x8fbi")
+
+[node name="SFX_area" type="Area2D" parent="RigidBody2D"]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D/SFX_area"]
+shape = SubResource("CircleShape2D_s0u7k")
+
+[node name="wall_impact" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("3_s0u7k")
+
+[connection signal="body_entered" from="RigidBody2D/SFX_area" to="RigidBody2D" method="_on_sfx_area_body_entered"]
