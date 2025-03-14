@@ -17,6 +17,7 @@ var current_instance: Node = null
 @onready var spawn_ball: AudioStreamPlayer2D = $spawn_ball
 @onready var select: AudioStreamPlayer2D = $select
 @onready var move: AudioStreamPlayer2D = $move
+@onready var goal_particles: AnimationPlayer = $Goal_Particles
 
 func _ready() -> void:
 	Engine.time_scale = 1.0
@@ -65,6 +66,7 @@ func create_new_instance():
 #Scoring
 func _on_goal_left_body_entered(body: Node2D) -> void:
 	if body.is_in_group("ball"):
+		goal_particles.play("left_goal")
 		player2_score += 1
 		hud.update_score(player1_score, player2_score)
 		goal.pitch_scale = randf_range(0.9, 1.1)
@@ -79,6 +81,7 @@ func _on_goal_left_body_entered(body: Node2D) -> void:
 			create_new_instance()
 func _on_goal_right_body_entered(body: Node2D) -> void:
 	if body.is_in_group("ball"):
+		goal_particles.play("right_goal")
 		player1_score += 1
 		hud.update_score(player1_score, player2_score)
 		goal.pitch_scale = randf_range(0.9, 1.1)
