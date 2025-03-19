@@ -1,4 +1,4 @@
-[gd_resource type="ParticleProcessMaterial" load_steps=4 format=3 uid="uid://brqgt7jbrx5hb"]
+[gd_resource type="ParticleProcessMaterial" load_steps=5 format=3 uid="uid://brqgt7jbrx5hb"]
 
 [sub_resource type="Gradient" id="Gradient_1xjwm"]
 offsets = PackedFloat32Array(0.327273, 1)
@@ -7,7 +7,13 @@ colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_0yefq"]
 gradient = SubResource("Gradient_1xjwm")
 
+[sub_resource type="Curve" id="Curve_ix2m6"]
+_limits = [-200.0, 200.0, 0.0, 1.0]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
 [sub_resource type="CurveTexture" id="CurveTexture_ix2m6"]
+curve = SubResource("Curve_ix2m6")
 
 [resource]
 particle_flag_disable_z = true
