@@ -18,17 +18,21 @@ var current_instance: Node = null
 @onready var select: AudioStreamPlayer2D = $select
 @onready var move: AudioStreamPlayer2D = $move
 @onready var goal_particles: AnimationPlayer = $Goal_Particles
+var ball_instances = []
 
 func _ready() -> void:
+	
 	apply_game_settings() 
 	Engine.time_scale = 1.0
 	is_victory = false
+	ball_instances.clear()
+	
 	if GameSettings.game_mode == "random":
-		create_new_instance()
 		create_new_instance()
 		create_new_instance()
 	else:
 		create_new_instance()
+	
 	GameSettings.settings_changed.connect(_on_settings_changed)
 
 func _process(delta: float) -> void:
@@ -65,53 +69,80 @@ func _on_settings_changed() -> void:
 
 #Ball Reset
 func create_new_instance():
-	# First, remove any existing instance
-	if is_instance_valid(current_instance):
-		current_instance.queue_free()
-		current_instance = null
-	
 	# Check if scene is assigned using is_instance_valid
 	if is_instance_valid(instance_scene):
 		await get_tree().create_timer(0.5).timeout
 		var instance = instance_scene.instantiate()
-		instance.global_position = Vector2(576,70)
+		instance.global_position = Vector2(576, 70)
 		get_tree().current_scene.add_child(instance)
-		current_instance = instance
+		# Add the instance to our array
+		ball_instances.append(instance)
 		spawn_ball.pitch_scale = randf_range(0.4, 0.6)
 		spawn_ball.play()
 
 #Scoring
 func _on_goal_left_body_entered(body: Node2D) -> void:
 	if body.is_in_group("ball"):
+		# Remove this specific ball from our array
+		if ball_instances.has(body):
+			ball_instances.erase(body)
+		
 		goal_particles.play("left_goal")
 		player2_score += 1
 		hud.update_score(player1_score, player2_score)
 		goal.pitch_scale = randf_range(0.9, 1.1)
 		goal.play()
+		
+		# Queue this specific ball for deletion
+		body.queue_free()
+		
 		if player2_score >= 5:
-			if is_instance_valid(current_instance):
-				current_instance.queue_free()
+			# Clear all remaining balls
+			for ball in ball_instances:
+				if is_instance_valid(ball):
+					ball.queue_free()
+			ball_instances.clear()
+			
 			victory_screens.play("Player_2_Victory")
 			is_victory = true
 			rematch_2.grab_focus()
 		else:
-			create_new_instance()
+			if GameSettings.game_mode == "random":
+				create_new_instance()
+				create_new_instance()
+			else:
+				create_new_instance()
 func _on_goal_right_body_entered(body: Node2D) -> void:
 	if body.is_in_group("ball"):
+		# Remove this specific ball from our array
+		if ball_instances.has(body):
+			ball_instances.erase(body)
+		
 		goal_particles.play("right_goal")
 		player1_score += 1
 		hud.update_score(player1_score, player2_score)
 		goal.pitch_scale = randf_range(0.9, 1.1)
 		goal.play()
+		
+		# Queue this specific ball for deletion
+		body.queue_free()
+		
 		if player1_score >= 5:
-			if is_instance_valid(current_instance):
-				current_instance.queue_free()
+			# Clear all remaining balls
+			for ball in ball_instances:
+				if is_instance_valid(ball):
+					ball.queue_free()
+			ball_instances.clear()
+			
 			victory_screens.play("Player_1_Victory")
 			is_victory = true
 			rematch_1.grab_focus()
 		else:
-			#await get_tree().create_timer(0.1).timeout
-			create_new_instance()
+			if GameSettings.game_mode == "random":
+				create_new_instance()
+				create_new_instance()
+			else:
+				create_new_instance()
 
 func pause():
 	get_tree().paused = true
