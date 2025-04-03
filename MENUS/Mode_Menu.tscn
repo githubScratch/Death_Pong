@@ -95,7 +95,7 @@ text = "pure"
 [node name="Random" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer3"]
 layout_mode = 2
 toggle_mode = true
-text = "random"
+text = "CHAOS"
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/HBoxContainer"]
 layout_mode = 2
@@ -122,9 +122,10 @@ text = "PIT
 [node name="Yonder" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 toggle_mode = true
-text = "YONDER"
+text = "TOWER"
 
-[node name="Random2" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer"]
+[node name="RandomMap" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer"]
+visible = false
 layout_mode = 2
 theme = ExtResource("2_vllpc")
 toggle_mode = true
@@ -133,26 +134,28 @@ text = "RANDOM"
 [node name="VBoxContainer2" type="VBoxContainer" parent="CenterContainer/HBoxContainer"]
 layout_mode = 2
 
-[node name="Victory" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer2"]
+[node name="PowerUps" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer2"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 7
-text = "VICTORY"
+text = "MAGIC"
 
 [node name="Label" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer2"]
 layout_mode = 2
 
-[node name="STOCK" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer2"]
+[node name="On" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer2"]
 layout_mode = 2
 toggle_mode = true
 button_pressed = true
-text = "stock"
+text = "ON
+"
 
-[node name="TIME" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer2"]
+[node name="Off" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer2"]
 layout_mode = 2
 toggle_mode = true
-text = "TIME"
+text = "OFF
+"
 
 [node name="Label" type="Label" parent="CenterContainer/HBoxContainer"]
 layout_mode = 2
@@ -193,7 +196,8 @@ stream = ExtResource("5_fke4p")
 [connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer3/Random" to="." method="_on_random_pressed"]
 [connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer/Arena" to="." method="_on_arena_pressed"]
 [connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer/Yonder" to="." method="_on_yonder_pressed"]
-[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer/Random2" to="." method="_on_random_2_pressed"]
-[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer2/STOCK" to="." method="_on_stock_pressed"]
-[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer2/TIME" to="." method="_on_time_pressed"]
+[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer/RandomMap" to="." method="_on_random_map_pressed"]
+[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer/RandomMap" to="." method="_on_random_2_pressed"]
+[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer2/On" to="." method="_on_on_pressed"]
+[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer2/Off" to="." method="_on_off_pressed"]
 [connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer5/Begin" to="." method="_on_begin_pressed"]

@@ -20,10 +20,16 @@ var current_instance: Node = null
 @onready var goal_particles: AnimationPlayer = $Goal_Particles
 
 func _ready() -> void:
+	apply_game_settings() 
 	Engine.time_scale = 1.0
 	is_victory = false
-	create_new_instance()
-	
+	if GameSettings.game_mode == "random":
+		create_new_instance()
+		create_new_instance()
+		create_new_instance()
+	else:
+		create_new_instance()
+	GameSettings.settings_changed.connect(_on_settings_changed)
 
 func _process(delta: float) -> void:
 	if Input.is_action_just_pressed("ui_left") or Input.is_action_just_pressed("ui_right"):
@@ -45,6 +51,17 @@ func _process(delta: float) -> void:
 		elif is_paused and not is_victory:
 			unpause_game()
 			print("UI accept pressed while paused")
+
+func apply_game_settings() -> void:
+	# Apply magic setting
+	if GameSettings.game_mode == "pure":
+		print("Pure mode on")
+	else:
+		print("Random mode on")
+
+func _on_settings_changed() -> void:
+	# Re-apply settings when they change
+	apply_game_settings()
 
 #Ball Reset
 func create_new_instance():

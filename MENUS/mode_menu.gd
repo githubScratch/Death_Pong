@@ -4,9 +4,10 @@ extends Control
 @onready var random: Button = $CenterContainer/HBoxContainer/VBoxContainer3/Random
 @onready var arena: Button = $CenterContainer/HBoxContainer/VBoxContainer/Arena
 @onready var yonder: Button = $CenterContainer/HBoxContainer/VBoxContainer/Yonder
-@onready var stock: Button = $CenterContainer/HBoxContainer/VBoxContainer2/STOCK
-@onready var time: Button = $CenterContainer/HBoxContainer/VBoxContainer2/TIME
-@onready var random_2: Button = $CenterContainer/HBoxContainer/VBoxContainer/Random2
+@onready var on: Button = $CenterContainer/HBoxContainer/VBoxContainer2/On
+@onready var off: Button = $CenterContainer/HBoxContainer/VBoxContainer2/Off
+@onready var random_map: Button = $CenterContainer/HBoxContainer/VBoxContainer/RandomMap
+
 
 @onready var select: AudioStreamPlayer2D = $select
 @onready var move: AudioStreamPlayer2D = $move
@@ -14,7 +15,10 @@ extends Control
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	back.grab_focus()
-
+	GameSettings.settings_changed.connect(_update_button_states)
+	
+	# Set initial button states
+	_update_button_states()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
@@ -36,28 +40,45 @@ func _on_begin_pressed() -> void:
 func _on_pure_pressed() -> void:
 	pure.set_pressed_no_signal(true)
 	random.set_pressed_no_signal(false)
+	GameSettings.set_game_mode("pure")
 func _on_random_pressed() -> void:
 	pure.set_pressed_no_signal(false)
 	random.set_pressed_no_signal(true)
+	GameSettings.set_game_mode("random")
 
 func _on_arena_pressed() -> void:
 	arena.set_pressed_no_signal(true)
 	yonder.set_pressed_no_signal(false)
-	random_2.set_pressed_no_signal(false)
+	random_map.set_pressed_no_signal(false)
+	GameSettings.set_game_arena("arena")
 func _on_yonder_pressed() -> void:
 	arena.set_pressed_no_signal(false)
 	yonder.set_pressed_no_signal(true)
-	random_2.set_pressed_no_signal(false)
-
-func _on_stock_pressed() -> void:
-	stock.set_pressed_no_signal(true)
-	time.set_pressed_no_signal(false)
-func _on_time_pressed() -> void:
-	stock.set_pressed_no_signal(false)
-	time.set_pressed_no_signal(true)
-
-
-func _on_random_2_pressed() -> void:
+	random_map.set_pressed_no_signal(false)
+	GameSettings.set_game_arena("yonder")
+func _on_random_map_pressed() -> void:
 	arena.set_pressed_no_signal(false)
 	yonder.set_pressed_no_signal(false)
-	random_2.set_pressed_no_signal(true)
+	random_map.set_pressed_no_signal(true)
+	GameSettings.set_game_arena("random_map")
+
+
+func _on_on_pressed() -> void:
+	on.set_pressed_no_signal(true)
+	off.set_pressed_no_signal(false)
+	GameSettings.set_game_magic("on")
+func _on_off_pressed() -> void:
+	on.set_pressed_no_signal(false)
+	off.set_pressed_no_signal(true)
+	GameSettings.set_game_magic("off")
+
+func _update_button_states() -> void:
+	pure.set_pressed_no_signal(GameSettings.game_mode == "pure")
+	random.set_pressed_no_signal(GameSettings.game_mode == "random")
+	
+	arena.set_pressed_no_signal(GameSettings.game_arena == "arena")
+	yonder.set_pressed_no_signal(GameSettings.game_arena == "yonder")
+	random_map.set_pressed_no_signal(GameSettings.game_arena == "random")
+	
+	on.set_pressed_no_signal(GameSettings.game_magic == "on")
+	off.set_pressed_no_signal(GameSettings.game_magic == "off")
