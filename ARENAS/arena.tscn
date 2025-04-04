@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=3 uid="uid://dgpeqxyiiriwx"]
+[gd_scene load_steps=38 format=3 uid="uid://dgpeqxyiiriwx"]
 
 [ext_resource type="Script" uid="uid://dg4utk7dcltn2" path="res://ARENAS/arena.gd" id="1_3ujay"]
 [ext_resource type="PackedScene" uid="uid://6pxseqnx1718" path="res://PLAYERS/wizard_1.tscn" id="1_4j1kj"]
@@ -14,6 +14,7 @@
 [ext_resource type="AudioStream" uid="uid://k7573muxw1h7" path="res://SFX/Menu_Start.wav" id="10_uu0rc"]
 [ext_resource type="AudioStream" uid="uid://d3rmk854uqt17" path="res://SFX/ui select.wav" id="11_bbeva"]
 [ext_resource type="AudioStream" uid="uid://du6i7igev8i55" path="res://SFX/Menu_Select2.wav" id="12_fro25"]
+[ext_resource type="PackedScene" uid="uid://logifil3ltlk" path="res://ARENAS/brick.tscn" id="15_0yefq"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_444vf"]
 size = Vector2(1146, 67.25)
@@ -726,6 +727,7 @@ offset_bottom = 904.0
 color = Color(0, 0, 0, 1)
 
 [node name="Right_Plat" type="StaticBody2D" parent="Arena"]
+z_index = -1
 position = Vector2(640, 384)
 collision_layer = 2
 collision_mask = 7
@@ -741,6 +743,7 @@ position = Vector2(96, 20)
 shape = SubResource("RectangleShape2D_uo83q")
 
 [node name="Left_Plat" type="StaticBody2D" parent="Arena"]
+z_index = -1
 position = Vector2(320, 384)
 collision_layer = 2
 collision_mask = 7
@@ -941,6 +944,57 @@ volume_db = -10.0
 [node name="move" type="AudioStreamPlayer2D" parent="."]
 process_mode = 3
 stream = ExtResource("12_fro25")
+
+[node name="Bricks" type="Node2D" parent="."]
+visible = false
+position = Vector2(32, 192)
+
+[node name="RigidBody2D" parent="Bricks" instance=ExtResource("15_0yefq")]
+
+[node name="RigidBody2D2" parent="Bricks" instance=ExtResource("15_0yefq")]
+position = Vector2(0, 64)
+
+[node name="RigidBody2D3" parent="Bricks" instance=ExtResource("15_0yefq")]
+position = Vector2(0, 128)
+
+[node name="RigidBody2D4" parent="Bricks" instance=ExtResource("15_0yefq")]
+position = Vector2(0, 192)
+
+[node name="RigidBody2D5" parent="Bricks" instance=ExtResource("15_0yefq")]
+position = Vector2(0, 256)
+
+[node name="RigidBody2D6" parent="Bricks" instance=ExtResource("15_0yefq")]
+position = Vector2(0, 320)
+
+[node name="RigidBody2D7" parent="Bricks" instance=ExtResource("15_0yefq")]
+position = Vector2(0, -64)
+
+[node name="RigidBody2D8" parent="Bricks" instance=ExtResource("15_0yefq")]
+position = Vector2(0, -128)
+
+[node name="RigidBody2D9" parent="Bricks" instance=ExtResource("15_0yefq")]
+position = Vector2(1024, 0)
+
+[node name="RigidBody2D10" parent="Bricks" instance=ExtResource("15_0yefq")]
+position = Vector2(1024, 64)
+
+[node name="RigidBody2D11" parent="Bricks" instance=ExtResource("15_0yefq")]
+position = Vector2(1024, 128)
+
+[node name="RigidBody2D12" parent="Bricks" instance=ExtResource("15_0yefq")]
+position = Vector2(1024, 192)
+
+[node name="RigidBody2D13" parent="Bricks" instance=ExtResource("15_0yefq")]
+position = Vector2(1024, 256)
+
+[node name="RigidBody2D14" parent="Bricks" instance=ExtResource("15_0yefq")]
+position = Vector2(1024, 320)
+
+[node name="RigidBody2D15" parent="Bricks" instance=ExtResource("15_0yefq")]
+position = Vector2(1024, -64)
+
+[node name="RigidBody2D16" parent="Bricks" instance=ExtResource("15_0yefq")]
+position = Vector2(1024, -128)
 
 [connection signal="body_entered" from="Arena/walls/right/Zone_Right" to="." method="_on_zone_right_body_entered"]
 [connection signal="body_exited" from="Arena/walls/right/Zone_Right" to="." method="_on_zone_right_body_exited"]

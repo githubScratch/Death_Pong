@@ -135,7 +135,7 @@ radius = 56.0
 [node name="Node2D" type="Node2D"]
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-position = Vector2(0, 32)
+position = Vector2(1.6, 1.6)
 scale = Vector2(3.3, 3.3)
 sprite_frames = SubResource("SpriteFrames_00ppf")
 animation = &"hold"
@@ -143,7 +143,7 @@ autoplay = "hold"
 frame_progress = 0.728418
 
 [node name="Area2D" type="Area2D" parent="."]
-position = Vector2(0, 32)
+position = Vector2(1.6, 1.6)
 collision_layer = 8
 collision_mask = 4
 script = ExtResource("2_wuwwc")
@@ -153,6 +153,7 @@ position = Vector2(-7.62939e-06, 0)
 shape = SubResource("CircleShape2D_asf77")
 
 [node name="deflect_SFX" type="AudioStreamPlayer2D" parent="."]
+position = Vector2(1.6, -30.4)
 stream = ExtResource("3_wuwwc")
 
 [connection signal="body_entered" from="Area2D" to="Area2D" method="_on_body_entered"]

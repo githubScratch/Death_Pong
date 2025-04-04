@@ -15,7 +15,10 @@ func _physics_process(delta: float) -> void:
 		select.play()
 
 func _on_begin_pressed() -> void:
-	get_tree().change_scene_to_file("res://ARENAS/arena.tscn")
+	if GameSettings.game_arena == "arena":
+		get_tree().change_scene_to_file("res://ARENAS/arena.tscn")
+	else:
+		get_tree().change_scene_to_file("res://ARENAS/tower.tscn")
 
 func _on_options_pressed() -> void:
 	get_tree().change_scene_to_file("res://MENUS/Mode_Menu.tscn")

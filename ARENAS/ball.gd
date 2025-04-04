@@ -3,8 +3,6 @@ extends RigidBody2D
 
 class_name Ball
 
-
-
 # Properties
 @export var min_speed: float = 200.0
 @export var max_speed: float = 1000.0
@@ -24,13 +22,13 @@ var audio_pool = []
 @export var min_velocity_for_sound = 50.0  # Minimum velocity to play sound
 
 func _ready():
+	add_to_group("ball")
 	for i in range(pool_size):
 		var player = AudioStreamPlayer.new()
 		player.stream = wall_impact
 		add_child(player)
 		audio_pool.append(player)
 		print("Created ", audio_pool.size(), " audio players")
-	
 	_original_scale = scale
 	_previous_position = global_position
 	
@@ -43,7 +41,7 @@ func _ready():
 	# Initial movement
 	var initial_direction = Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)).normalized()
 	apply_central_impulse(initial_direction * min_speed)
-
+	
 func _physics_process(_delta):
 	
 	_velocity = (global_position - _previous_position) / _delta
@@ -96,13 +94,13 @@ func apply_deflection(force_vector):
 	# Create visual effect
 	create_impact_effect()
 
+##debug this to ensure its working
 func create_impact_effect():
 	var original_color = modulate
 	modulate = Color(0.2, 0.2, 0.2, 1.0)
 	
 	var tween = create_tween()
 	tween.tween_property(self, "modulate", original_color, 0.4)
-
 
 func _on_sfx_area_body_entered(body):  # Changed function name to match signal
 	print("Collision detected with: ", body.name)
@@ -112,7 +110,6 @@ func _on_sfx_area_body_entered(body):  # Changed function name to match signal
 		# Play sound with volume based on impact velocity
 		var impact_force = min(linear_velocity.length() / 1000.0, 1.0)
 		play_collision_sound(impact_force)  # Pass the volume scale, not the audio player
-		
 func play_collision_sound(volume_scale = 1.0):
 	print("Bwomp!")
 	wall_impact.pitch_scale = randf_range(0.9, 1.1)

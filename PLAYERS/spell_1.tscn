@@ -325,7 +325,7 @@ radius = 56.0
 [node name="Node2D" type="Node2D"]
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-position = Vector2(-0.799997, 32.8)
+position = Vector2(0.800001, 0.800001)
 scale = Vector2(3.275, 3.275)
 sprite_frames = SubResource("SpriteFrames_v2pj1")
 animation = &"create"
@@ -338,7 +338,7 @@ libraries = {
 autoplay = "hold"
 
 [node name="Area2D" type="Area2D" parent="."]
-position = Vector2(0, 32)
+position = Vector2(1.6, 0)
 collision_layer = 8
 collision_mask = 4
 script = ExtResource("2_7mc3g")
@@ -348,6 +348,7 @@ position = Vector2(-7.62939e-06, 0)
 shape = SubResource("CircleShape2D_i67ey")
 
 [node name="deflect_SFX" type="AudioStreamPlayer2D" parent="."]
+position = Vector2(1.6, -32)
 stream = ExtResource("3_i67ey")
 
 [connection signal="body_entered" from="Area2D" to="Area2D" method="_on_body_entered"]

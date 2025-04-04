@@ -35,7 +35,10 @@ func _on_back_pressed() -> void:
 
 
 func _on_begin_pressed() -> void:
-	get_tree().change_scene_to_file("res://ARENAS/arena.tscn")
+	if GameSettings.game_arena == "arena":
+		get_tree().change_scene_to_file("res://ARENAS/arena.tscn")
+	else:
+		get_tree().change_scene_to_file("res://ARENAS/tower.tscn")
 
 func _on_pure_pressed() -> void:
 	pure.set_pressed_no_signal(true)
