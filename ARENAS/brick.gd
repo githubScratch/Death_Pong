@@ -1,7 +1,9 @@
 extends RigidBody2D
 @onready var color_rect: ColorRect = $ColorRect
 @onready var collision_shape_2d: CollisionShape2D = $CollisionShape2D
-
+@onready var light_occluder_2d: LightOccluder2D = $LightOccluder2D
+@onready var animation_player: AnimationPlayer = $AnimationPlayer
+var being_destroyed = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -12,12 +14,12 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	pass
 
-func _on_body_entered(body: Node) -> void:
-	if body.is_in_group("ball"):
-		print("brick hit!")
-		color_rect.visible = false
-		collision_shape_2d.disabled = true
-		await get_tree().create_timer(.25).timeout
+func hit():
+	if not being_destroyed:
+		being_destroyed = true
+		animation_player.play("hit")
+		#color_rect.visible = false
+		#collision_shape_2d.disabled = true
+		#light_occluder_2d.visible = false
+		await get_tree().create_timer(.75).timeout
 		queue_free()
-	else:
-		print("oops")

@@ -110,6 +110,12 @@ func _on_sfx_area_body_entered(body):  # Changed function name to match signal
 		# Play sound with volume based on impact velocity
 		var impact_force = min(linear_velocity.length() / 1000.0, 1.0)
 		play_collision_sound(impact_force)  # Pass the volume scale, not the audio player
+	if body is RigidBody2D and linear_velocity.length() > min_velocity_for_sound:
+		var impact_force = min(linear_velocity.length() / 1000.0, 1.0)
+		play_collision_sound(impact_force)  # Pass the volume scale, not the audio player
+		if body.is_in_group("brick") and is_instance_valid(body):
+			body.hit()
+		
 func play_collision_sound(volume_scale = 1.0):
 	print("Bwomp!")
 	wall_impact.pitch_scale = randf_range(0.9, 1.1)
