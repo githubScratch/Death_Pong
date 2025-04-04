@@ -50,6 +50,7 @@ animations = [{
 [node name="Node2D" type="Node2D"]
 
 [node name="CharacterBody2D" type="CharacterBody2D" parent="."]
+z_index = 2
 position = Vector2(0, -20)
 collision_mask = 2
 script = ExtResource("1_tepv2")
