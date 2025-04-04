@@ -57,6 +57,21 @@ size = Vector2(1152, 72)
 [sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_2t7hb"]
 polygon = PackedVector2Array(0, 0, 1216, 0, 1216, 64, 0, 64)
 
+[sub_resource type="Animation" id="Animation_2t7hb"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Camera2D:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(576, 320)]
+}
+
 [sub_resource type="Animation" id="Animation_0b2xv"]
 resource_name = "descent"
 length = 10.0
@@ -71,21 +86,6 @@ tracks/0/keys = {
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
 "values": [Vector2(576, 320), Vector2(576, 2296)]
-}
-
-[sub_resource type="Animation" id="Animation_2t7hb"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Camera2D:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(576, 320)]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_yo2m1"]

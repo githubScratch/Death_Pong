@@ -96,8 +96,17 @@ func _on_goal_left_body_entered(body: Node2D) -> void:
 		# Queue this specific ball for deletion
 		body.queue_free()
 		
-		if player2_score >= 5:
+		if player2_score >= 5 and GameSettings.game_mode == "pure":
 			# Clear all remaining balls
+			for ball in ball_instances:
+				if is_instance_valid(ball):
+					ball.queue_free()
+			ball_instances.clear()
+			
+			victory_screens.play("Player_2_Victory")
+			is_victory = true
+			rematch_2.grab_focus()
+		elif player2_score >= 10 and GameSettings.game_mode == "random":
 			for ball in ball_instances:
 				if is_instance_valid(ball):
 					ball.queue_free()
@@ -127,8 +136,17 @@ func _on_goal_right_body_entered(body: Node2D) -> void:
 		# Queue this specific ball for deletion
 		body.queue_free()
 		
-		if player1_score >= 5:
+		if player1_score >= 5 and GameSettings.game_mode == "pure":
 			# Clear all remaining balls
+			for ball in ball_instances:
+				if is_instance_valid(ball):
+					ball.queue_free()
+			ball_instances.clear()
+			
+			victory_screens.play("Player_1_Victory")
+			is_victory = true
+			rematch_1.grab_focus()
+		elif player1_score >= 10 and GameSettings.game_mode == "random":
 			for ball in ball_instances:
 				if is_instance_valid(ball):
 					ball.queue_free()
