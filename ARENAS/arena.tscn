@@ -280,7 +280,7 @@ resource_name = "Player_1_Victory"
 length = 2.0
 tracks/0/type = "value"
 tracks/0/imported = false
-tracks/0/enabled = true
+tracks/0/enabled = false
 tracks/0/path = NodePath("Player_1_Victory:process_mode")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
@@ -443,7 +443,7 @@ tracks/5/keys = {
 }
 tracks/6/type = "value"
 tracks/6/imported = false
-tracks/6/enabled = true
+tracks/6/enabled = false
 tracks/6/path = NodePath("Player_1_Victory:process_mode")
 tracks/6/interp = 1
 tracks/6/loop_wrap = true
@@ -776,7 +776,6 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Player_1_Victory" type="Control" parent="."]
-process_mode = 4
 modulate = Color(1, 1, 1, 0)
 z_index = 2
 layout_mode = 3

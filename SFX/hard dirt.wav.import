@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://ewl82f671g48"
+path="res://.godot/imported/hard dirt.wav-f2cc255f236abb48b3c66864c08f483d.sample"
+
+[deps]
+
+source_file="res://SFX/hard dirt.wav"
+dest_files=["res://.godot/imported/hard dirt.wav-f2cc255f236abb48b3c66864c08f483d.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

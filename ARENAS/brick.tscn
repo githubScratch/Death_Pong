@@ -1,8 +1,9 @@
-[gd_scene load_steps=11 format=3 uid="uid://logifil3ltlk"]
+[gd_scene load_steps=12 format=3 uid="uid://logifil3ltlk"]
 
 [ext_resource type="Script" uid="uid://d2l8466qvd8po" path="res://ARENAS/brick.gd" id="1_to833"]
 [ext_resource type="Texture2D" uid="uid://bh352e2u005py" path="res://SPRITES/dingbats-365.png" id="2_yr5cx"]
 [ext_resource type="AudioStream" uid="uid://cjvvgvl850g8g" path="res://SFX/thwomp.wav" id="3_eoubk"]
+[ext_resource type="AudioStream" uid="uid://d4bso0xxg5piq" path="res://SFX/iceshatter.wav" id="4_uci3o"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_413d4"]
 size = Vector2(64, 64)
@@ -81,6 +82,18 @@ tracks/4/keys = {
 "update": 1,
 "values": [false]
 }
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("brick_break:playing")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
 
 [sub_resource type="Animation" id="Animation_y2iai"]
 resource_name = "hit"
@@ -145,6 +158,18 @@ tracks/4/keys = {
 "update": 1,
 "values": [true]
 }
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("brick_break:playing")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0.0333333),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_v0tjg"]
 _data = {
@@ -201,3 +226,8 @@ libraries = {
 
 [node name="brick_impact" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("3_eoubk")
+
+[node name="brick_break" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_uci3o")
+volume_db = -15.0
+pitch_scale = 0.8

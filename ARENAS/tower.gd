@@ -10,6 +10,12 @@ var current_instance: Node = null
 @onready var spawn_ball: AudioStreamPlayer2D = $spawn_ball
 @onready var goal: AudioStreamPlayer2D = $goal
 @onready var ballspawn: Area2D = $CameraPackage/ballspawn
+@onready var screen_player: AnimationPlayer = $CameraPackage/Screens/ScreenPlayer
+@onready var continue_1: Button = $CameraPackage/Screens/Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1
+@onready var select: AudioStreamPlayer2D = $select
+@onready var move: AudioStreamPlayer2D = $move
+@onready var rematch_1: Button = $CameraPackage/Screens/Player_1_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch1
+@onready var rematch_2: Button = $CameraPackage/Screens/Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch2
 
 var ball_instances = []
 
@@ -31,8 +37,23 @@ func _ready() -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
+	if Input.is_action_just_pressed("ui_left") or Input.is_action_just_pressed("ui_right"):
+		if is_paused or is_victory:
+			move.pitch_scale = randf_range(0.9, 1.1)
+			move.play()
 	if Input.is_action_just_pressed("ui_select"):
-		get_tree().change_scene_to_file("res://MENUS/Menu.tscn")
+		if is_paused or is_victory:
+			select.pitch_scale = randf_range(0.9, 1.1)
+			select.play()
+	if Input.is_action_just_pressed("ui_select"):
+		if not is_paused and not is_victory:
+			pause()
+			screen_player.play("pause")
+			is_paused = true
+			continue_1.grab_focus()
+		elif is_paused and not is_victory:
+			unpause_game()
+			print("UI accept pressed while paused")
 
 func apply_game_settings() -> void:
 	# Apply magic setting
@@ -90,18 +111,18 @@ func _on_leftgoal_body_entered(body: Node2D) -> void:
 					ball.queue_free()
 			ball_instances.clear()
 			
-			#victory_screens.play("Player_2_Victory")
+			screen_player.play("Player_2_Victory")
 			is_victory = true
-			#rematch_2.grab_focus()
+			rematch_2.grab_focus()
 		elif player2_score >= 10 and GameSettings.game_mode == "random":
 			for ball in ball_instances:
 				if is_instance_valid(ball):
 					ball.queue_free()
 			ball_instances.clear()
 			
-			#victory_screens.play("Player_2_Victory")
+			screen_player.play("Player_2_Victory")
 			is_victory = true
-			#rematch_2.grab_focus()
+			rematch_2.grab_focus()
 		else:
 			if GameSettings.game_mode == "random":
 				create_new_instance()
@@ -132,18 +153,18 @@ func _on_rightgoal_body_entered(body: Node2D) -> void:
 					ball.queue_free()
 			ball_instances.clear()
 			
-			#victory_screens.play("Player_1_Victory")
+			screen_player.play("Player_1_Victory")
 			is_victory = true
-			#rematch_1.grab_focus()
+			rematch_1.grab_focus()
 		elif player1_score >= 10 and GameSettings.game_mode == "random":
 			for ball in ball_instances:
 				if is_instance_valid(ball):
 					ball.queue_free()
 			ball_instances.clear()
 			
-			#victory_screens.play("Player_1_Victory")
+			screen_player.play("Player_1_Victory")
 			is_victory = true
-			#rematch_1.grab_focus()
+			rematch_1.grab_focus()
 		else:
 			if GameSettings.game_mode == "random":
 				create_new_instance()
@@ -165,3 +186,32 @@ func _on_rightslow_body_entered(body: Node2D) -> void:
 func _on_rightslow_body_exited(body: Node2D) -> void:
 	if body.is_in_group("ball"):
 		Engine.time_scale = 1.0
+
+
+func _on_rematch_1_pressed() -> void:
+	get_tree().change_scene_to_file("res://ARENAS/tower.tscn")
+func _on_rematch_2_pressed() -> void:
+	get_tree().change_scene_to_file("res://ARENAS/tower.tscn")
+
+
+func _on_menu_1_pressed() -> void:
+	get_tree().change_scene_to_file("res://MENUS/Menu.tscn")
+func _on_menu_2_pressed() -> void:
+	get_tree().change_scene_to_file("res://MENUS/Menu.tscn")
+
+
+func _on_continue_1_pressed() -> void:
+	unpause_game()
+func _on_menu_3_pressed() -> void:
+	is_paused = false
+	get_tree().paused = false
+	get_tree().change_scene_to_file("res://MENUS/Menu.tscn")
+
+func pause():
+	get_tree().paused = true
+func unpause_game():
+	is_paused = false
+	continue_1.release_focus()
+	screen_player.play("clear")
+	await get_tree().create_timer(0.5).timeout
+	get_tree().paused = false

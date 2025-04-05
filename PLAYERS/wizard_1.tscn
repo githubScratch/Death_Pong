@@ -3,10 +3,10 @@
 [ext_resource type="Script" uid="uid://brhbirmvceh6i" path="res://PLAYERS/wizard_1.gd" id="1_34mad"]
 [ext_resource type="Texture2D" uid="uid://ccugvtcqx2fea" path="res://SPRITES/New Piskel.png" id="1_xxhrx"]
 [ext_resource type="PackedScene" uid="uid://b8nh7yxds3rl1" path="res://PLAYERS/spell_1.tscn" id="2_71sb5"]
-[ext_resource type="AudioStream" uid="uid://jvl2bcuu7x06" path="res://SFX/Retro Jump Simple A 01.wav" id="4_i151x"]
+[ext_resource type="AudioStream" uid="uid://xjbbdv3j5s16" path="res://SFX/jump2.wav" id="4_i151x"]
 [ext_resource type="AudioStream" uid="uid://dcujrlagieysc" path="res://SFX/magicchime.mp3" id="5_5u4yc"]
 [ext_resource type="AudioStream" uid="uid://di8jkfwxmijlv" path="res://SFX/whiff.wav" id="6_l8f1v"]
-[ext_resource type="AudioStream" uid="uid://bodm65n0ukrdc" path="res://SFX/landing.wav" id="7_nkwlc"]
+[ext_resource type="AudioStream" uid="uid://btq48sjqqgep0" path="res://SFX/dirtlanding.wav" id="7_5u4yc"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bd25x"]
 size = Vector2(32, 40)
@@ -68,6 +68,7 @@ frame_progress = 0.906962
 
 [node name="jump" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("4_i151x")
+volume_db = 8.0
 
 [node name="spell" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("5_5u4yc")
@@ -77,5 +78,4 @@ volume_db = -5.0
 stream = ExtResource("6_l8f1v")
 
 [node name="land" type="AudioStreamPlayer2D" parent="."]
-stream = ExtResource("7_nkwlc")
-volume_db = -8.0
+stream = ExtResource("7_5u4yc")
