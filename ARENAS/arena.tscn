@@ -938,10 +938,12 @@ stream = ExtResource("10_uu0rc")
 process_mode = 3
 stream = ExtResource("11_bbeva")
 volume_db = -10.0
+max_distance = 5000.0
 
 [node name="move" type="AudioStreamPlayer2D" parent="."]
 process_mode = 3
 stream = ExtResource("12_fro25")
+max_distance = 5000.0
 
 [connection signal="body_entered" from="Arena/walls/right/Zone_Right" to="." method="_on_zone_right_body_entered"]
 [connection signal="body_exited" from="Arena/walls/right/Zone_Right" to="." method="_on_zone_right_body_exited"]
@@ -953,6 +955,6 @@ stream = ExtResource("12_fro25")
 [connection signal="pressed" from="Player_1_Victory/CenterContainer/VBoxContainer/HBoxContainer/Menu1" to="." method="_on_menu_1_pressed"]
 [connection signal="pressed" from="Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch2" to="." method="_on_rematch_2_pressed"]
 [connection signal="pressed" from="Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer/Menu2" to="." method="_on_menu_2_pressed"]
-[connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1" to="." method="_on_continue_pressed"]
 [connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1" to="." method="_on_continue_1_pressed"]
+[connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1" to="." method="_on_continue_pressed"]
 [connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Menu3" to="." method="_on_menu_3_pressed"]

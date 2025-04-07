@@ -16,6 +16,7 @@ var current_instance: Node = null
 @onready var move: AudioStreamPlayer2D = $move
 @onready var rematch_1: Button = $CameraPackage/Screens/Player_1_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch1
 @onready var rematch_2: Button = $CameraPackage/Screens/Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch2
+@onready var goal_player: AnimationPlayer = $GoalPlayer
 
 var ball_instances = []
 
@@ -95,7 +96,7 @@ func _on_leftgoal_body_entered(body: Node2D) -> void:
 		if ball_instances.has(body):
 			ball_instances.erase(body)
 		
-		#goal_particles.play("left_goal")
+		goal_player.play("left_goal")
 		player2_score += 1
 		hud.update_score(player1_score, player2_score)
 		goal.pitch_scale = randf_range(0.9, 1.1)
@@ -137,7 +138,7 @@ func _on_rightgoal_body_entered(body: Node2D) -> void:
 		if ball_instances.has(body):
 			ball_instances.erase(body)
 		
-		#goal_particles.play("right_goal")
+		goal_player.play("right_goal")
 		player1_score += 1
 		hud.update_score(player1_score, player2_score)
 		goal.pitch_scale = randf_range(0.9, 1.1)
