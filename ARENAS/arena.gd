@@ -86,7 +86,7 @@ func _on_goal_left_body_entered(body: Node2D) -> void:
 		if ball_instances.has(body):
 			ball_instances.erase(body)
 		
-		#goal_particles.play("left_goal")
+		goal_particles.play("left_goal")
 		player2_score += 1
 		hud.update_score(player1_score, player2_score)
 		goal.pitch_scale = randf_range(0.9, 1.1)

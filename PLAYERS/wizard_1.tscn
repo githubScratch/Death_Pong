@@ -1,9 +1,9 @@
-[gd_scene load_steps=14 format=3 uid="uid://6pxseqnx1718"]
+[gd_scene load_steps=16 format=3 uid="uid://6pxseqnx1718"]
 
 [ext_resource type="Script" uid="uid://brhbirmvceh6i" path="res://PLAYERS/wizard_1.gd" id="1_34mad"]
-[ext_resource type="Texture2D" uid="uid://ccugvtcqx2fea" path="res://SPRITES/New Piskel.png" id="1_xxhrx"]
 [ext_resource type="PackedScene" uid="uid://b8nh7yxds3rl1" path="res://PLAYERS/spell_1.tscn" id="2_71sb5"]
 [ext_resource type="AudioStream" uid="uid://xjbbdv3j5s16" path="res://SFX/jump2.wav" id="4_i151x"]
+[ext_resource type="Texture2D" uid="uid://cndcvsgvr5knm" path="res://SPRITES/New Piskel (1) (3) (3) (2) (1).png" id="4_l8f1v"]
 [ext_resource type="AudioStream" uid="uid://dcujrlagieysc" path="res://SFX/magicchime.mp3" id="5_5u4yc"]
 [ext_resource type="AudioStream" uid="uid://di8jkfwxmijlv" path="res://SFX/whiff.wav" id="6_l8f1v"]
 [ext_resource type="AudioStream" uid="uid://btq48sjqqgep0" path="res://SFX/dirtlanding.wav" id="7_5u4yc"]
@@ -11,41 +11,51 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bd25x"]
 size = Vector2(32, 40)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_xo1iy"]
-atlas = ExtResource("1_xxhrx")
+[sub_resource type="AtlasTexture" id="AtlasTexture_h1rn8"]
+atlas = ExtResource("4_l8f1v")
 region = Rect2(0, 0, 192, 192)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_wsbrn"]
-atlas = ExtResource("1_xxhrx")
+[sub_resource type="AtlasTexture" id="AtlasTexture_3dgoq"]
+atlas = ExtResource("4_l8f1v")
 region = Rect2(192, 0, 192, 192)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_rsvjg"]
-atlas = ExtResource("1_xxhrx")
+[sub_resource type="AtlasTexture" id="AtlasTexture_puxxf"]
+atlas = ExtResource("4_l8f1v")
 region = Rect2(0, 192, 192, 192)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_74p71"]
-atlas = ExtResource("1_xxhrx")
+[sub_resource type="AtlasTexture" id="AtlasTexture_k6ih2"]
+atlas = ExtResource("4_l8f1v")
 region = Rect2(192, 192, 192, 192)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_2tmfn"]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_xo1iy")
+"texture": SubResource("AtlasTexture_h1rn8")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_wsbrn")
+"texture": SubResource("AtlasTexture_3dgoq")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_rsvjg")
+"texture": SubResource("AtlasTexture_puxxf")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_74p71")
+"texture": SubResource("AtlasTexture_k6ih2")
 }],
 "loop": true,
 "name": &"default",
 "speed": 6.0
 }]
+
+[sub_resource type="Gradient" id="Gradient_i151x"]
+offsets = PackedFloat32Array(0.012987, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_5u4yc"]
+gradient = SubResource("Gradient_i151x")
+fill = 1
+fill_from = Vector2(0.495413, 0.463303)
+fill_to = Vector2(0, 0.5)
 
 [node name="Node2D" type="Node2D" groups=["wizard"]]
 
@@ -64,7 +74,12 @@ position = Vector2(-1.90735e-06, -12)
 scale = Vector2(0.333333, 0.333333)
 sprite_frames = SubResource("SpriteFrames_2tmfn")
 autoplay = "default"
-frame_progress = 0.906962
+frame_progress = 0.0884342
+
+[node name="PointLight2D" type="PointLight2D" parent="CharacterBody2D"]
+position = Vector2(-7.15256e-07, -12)
+scale = Vector2(1, 0.999999)
+texture = SubResource("GradientTexture2D_5u4yc")
 
 [node name="jump" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("4_i151x")
