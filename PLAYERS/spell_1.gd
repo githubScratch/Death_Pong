@@ -6,6 +6,7 @@ class_name DeflectionShield
 # How powerful the deflection force should be
 @export var deflection_force: float = 1200.0
 @onready var deflect_sfx: AudioStreamPlayer2D = $"../deflect_SFX"
+@onready var animation_player: AnimationPlayer = $"../AnimatedSprite2D/AnimationPlayer"
 
 # Add a label to display debug info
 var debug_label: Label
@@ -36,3 +37,5 @@ func deflect_ball(ball, direction):
 		print("Set velocity directly: ", new_velocity.length())
 		deflect_sfx.pitch_scale = randf_range(0.9, 1.1)
 		deflect_sfx.play()
+		animation_player.stop()
+		animation_player.play("deflect")

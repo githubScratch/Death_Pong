@@ -40,10 +40,10 @@ size = Vector2(32, 2560)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_yifkf"]
 shader = ExtResource("1_qj6pt")
-shader_parameter/overlay = false
+shader_parameter/overlay = true
 shader_parameter/scanlines_opacity = 0.1
 shader_parameter/scanlines_width = 0.25
-shader_parameter/grille_opacity = 0.3
+shader_parameter/grille_opacity = 0.05
 shader_parameter/resolution = Vector2(640, 480)
 shader_parameter/pixelate = true
 shader_parameter/roll = true
@@ -53,7 +53,7 @@ shader_parameter/roll_variation = 1.8
 shader_parameter/distort_intensity = 0.01
 shader_parameter/noise_opacity = 0.05
 shader_parameter/noise_speed = 5.0
-shader_parameter/static_noise_intensity = 0.06
+shader_parameter/static_noise_intensity = 0.02
 shader_parameter/aberration = 0.00300005
 shader_parameter/brightness = 1.5
 shader_parameter/discolor = false
@@ -510,10 +510,11 @@ shape = SubResource("RectangleShape2D_k4jcv")
 z_index = -1
 offset_right = 1152.0
 offset_bottom = 2688.0
-color = Color(0.188235, 0.188235, 0.188235, 1)
+color = Color(0.164706, 0.164706, 0.164706, 1)
 metadata/_edit_use_anchors_ = true
 
 [node name="backing2" type="ColorRect" parent="walls"]
+visible = false
 z_index = -1
 offset_right = 1152.0
 offset_bottom = 2688.0
@@ -521,6 +522,7 @@ color = Color(0.188235, 0.188235, 0.188235, 1)
 metadata/_edit_use_anchors_ = true
 
 [node name="backing3" type="ColorRect" parent="walls"]
+visible = false
 z_index = -1
 offset_left = -392.0
 offset_right = 760.0
@@ -529,6 +531,7 @@ color = Color(0.188235, 0.188235, 0.188235, 1)
 metadata/_edit_use_anchors_ = true
 
 [node name="backing4" type="ColorRect" parent="walls"]
+visible = false
 z_index = -1
 offset_left = 384.0
 offset_right = 1536.0
@@ -1417,6 +1420,9 @@ max_distance = 5000.0
 process_mode = 3
 stream = ExtResource("12_ed6xj")
 max_distance = 5000.0
+
+[node name="CanvasModulate" type="CanvasModulate" parent="."]
+color = Color(0.18359, 0.18359, 0.18359, 1)
 
 [connection signal="body_entered" from="walls/left/brickpurgeL" to="." method="_on_brickpurge_l_body_entered"]
 [connection signal="body_entered" from="walls/right/brickpurgeR" to="." method="_on_brickpurge_r_body_entered"]

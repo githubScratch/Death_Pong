@@ -7,6 +7,7 @@ class_name Ball
 @export var min_speed: float = 200.0
 @export var max_speed: float = 1000.0
 var last_applied_force: Vector2 = Vector2.ZERO
+@onready var sparks_player: AnimationPlayer = $SparksPlayer
 
 @export var stretch_factor: float = 2.5  # How much the ball stretches
 @export var min_velocity_for_stretch: float = 200.0  # Minimum velocity to start stretching
@@ -105,12 +106,14 @@ func create_impact_effect():
 func _on_sfx_area_body_entered(body):  # Changed function name to match signal
 	print("Collision detected with: ", body.name)
 	print("Body type: ", body.get_class())
-	
+	sparks_player.stop()
+	sparks_player.play("sparks")
 	if body is StaticBody2D and linear_velocity.length() > min_velocity_for_sound:
 		# Play sound with volume based on impact velocity
 		var impact_force = min(linear_velocity.length() / 1000.0, 1.0)
 		play_collision_sound(impact_force)  # Pass the volume scale, not the audio player
 	if body is RigidBody2D and linear_velocity.length() > min_velocity_for_sound:
+	
 		var impact_force = min(linear_velocity.length() / 1000.0, 1.0)
 		#play_collision_sound(impact_force)  # Pass the volume scale, not the audio player
 		if body.is_in_group("brick") and is_instance_valid(body):

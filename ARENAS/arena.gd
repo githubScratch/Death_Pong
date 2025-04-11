@@ -19,6 +19,8 @@ var current_instance: Node = null
 @onready var move: AudioStreamPlayer2D = $move
 @onready var goal_particles: AnimationPlayer = $Goal_Particles
 var ball_instances = []
+@onready var screen_shader: ColorRect = $CanvasLayer/ScreenShader
+
 
 func _ready() -> void:
 	
@@ -171,10 +173,11 @@ func unpause_game():
 	get_tree().paused = false
 
 
-#Time Slow Zones
+#Time Slow Zones ---  debug shader parameter tweens
 func _on_zone_left_body_entered(body: Node2D) -> void:
 	if body.is_in_group("ball"):
 		Engine.time_scale = 0.35
+		#screen_shader.material.set_shader_parameter("Abberation", 1)
 func _on_zone_left_body_exited(body: Node2D) -> void:
 	if body.is_in_group("ball"):
 		Engine.time_scale = 1.0
