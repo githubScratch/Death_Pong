@@ -128,32 +128,41 @@ tracks/3/keys = {
 tracks/4/type = "value"
 tracks/4/imported = false
 tracks/4/enabled = true
-tracks/4/path = NodePath("Arena/Left_Plat:rotation")
+tracks/4/path = NodePath("Arena/Left_Plat:scale")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [0.0]
+"values": [Vector2(1, 1)]
 }
 tracks/5/type = "value"
 tracks/5/imported = false
 tracks/5/enabled = true
-tracks/5/path = NodePath("Arena/Right_Plat:rotation")
+tracks/5/path = NodePath("Arena/Right_Plat:scale")
 tracks/5/interp = 1
 tracks/5/loop_wrap = true
 tracks/5/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [0.0]
+"values": [Vector2(1, 1)]
 }
 
 [sub_resource type="Animation" id="Animation_2udws"]
 resource_name = "platforms"
 length = 32.0
 loop_mode = 1
+markers = [{
+"color": Color(0.132734, 0.666332, 0.93393, 1),
+"name": &"vertical",
+"time": 18.0162
+}, {
+"color": Color(0.277458, 0.607044, 0.670572, 1),
+"name": &"horizontal",
+"time": 27.8333
+}]
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -161,10 +170,10 @@ tracks/0/path = NodePath("Arena/Left_Plat:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 2, 3.9, 5.86667, 7.9, 9.9, 10.9, 12.9, 13.9, 16, 20.2333, 22.3, 24, 25.9667, 30.1333),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"times": PackedFloat32Array(0, 2, 3.9, 5.86667, 7.9, 9.9, 10.9, 12.9, 13.9, 16, 18.0667, 20.1333, 22.2667, 23.9667, 25.9333, 27.9667, 30.1333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
 "update": 0,
-"values": [Vector2(320, 384), Vector2(320, 384), Vector2(128, 384), Vector2(128, 384), Vector2(320, 384), Vector2(320, 384), Vector2(384, 384), Vector2(384, 384), Vector2(320, 384), Vector2(128, 384), Vector2(128, 384), Vector2(128, 320), Vector2(128, 448), Vector2(128, 384), Vector2(128, 384)]
+"values": [Vector2(320, 384), Vector2(320, 384), Vector2(128, 384), Vector2(128, 384), Vector2(320, 384), Vector2(320, 384), Vector2(384, 384), Vector2(384, 384), Vector2(320, 384), Vector2(128, 384), Vector2(128, 384), Vector2(168, 384), Vector2(168, 64), Vector2(168, 256), Vector2(168, 384), Vector2(168, 256), Vector2(128, 384)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -173,10 +182,10 @@ tracks/1/path = NodePath("Arena/Right_Plat:position")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 2.03333, 3.9, 5.86667, 7.93333, 9.9, 11.0333, 12.9, 13.9, 16.0333, 18.1667, 20.4333, 22.3, 24.2667, 25.9333, 28.1, 30.1, 32.1333),
+"times": PackedFloat32Array(0, 2.03333, 3.9, 5.86667, 7.93333, 9.9, 11.0333, 12.9, 13.9, 16.0333, 18.1667, 20.2333, 22.3, 24.0667, 25.9333, 28.1, 30.1, 32.1333),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
 "update": 0,
-"values": [Vector2(640, 384), Vector2(640, 384), Vector2(832, 384), Vector2(832, 384), Vector2(640, 384), Vector2(640, 384), Vector2(576, 384), Vector2(576, 384), Vector2(640, 384), Vector2(832, 384), Vector2(832, 384), Vector2(960, 384), Vector2(960, 320), Vector2(960, 448), Vector2(960, 384), Vector2(960, 384), Vector2(832, 384), Vector2(640, 384)]
+"values": [Vector2(640, 384), Vector2(640, 384), Vector2(832, 384), Vector2(832, 384), Vector2(640, 384), Vector2(640, 384), Vector2(576, 384), Vector2(576, 384), Vector2(640, 384), Vector2(832, 384), Vector2(832, 384), Vector2(960, 384), Vector2(960, 64), Vector2(960, 256), Vector2(960, 384), Vector2(960, 256), Vector2(832, 384), Vector2(640, 384)]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -185,10 +194,10 @@ tracks/2/path = NodePath("Arena/walls/left:position")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0.0333333, 2.03333, 3.96667, 5.9, 7.96667, 9.96667, 12.0667, 14.0333, 16.1333, 18.1333, 20.0667, 22, 24.0667, 26.0667, 28.1667, 30.1333),
+"times": PackedFloat32Array(0.0666667, 2.03333, 3.96667, 5.9, 7.96667, 9.96667, 12.0667, 14.0333, 16.1333, 18.1333, 20.0667, 22, 24.0667, 26.0667, 28.1667, 30.1333),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
 "update": 0,
-"values": [Vector2(0, 0), Vector2(0, 0), Vector2(0, -128), Vector2(0, -128), Vector2(0, 0), Vector2(0, 0), Vector2(0, 128), Vector2(0, 128), Vector2(0, 0), Vector2(0, 0), Vector2(0, -128), Vector2(0, -128), Vector2(0, 0), Vector2(0, 0), Vector2(0, 128), Vector2(0, 128)]
+"values": [Vector2(0, 0), Vector2(0, 0), Vector2(0, -164), Vector2(0, -164), Vector2(0, 0), Vector2(0, 0), Vector2(0, 164), Vector2(0, 164), Vector2(0, 0), Vector2(0, 0), Vector2(0, -164), Vector2(0, -164), Vector2(0, 0), Vector2(0, 0), Vector2(0, 164), Vector2(0, 164)]
 }
 tracks/3/type = "value"
 tracks/3/imported = false
@@ -197,34 +206,34 @@ tracks/3/path = NodePath("Arena/walls/right:position")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
-"times": PackedFloat32Array(0, 2.03333, 4, 5.93333, 7.93333, 9.96667, 12.0333, 14.0667, 16.1, 18.1333, 20.1, 22.0333, 24.0333, 26.0667, 28.1333, 30.1667),
+"times": PackedFloat32Array(0, 2.03333, 4, 5.93333, 7.93333, 9.96667, 12.0333, 14.0667, 16.1, 18.1333, 20.1, 22.0333, 24.0333, 26.0667, 28.1333, 30.2),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
 "update": 0,
-"values": [Vector2(0, 0), Vector2(0, 0), Vector2(0, -128), Vector2(0, -128), Vector2(0, 0), Vector2(0, 0), Vector2(0, 128), Vector2(0, 128), Vector2(0, 0), Vector2(0, 0), Vector2(0, -128), Vector2(0, -128), Vector2(0, 0), Vector2(0, 0), Vector2(0, 128), Vector2(0, 128)]
+"values": [Vector2(0, 0), Vector2(0, 0), Vector2(0, -164), Vector2(0, -164), Vector2(0, 0), Vector2(0, 0), Vector2(0, 164), Vector2(0, 164), Vector2(0, 0), Vector2(0, 0), Vector2(0, -164), Vector2(0, -164), Vector2(0, 0), Vector2(0, 0), Vector2(0, 164), Vector2(0, 164)]
 }
 tracks/4/type = "value"
 tracks/4/imported = false
 tracks/4/enabled = true
-tracks/4/path = NodePath("Arena/Left_Plat:rotation")
+tracks/4/path = NodePath("Arena/Left_Plat:scale")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
-"times": PackedFloat32Array(0.0333333, 13.9, 18.0667, 20.2, 28.0333, 30.1),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"times": PackedFloat32Array(0.0333333, 18.0333, 20.1333, 27.9333, 30.0667),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
 "update": 0,
-"values": [0.0, 0.0, 0.0, -1.5708, -1.5708, 0.0]
+"values": [Vector2(1, 1), Vector2(1, 1), Vector2(0.25, 4), Vector2(0.25, 4), Vector2(1, 1)]
 }
 tracks/5/type = "value"
 tracks/5/imported = false
 tracks/5/enabled = true
-tracks/5/path = NodePath("Arena/Right_Plat:rotation")
+tracks/5/path = NodePath("Arena/Right_Plat:scale")
 tracks/5/interp = 1
 tracks/5/loop_wrap = true
 tracks/5/keys = {
-"times": PackedFloat32Array(0.0333333, 18.1667, 20.2667, 28.2, 30.2667),
+"times": PackedFloat32Array(0.1, 18.1, 20.2, 28, 30.1333),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1),
 "update": 0,
-"values": [0.0, 0.0, -1.5708, -1.5708, 0.0]
+"values": [Vector2(1, 1), Vector2(1, 1), Vector2(0.25, 4), Vector2(0.25, 4), Vector2(1, 1)]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_a13du"]
