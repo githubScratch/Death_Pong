@@ -21,7 +21,7 @@ func _ready() -> void:
 	_update_button_states()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if Input.is_action_just_pressed("ui_down") or Input.is_action_just_pressed("ui_up") or Input.is_action_just_pressed("ui_left") or Input.is_action_just_pressed("ui_right"):
 		move.pitch_scale = randf_range(0.9, 1.1)
 		move.play()

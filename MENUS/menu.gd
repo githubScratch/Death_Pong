@@ -6,7 +6,7 @@ extends Control
 func _ready():
 	begin.grab_focus()
 
-func _physics_process(delta: float) -> void:
+func _physics_process(_delta: float) -> void:
 	if Input.is_action_just_pressed("ui_down") or Input.is_action_just_pressed("ui_up"):
 		move.pitch_scale = randf_range(0.9, 1.1)
 		move.play()

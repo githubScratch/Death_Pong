@@ -114,7 +114,7 @@ func _on_sfx_area_body_entered(body):  # Changed function name to match signal
 		play_collision_sound(impact_force)  # Pass the volume scale, not the audio player
 	if body is RigidBody2D and linear_velocity.length() > min_velocity_for_sound:
 	
-		var impact_force = min(linear_velocity.length() / 1000.0, 1.0)
+		#var impact_force = min(linear_velocity.length() / 1000.0, 1.0)
 		#play_collision_sound(impact_force)  # Pass the volume scale, not the audio player
 		if body.is_in_group("brick") and is_instance_valid(body):
 			body.hit()

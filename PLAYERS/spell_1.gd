@@ -6,7 +6,8 @@ class_name DeflectionShield
 # How powerful the deflection force should be
 @export var deflection_force: float = 1200.0
 @onready var deflect_sfx: AudioStreamPlayer2D = $"../deflect_SFX"
-@onready var animation_player: AnimationPlayer = $"../AnimatedSprite2D/AnimationPlayer"
+@onready var animation_player: AnimationPlayer = $"../AnimationPlayer"
+
 
 # Add a label to display debug info
 var debug_label: Label

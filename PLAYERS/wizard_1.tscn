@@ -79,6 +79,7 @@ frame_progress = 0.0884342
 [node name="PointLight2D" type="PointLight2D" parent="CharacterBody2D"]
 position = Vector2(-7.15256e-07, -12)
 scale = Vector2(1, 0.999999)
+energy = 0.5
 texture = SubResource("GradientTexture2D_5u4yc")
 
 [node name="jump" type="AudioStreamPlayer2D" parent="."]

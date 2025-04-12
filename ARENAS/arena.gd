@@ -20,7 +20,7 @@ var current_instance: Node = null
 @onready var goal_particles: AnimationPlayer = $Goal_Particles
 var ball_instances = []
 @onready var screen_shader: ColorRect = $CanvasLayer/ScreenShader
-
+@onready var score_player = $HUD/ScorePlayer
 
 func _ready() -> void:
 	
@@ -37,7 +37,7 @@ func _ready() -> void:
 	
 	GameSettings.settings_changed.connect(_on_settings_changed)
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if Input.is_action_just_pressed("ui_left") or Input.is_action_just_pressed("ui_right"):
 		if is_paused or is_victory:
 			move.pitch_scale = randf_range(0.9, 1.1)
@@ -87,9 +87,11 @@ func _on_goal_left_body_entered(body: Node2D) -> void:
 		# Remove this specific ball from our array
 		if ball_instances.has(body):
 			ball_instances.erase(body)
-		
+		goal_particles.play("RESET")
 		goal_particles.play("left_goal")
 		player2_score += 1
+		score_player.play("RESET")
+		score_player.play("p2")
 		hud.update_score(player1_score, player2_score)
 		goal.pitch_scale = randf_range(0.9, 1.1)
 		goal.play()
@@ -127,9 +129,11 @@ func _on_goal_right_body_entered(body: Node2D) -> void:
 		# Remove this specific ball from our array
 		if ball_instances.has(body):
 			ball_instances.erase(body)
-		
+		goal_particles.play("RESET")
 		goal_particles.play("right_goal")
 		player1_score += 1
+		score_player.play("RESET")
+		score_player.play("p1")
 		hud.update_score(player1_score, player2_score)
 		goal.pitch_scale = randf_range(0.9, 1.1)
 		goal.play()

@@ -17,7 +17,7 @@ var current_instance: Node = null
 @onready var rematch_1: Button = $CameraPackage/Screens/Player_1_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch1
 @onready var rematch_2: Button = $CameraPackage/Screens/Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch2
 @onready var goal_player: AnimationPlayer = $GoalPlayer
-
+@onready var score_player = $CameraPackage/HUD/ScorePlayer
 var ball_instances = []
 
 # Called when the node enters the scene tree for the first time.
@@ -37,7 +37,7 @@ func _ready() -> void:
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if Input.is_action_just_pressed("ui_left") or Input.is_action_just_pressed("ui_right"):
 		if is_paused or is_victory:
 			move.pitch_scale = randf_range(0.9, 1.1)
@@ -98,6 +98,8 @@ func _on_leftgoal_body_entered(body: Node2D) -> void:
 		
 		goal_player.play("left_goal")
 		player2_score += 1
+		score_player.play("RESET")
+		score_player.play("p2")
 		hud.update_score(player1_score, player2_score)
 		goal.pitch_scale = randf_range(0.9, 1.1)
 		goal.play()
@@ -140,6 +142,8 @@ func _on_rightgoal_body_entered(body: Node2D) -> void:
 		
 		goal_player.play("right_goal")
 		player1_score += 1
+		score_player.play("RESET")
+		score_player.play("p1")
 		hud.update_score(player1_score, player2_score)
 		goal.pitch_scale = randf_range(0.9, 1.1)
 		goal.play()

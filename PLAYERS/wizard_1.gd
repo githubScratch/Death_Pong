@@ -20,6 +20,7 @@ var DIVE_VELOCITY = 1400
 
 var current_instance: Node = null
 var hit_the_ground = false
+var fading_instances = []
 
 ### WIZARD 1 ###
 
@@ -91,14 +92,32 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 
 func create_new_instance():
-	# First, remove any existing spell
+	# If there's a current instance, start its fade animation
 	if is_instance_valid(current_instance):
-		current_instance.queue_free()
-		current_instance = null
+		# Get reference to animation player (assuming it's a direct child of the instance)
+		var anim_player = current_instance.get_node_or_null("AnimationPlayer")
+		
+		if is_instance_valid(anim_player) and anim_player.has_animation("fade"):
+			# Track this instance as fading
+			fading_instances.append(current_instance)
+			# Play fade animation
+			anim_player.play("fade")
+		else:
+			# No animation player or animation, just queue_free
+			current_instance.queue_free()
 	
-	# Check if scene is assigned using is_instance_valid
+	# Reset current instance reference before creating new one
+	current_instance = null
+	
+	# Immediately create new instance without delay
 	if is_instance_valid(instance_scene):
 		var instance = instance_scene.instantiate()
 		instance.global_position = global_position
 		get_tree().current_scene.add_child(instance)
 		current_instance = instance
+	
+	# Clean up any stale instances in the fading list (run occasionally)
+	if fading_instances.size() > 10 or randf() < 0.1:
+		for old_instance in fading_instances.duplicate():
+			if !is_instance_valid(old_instance):
+				fading_instances.erase(old_instance)
