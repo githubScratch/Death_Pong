@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://d2l8466qvd8po" path="res://ARENAS/brick.gd" id="1_to833"]
 [ext_resource type="Texture2D" uid="uid://bh352e2u005py" path="res://SPRITES/dingbats-365.png" id="2_yr5cx"]
 [ext_resource type="AudioStream" uid="uid://cjvvgvl850g8g" path="res://SFX/thwomp.wav" id="3_eoubk"]
-[ext_resource type="AudioStream" uid="uid://d4bso0xxg5piq" path="res://SFX/iceshatter.wav" id="4_uci3o"]
+[ext_resource type="AudioStream" uid="uid://c3jgydlxvwbv" path="res://SFX/Rock Wall 1.wav" id="4_uci3o"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_413d4"]
 size = Vector2(64, 64)
@@ -229,5 +229,4 @@ stream = ExtResource("3_eoubk")
 
 [node name="brick_break" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("4_uci3o")
-volume_db = -15.0
-pitch_scale = 0.8
+volume_db = -5.0

@@ -7,6 +7,7 @@ extends Control
 @onready var on: Button = $CenterContainer/HBoxContainer/VBoxContainer2/On
 @onready var off: Button = $CenterContainer/HBoxContainer/VBoxContainer2/Off
 @onready var random_map: Button = $CenterContainer/HBoxContainer/VBoxContainer/RandomMap
+@onready var hot_potatoe: Button = $CenterContainer/HBoxContainer/VBoxContainer3/Hot_Potatoe
 
 
 @onready var select: AudioStreamPlayer2D = $select
@@ -43,11 +44,19 @@ func _on_begin_pressed() -> void:
 func _on_pure_pressed() -> void:
 	pure.set_pressed_no_signal(true)
 	random.set_pressed_no_signal(false)
+	hot_potatoe.set_pressed_no_signal(false)
 	GameSettings.set_game_mode("pure")
 func _on_random_pressed() -> void:
 	pure.set_pressed_no_signal(false)
 	random.set_pressed_no_signal(true)
+	hot_potatoe.set_pressed_no_signal(false)
 	GameSettings.set_game_mode("random")
+func _on_hot_potatoe_pressed() -> void:
+	pure.set_pressed_no_signal(false)
+	random.set_pressed_no_signal(false)
+	hot_potatoe.set_pressed_no_signal(true)
+	GameSettings.set_game_mode("hot")
+
 
 func _on_arena_pressed() -> void:
 	arena.set_pressed_no_signal(true)
@@ -78,6 +87,7 @@ func _on_off_pressed() -> void:
 func _update_button_states() -> void:
 	pure.set_pressed_no_signal(GameSettings.game_mode == "pure")
 	random.set_pressed_no_signal(GameSettings.game_mode == "random")
+	hot_potatoe.set_pressed_no_signal(GameSettings.game_mode == "hot")
 	
 	arena.set_pressed_no_signal(GameSettings.game_arena == "arena")
 	yonder.set_pressed_no_signal(GameSettings.game_arena == "yonder")

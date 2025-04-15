@@ -640,19 +640,19 @@ radius = 56.0
 [node name="Node2D" type="Node2D"]
 
 [node name="outerlight" type="PointLight2D" parent="."]
-position = Vector2(7.19999, 10.4)
+position = Vector2(4, 5)
 scale = Vector2(0.0999999, 0.0999999)
 color = Color(0.219608, 1, 0, 1)
 texture = SubResource("GradientTexture2D_s8his")
 
 [node name="corelight" type="PointLight2D" parent="."]
-position = Vector2(3.2, 6.4)
+position = Vector2(0, -1)
 scale = Vector2(0.1, 0.1)
 color = Color(0.219608, 1, 0, 1)
 texture = SubResource("GradientTexture2D_dk7g5")
 
 [node name="passivebubbles" type="CPUParticles2D" parent="."]
-position = Vector2(3.2, 6.4)
+position = Vector2(4.2, -0.6)
 texture = ExtResource("1_jhama")
 lifetime = 1.5
 emission_shape = 1
@@ -664,7 +664,7 @@ color = Color(0.216667, 1, 0, 0.368627)
 color_ramp = SubResource("Gradient_uw7x3")
 
 [node name="sparks" type="CPUParticles2D" parent="."]
-position = Vector2(3.2, 6.4)
+position = Vector2(4.2, -0.6)
 emitting = false
 amount = 30
 texture = ExtResource("2_yargl")
@@ -690,10 +690,10 @@ color_ramp = SubResource("Gradient_uw7x3")
 [node name="ColorRect" type="ColorRect" parent="."]
 visible = false
 z_index = -2
-offset_left = -97.0
-offset_top = -81.0
-offset_right = 112.0
-offset_bottom = 88.0
+offset_left = -96.0
+offset_top = -88.0
+offset_right = 113.0
+offset_bottom = 81.0
 color = Color(0.140447, 0.140447, 0.140447, 1)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
@@ -720,7 +720,7 @@ energy = 0.0
 texture = SubResource("GradientTexture2D_bhlxt")
 
 [node name="Area2D" type="Area2D" parent="."]
-position = Vector2(4.8, 8)
+position = Vector2(0, 1)
 collision_layer = 8
 collision_mask = 4
 monitoring = false
@@ -728,11 +728,10 @@ script = ExtResource("2_wuwwc")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
 visible = false
-position = Vector2(-7.62939e-06, 0)
 shape = SubResource("CircleShape2D_asf77")
 
 [node name="deflect_SFX" type="AudioStreamPlayer2D" parent="."]
-position = Vector2(4.8, -24)
+position = Vector2(5.8, -31)
 stream = ExtResource("3_wuwwc")
 
 [connection signal="body_entered" from="Area2D" to="Area2D" method="_on_body_entered"]

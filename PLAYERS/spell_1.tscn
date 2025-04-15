@@ -804,19 +804,19 @@ radius = 56.0
 [node name="Node2D" type="Node2D"]
 
 [node name="outerlight" type="PointLight2D" parent="."]
-position = Vector2(4.99999, 13)
+position = Vector2(4.99999, 5)
 scale = Vector2(2.125, 2.125)
 color = Color(0.698039, 0.168627, 1, 1)
 texture = SubResource("GradientTexture2D_i67ey")
 
 [node name="corelight" type="PointLight2D" parent="."]
-position = Vector2(0.999998, 9)
+position = Vector2(0.999998, 1)
 scale = Vector2(2, 2)
 color = Color(0.698039, 0.168627, 1, 1)
 texture = SubResource("GradientTexture2D_xjnls")
 
 [node name="passivebubbles" type="CPUParticles2D" parent="."]
-position = Vector2(1, 9)
+position = Vector2(1, 1)
 texture = ExtResource("1_xjnls")
 lifetime = 1.5
 emission_shape = 1
@@ -828,7 +828,7 @@ color = Color(0.695667, 0.17, 1, 0.313726)
 color_ramp = SubResource("Gradient_03oq3")
 
 [node name="sparks" type="CPUParticles2D" parent="."]
-position = Vector2(1, 9)
+position = Vector2(1, 1)
 amount = 30
 texture = ExtResource("2_03oq3")
 lifetime = 0.8
@@ -854,9 +854,9 @@ color_ramp = SubResource("Gradient_03oq3")
 visible = false
 z_index = -2
 offset_left = -96.0
-offset_top = -72.0
+offset_top = -80.0
 offset_right = 113.0
-offset_bottom = 97.0
+offset_bottom = 89.0
 color = Color(0.140447, 0.140447, 0.140447, 1)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
@@ -875,7 +875,7 @@ animation = &"create"
 autoplay = "hold"
 
 [node name="Area2D" type="Area2D" parent="."]
-position = Vector2(2.6, 9)
+position = Vector2(2.6, 1)
 collision_layer = 8
 collision_mask = 4
 script = ExtResource("2_7mc3g")
@@ -886,7 +886,7 @@ position = Vector2(-7.62939e-06, 0)
 shape = SubResource("CircleShape2D_i67ey")
 
 [node name="deflect_SFX" type="AudioStreamPlayer2D" parent="."]
-position = Vector2(2.6, -23)
+position = Vector2(2.6, -31)
 stream = ExtResource("3_i67ey")
 
 [connection signal="body_entered" from="Area2D" to="Area2D" method="_on_body_entered"]

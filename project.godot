@@ -64,6 +64,7 @@ jump2={
 2d_physics/layer_2="Arena"
 2d_physics/layer_3="Ball"
 2d_physics/layer_4="Spells"
+2d_physics/layer_5="WizardWall"
 
 [rendering]
 

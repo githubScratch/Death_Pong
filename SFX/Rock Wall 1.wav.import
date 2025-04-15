@@ -2,13 +2,13 @@
 
 importer="wav"
 type="AudioStreamWAV"
-uid="uid://ctnt05tybiub2"
-path="res://.godot/imported/wierdmagic.wav-0ba5fc917d18c00d1d340c695e073b51.sample"
+uid="uid://c3jgydlxvwbv"
+path="res://.godot/imported/Rock Wall 1.wav-79d6ed525b7747e334143460d3bc1b10.sample"
 
 [deps]
 
-source_file="res://SFX/wierdmagic.wav"
-dest_files=["res://.godot/imported/wierdmagic.wav-0ba5fc917d18c00d1d340c695e073b51.sample"]
+source_file="res://SFX/Rock Wall 1.wav"
+dest_files=["res://.godot/imported/Rock Wall 1.wav-79d6ed525b7747e334143460d3bc1b10.sample"]
 
 [params]
 

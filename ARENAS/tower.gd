@@ -19,6 +19,9 @@ var current_instance: Node = null
 @onready var goal_player: AnimationPlayer = $GoalPlayer
 @onready var score_player = $CameraPackage/HUD/ScorePlayer
 var ball_instances = []
+@onready var mid_barrier: Node2D = $Mid_Barrier
+@onready var mid_collision: StaticBody2D = $Mid_Barrier/Mid_Collision
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -26,12 +29,6 @@ func _ready() -> void:
 	Engine.time_scale = 1.0
 	is_victory = false
 	ball_instances.clear()
-	
-	if GameSettings.game_mode == "random":
-		create_new_instance()
-		create_new_instance()
-	else:
-		create_new_instance()
 	
 	GameSettings.settings_changed.connect(_on_settings_changed)
 
@@ -57,11 +54,15 @@ func _process(_delta: float) -> void:
 			print("UI accept pressed while paused")
 
 func apply_game_settings() -> void:
-	# Apply magic setting
-	if GameSettings.game_mode == "pure":
-		print("Pure mode on")
+	if GameSettings.game_mode == "random":
+		create_new_instance()
+		create_new_instance()
+	if GameSettings.game_mode == "hot":
+		mid_barrier.visible = true
+		mid_collision.set_collision_layer_value(5, true)
+		create_new_instance()
 	else:
-		print("Random mode on")
+		create_new_instance()
 func _on_settings_changed() -> void:
 	# Re-apply settings when they change
 	apply_game_settings()
@@ -79,15 +80,6 @@ func create_new_instance():
 		spawn_ball.pitch_scale = randf_range(0.4, 0.6)
 		spawn_ball.play()
 
-func _on_brickpurge_l_body_entered(body: Node2D) -> void:
-	if body.is_in_group("brick"):
-		body.queue_free()
-		print("gone")
-
-func _on_brickpurge_r_body_entered(body: Node2D) -> void:
-	if body.is_in_group("brick"):
-		body.queue_free()
-		print("gone")
 
 
 func _on_leftgoal_body_entered(body: Node2D) -> void:
@@ -107,7 +99,7 @@ func _on_leftgoal_body_entered(body: Node2D) -> void:
 		# Queue this specific ball for deletion
 		body.queue_free()
 		
-		if player2_score >= 5 and GameSettings.game_mode == "pure":
+		if player2_score >= 5 and GameSettings.game_mode != "random":
 			# Clear all remaining balls
 			for ball in ball_instances:
 				if is_instance_valid(ball):
@@ -151,7 +143,7 @@ func _on_rightgoal_body_entered(body: Node2D) -> void:
 		# Queue this specific ball for deletion
 		body.queue_free()
 		
-		if player1_score >= 5 and GameSettings.game_mode == "pure":
+		if player1_score >= 5 and GameSettings.game_mode != "random":
 			# Clear all remaining balls
 			for ball in ball_instances:
 				if is_instance_valid(ball):
