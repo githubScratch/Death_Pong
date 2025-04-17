@@ -1,0 +1,164 @@
+[gd_scene load_steps=7 format=3 uid="uid://btp3sgc0jgi68"]
+
+[ext_resource type="Script" uid="uid://wsqvvw12o0gy" path="res://MENUS/HUD.gd" id="1_grdqa"]
+[ext_resource type="FontFile" uid="uid://dg8i0skfgpb02" path="res://SPRITES/Vermin Vibes 1989.ttf" id="2_i1o0c"]
+
+[sub_resource type="Animation" id="Animation_5kxw0"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CanvasLayer/Player1Score:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("CanvasLayer/Player1Score:theme_override_colors/font_color")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(0.639239, 0.00425822, 0.998999, 1)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("CanvasLayer/Player2Score:theme_override_colors/font_color")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(0, 0.698039, 0.101961, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_mmi4x"]
+resource_name = "p1"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CanvasLayer/Player1Score:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.366667, 0.466667, 0.566667),
+"transitions": PackedFloat32Array(0.258816, 0.353554, 0.307786, 0.430762, 1),
+"update": 0,
+"values": [Vector2(1, 1), Vector2(2, 2), Vector2(1, 1), Vector2(1.2, 1.2), Vector2(1, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("CanvasLayer/Player1Score:theme_override_colors/font_color")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.366667, 0.466667, 0.566667),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Color(0.639239, 0.00425822, 0.998999, 1), Color(0.746959, 0.498964, 1, 1), Color(0.639239, 0.00425822, 0.998999, 1), Color(0.696791, 0.35647, 0.999998, 1), Color(0.639239, 0.00425822, 0.998999, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_prwl8"]
+resource_name = "p2"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = false
+tracks/0/path = NodePath("CanvasLayer/Player1Score:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.366667, 0.466667, 0.566667),
+"transitions": PackedFloat32Array(0.258816, 0.353554, 0.307786, 0.430762, 1),
+"update": 0,
+"values": [Vector2(1, 1), Vector2(2, 2), Vector2(1, 1), Vector2(1.2, 1.2), Vector2(1, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = false
+tracks/1/path = NodePath("CanvasLayer/Player1Score:theme_override_colors/font_color")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.366667, 0.466667, 0.566667),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Color(0.639239, 0.00425822, 0.998999, 1), Color(0.746959, 0.498964, 1, 1), Color(0.639239, 0.00425822, 0.998999, 1), Color(0.696791, 0.35647, 0.999998, 1), Color(0.639239, 0.00425822, 0.998999, 1)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("CanvasLayer/Player2Score:scale")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.366667, 0.466667, 0.566667),
+"transitions": PackedFloat32Array(0.258816, 0.353554, 0.307786, 0.430762, 1),
+"update": 0,
+"values": [Vector2(1, 1), Vector2(2, 2), Vector2(1, 1), Vector2(1.2, 1.2), Vector2(1, 1)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("CanvasLayer/Player2Score:theme_override_colors/font_color")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.366667, 0.466667, 0.566667),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Color(0, 0.698039, 0.101961, 1), Color(0.619772, 1, 0.605763, 1), Color(0, 0.698039, 0.101961, 1), Color(0.695176, 1, 0.680496, 1), Color(0, 0.698039, 0.101961, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_8educ"]
+_data = {
+&"RESET": SubResource("Animation_5kxw0"),
+&"p1": SubResource("Animation_mmi4x"),
+&"p2": SubResource("Animation_prwl8")
+}
+
+[node name="Node2D" type="Node2D"]
+script = ExtResource("1_grdqa")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Player1Score" type="Label" parent="CanvasLayer"]
+offset_left = 512.0
+offset_right = 640.0
+offset_bottom = 143.0
+pivot_offset = Vector2(64, 0)
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0.639239, 0.00425822, 0.998999, 1)
+theme_override_fonts/font = ExtResource("2_i1o0c")
+theme_override_font_sizes/font_size = 80
+text = "0
+"
+horizontal_alignment = 1
+
+[node name="Player2Score" type="Label" parent="CanvasLayer"]
+visible = false
+offset_left = 576.0
+offset_right = 704.0
+offset_bottom = 143.0
+pivot_offset = Vector2(64, 0)
+theme_override_colors/font_color = Color(0, 0.698039, 0.101961, 1)
+theme_override_fonts/font = ExtResource("2_i1o0c")
+theme_override_font_sizes/font_size = 80
+text = "0
+"
+horizontal_alignment = 1
+
+[node name="ScorePlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_8educ")
+}

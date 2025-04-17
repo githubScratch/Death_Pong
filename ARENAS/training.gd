@@ -2,7 +2,7 @@ extends Node2D
 
 var player1_score = 0
 var player2_score = 0
-@onready var hud: Node2D = $HUD
+@onready var hud: Node2D = $Training_HUD
 @onready var victory_screens: AnimationPlayer = $Victory_Screens
 @onready var rematch_1: Button = $Player_1_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch1
 @onready var rematch_2: Button = $Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch2
@@ -19,7 +19,7 @@ var current_instance: Node = null
 @onready var goal_particles: AnimationPlayer = $Goal_Particles
 var ball_instances = []
 @onready var screen_shader: ColorRect = $CanvasLayer/ScreenShader
-@onready var score_player = $HUD/ScorePlayer
+@onready var score_player = $Training_HUD/ScorePlayer
 
 func _ready() -> void:
 	
@@ -78,28 +78,17 @@ func _on_goal_left_body_entered(body: Node2D) -> void:
 			ball_instances.erase(body)
 		goal_particles.play("RESET")
 		goal_particles.play("left_goal")
-		player2_score += 1
+		player1_score = 0
 		score_player.play("RESET")
-		score_player.play("p2")
+		score_player.play("p1")
 		hud.update_score(player1_score, player2_score)
 		goal.pitch_scale = randf_range(0.9, 1.1)
 		goal.play()
 		
 		# Queue this specific ball for deletion
 		body.queue_free()
+		create_new_instance()
 		
-		if player2_score >= 5:
-			# Clear all remaining balls
-			for ball in ball_instances:
-				if is_instance_valid(ball):
-					ball.queue_free()
-			ball_instances.clear()
-			
-			victory_screens.play("Player_2_Victory")
-			is_victory = true
-			rematch_2.grab_focus()
-		else:
-			create_new_instance()
 func _on_goal_right_body_entered(body: Node2D) -> void:
 	if body.is_in_group("ball"):
 		# Remove this specific ball from our array
@@ -117,7 +106,7 @@ func _on_goal_right_body_entered(body: Node2D) -> void:
 		# Queue this specific ball for deletion
 		body.queue_free()
 		
-		if player1_score >= 5:
+		if player1_score >= 10:
 			# Clear all remaining balls
 			for ball in ball_instances:
 				if is_instance_valid(ball):
@@ -150,7 +139,7 @@ func _on_zone_left_body_exited(body: Node2D) -> void:
 		Engine.time_scale = 1.0
 func _on_zone_right_body_entered(body: Node2D) -> void:
 	if body.is_in_group("ball"):
-		Engine.time_scale = 0.35
+		Engine.time_scale = 1.00
 func _on_zone_right_body_exited(body: Node2D) -> void:
 	if body.is_in_group("ball"):
 		Engine.time_scale = 1.0
