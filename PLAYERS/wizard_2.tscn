@@ -95,5 +95,5 @@ pitch_scale = 0.8
 [node name="dash" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("6_8pv0o")
 
-[node name="land" type="AudioStreamPlayer2D" parent="." groups=["wizard"]]
+[node name="land" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("7_iobpq")

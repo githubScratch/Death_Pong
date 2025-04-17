@@ -53,59 +53,63 @@ offset_right = 1152.0
 offset_bottom = 648.0
 theme = ExtResource("2_vllpc")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
 layout_mode = 2
 
-[node name="VBoxContainer4" type="VBoxContainer" parent="CenterContainer/HBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer4"]
+[node name="VBoxContainer4" type="VBoxContainer" parent="CenterContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 
-[node name="Label2" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer4"]
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer4"]
 layout_mode = 2
 
-[node name="Back" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer4"]
+[node name="Label2" type="Label" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer4"]
+layout_mode = 2
+
+[node name="Back" type="Button" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer4"]
 layout_mode = 2
 text = "Back"
 
-[node name="Label2" type="Label" parent="CenterContainer/HBoxContainer"]
+[node name="Label2" type="Label" parent="CenterContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 text = "  "
 
-[node name="VBoxContainer3" type="VBoxContainer" parent="CenterContainer/HBoxContainer"]
+[node name="VBoxContainer3" type="VBoxContainer" parent="CenterContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 
-[node name="Mode" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer3"]
+[node name="Mode" type="Label" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer3"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 7
 text = "  MODE  "
 
-[node name="Label" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer3"]
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer3"]
 layout_mode = 2
 
-[node name="Pure" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer3"]
+[node name="Pure" type="Button" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer3"]
 layout_mode = 2
 toggle_mode = true
 button_pressed = true
 text = "CLASSIC"
 
-[node name="Random" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer3"]
+[node name="Random" type="Button" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer3"]
 layout_mode = 2
 toggle_mode = true
 text = "HYDRA BALLS"
 
-[node name="Hot_Potatoe" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer3"]
+[node name="Hot_Potatoe" type="Button" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer3"]
+visible = false
 layout_mode = 2
 toggle_mode = true
 text = "CAGE MATCH"
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/HBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 
-[node name="Map" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer"]
+[node name="Map" type="Label" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 theme = ExtResource("2_vllpc")
 theme_override_colors/font_color = Color(0, 0, 0, 1)
@@ -114,71 +118,79 @@ theme_override_constants/outline_size = 7
 text = "    MAP    "
 horizontal_alignment = 1
 
-[node name="Label" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer"]
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="Arena" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer"]
+[node name="Arena" type="Button" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 toggle_mode = true
 button_pressed = true
 text = "ARENA
 "
 
-[node name="Yonder" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer"]
+[node name="Yonder" type="Button" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 toggle_mode = true
 text = "TOWER"
 
-[node name="RandomMap" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer"]
+[node name="RandomMap" type="Button" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
 visible = false
 layout_mode = 2
 theme = ExtResource("2_vllpc")
 toggle_mode = true
 text = "RANDOM"
 
-[node name="VBoxContainer2" type="VBoxContainer" parent="CenterContainer/HBoxContainer"]
+[node name="VBoxContainer2" type="VBoxContainer" parent="CenterContainer/VBoxContainer/HBoxContainer"]
 visible = false
 layout_mode = 2
 
-[node name="PowerUps" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer2"]
+[node name="PowerUps" type="Label" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer2"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 7
 text = "MODS"
 
-[node name="Label" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer2"]
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer2"]
 layout_mode = 2
 
-[node name="On" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer2"]
+[node name="On" type="Button" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer2"]
 layout_mode = 2
 toggle_mode = true
 button_pressed = true
 text = "MAGIC
 "
 
-[node name="Off" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer2"]
+[node name="Off" type="Button" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer2"]
 layout_mode = 2
 toggle_mode = true
 text = "BRUTES
 "
 
-[node name="Label" type="Label" parent="CenterContainer/HBoxContainer"]
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 text = "  "
 
-[node name="VBoxContainer5" type="VBoxContainer" parent="CenterContainer/HBoxContainer"]
+[node name="VBoxContainer5" type="VBoxContainer" parent="CenterContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer5"]
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer5"]
 layout_mode = 2
 
-[node name="Label2" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer5"]
+[node name="Label2" type="Label" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer5"]
 layout_mode = 2
 
-[node name="Begin" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer5"]
+[node name="Begin" type="Button" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer5"]
 layout_mode = 2
 text = "Begin"
+
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Training" type="Button" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+toggle_mode = true
+text = "TRAINING"
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -197,14 +209,15 @@ volume_db = -10.0
 [node name="move" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("5_fke4p")
 
-[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer4/Back" to="." method="_on_back_pressed"]
-[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer3/Pure" to="." method="_on_pure_pressed"]
-[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer3/Random" to="." method="_on_random_pressed"]
-[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer3/Hot_Potatoe" to="." method="_on_hot_potatoe_pressed"]
-[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer/Arena" to="." method="_on_arena_pressed"]
-[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer/Yonder" to="." method="_on_yonder_pressed"]
-[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer/RandomMap" to="." method="_on_random_map_pressed"]
-[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer/RandomMap" to="." method="_on_random_2_pressed"]
-[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer2/On" to="." method="_on_on_pressed"]
-[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer2/Off" to="." method="_on_off_pressed"]
-[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer5/Begin" to="." method="_on_begin_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer4/Back" to="." method="_on_back_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer3/Pure" to="." method="_on_pure_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer3/Random" to="." method="_on_random_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer3/Hot_Potatoe" to="." method="_on_hot_potatoe_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer/Arena" to="." method="_on_arena_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer/Yonder" to="." method="_on_yonder_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer/RandomMap" to="." method="_on_random_map_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer/RandomMap" to="." method="_on_random_2_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer2/On" to="." method="_on_on_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer2/Off" to="." method="_on_off_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer5/Begin" to="." method="_on_begin_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/Training" to="." method="_on_training_pressed"]

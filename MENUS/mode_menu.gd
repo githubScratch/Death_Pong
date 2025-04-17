@@ -1,13 +1,13 @@
 extends Control
-@onready var back: Button = $CenterContainer/HBoxContainer/VBoxContainer4/Back
-@onready var pure: Button = $CenterContainer/HBoxContainer/VBoxContainer3/Pure
-@onready var random: Button = $CenterContainer/HBoxContainer/VBoxContainer3/Random
-@onready var arena: Button = $CenterContainer/HBoxContainer/VBoxContainer/Arena
-@onready var yonder: Button = $CenterContainer/HBoxContainer/VBoxContainer/Yonder
-@onready var on: Button = $CenterContainer/HBoxContainer/VBoxContainer2/On
-@onready var off: Button = $CenterContainer/HBoxContainer/VBoxContainer2/Off
-@onready var random_map: Button = $CenterContainer/HBoxContainer/VBoxContainer/RandomMap
-@onready var hot_potatoe: Button = $CenterContainer/HBoxContainer/VBoxContainer3/Hot_Potatoe
+@onready var back: Button = $CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer4/Back
+@onready var pure: Button = $CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer3/Pure
+@onready var random: Button = $CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer3/Random
+@onready var arena: Button = $CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer/Arena
+@onready var yonder: Button = $CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer/Yonder
+@onready var on: Button = $CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer2/On
+@onready var off: Button = $CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer2/Off
+@onready var random_map: Button = $CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer/RandomMap
+@onready var hot_potatoe: Button = $CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer3/Hot_Potatoe
 
 
 @onready var select: AudioStreamPlayer2D = $select
@@ -95,3 +95,7 @@ func _update_button_states() -> void:
 	
 	on.set_pressed_no_signal(GameSettings.game_magic == "on")
 	off.set_pressed_no_signal(GameSettings.game_magic == "off")
+
+
+func _on_training_pressed() -> void:
+	get_tree().change_scene_to_file("res://ARENAS/training.tscn")
