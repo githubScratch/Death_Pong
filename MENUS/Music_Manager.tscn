@@ -1,0 +1,19 @@
+[gd_scene load_steps=5 format=3 uid="uid://d0x55a6jaxxxy"]
+
+[ext_resource type="Script" uid="uid://xb42pfv4o8kh" path="res://MENUS/music_manager.gd" id="1_o3uao"]
+[ext_resource type="AudioStream" uid="uid://cyxun732qy6wx" path="res://MUSIC/Death Pong.mp3" id="2_pmlcm"]
+[ext_resource type="AudioStream" uid="uid://bi7vuh0x0wcq0" path="res://MUSIC/Death Bounce.mp3" id="3_b42d8"]
+
+[sub_resource type="AudioStreamPlaylist" id="AudioStreamPlaylist_oodd7"]
+shuffle = true
+stream_count = 2
+stream_0 = ExtResource("2_pmlcm")
+stream_1 = ExtResource("3_b42d8")
+
+[node name="Node" type="Node"]
+script = ExtResource("1_o3uao")
+
+[node name="music" type="AudioStreamPlayer2D" parent="."]
+process_mode = 3
+stream = SubResource("AudioStreamPlaylist_oodd7")
+bus = &"Music"

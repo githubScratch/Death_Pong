@@ -54,7 +54,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.639216, 0.00392157, 1, 1)
 theme_override_fonts/font = ExtResource("1_phoou")
 theme_override_font_sizes/font_size = 140
-text = "WIZARD"
+text = "POWER WORD:"
 
 [node name="Label2" type="Label" parent="CenterContainer/VBoxContainer"]
 z_index = 1
