@@ -1,0 +1,246 @@
+[gd_scene load_steps=7 format=3 uid="uid://3ls6165g3nah"]
+
+[ext_resource type="Theme" uid="uid://dka4pq4oxkc3b" path="res://MENUS/Menu_Theme.tres" id="1_iixn1"]
+[ext_resource type="Shader" uid="uid://c3fmb76te1444" path="res://ARENAS/VHS.gdshader" id="2_cmi0b"]
+[ext_resource type="Script" uid="uid://dsacml1m4gkty" path="res://MENUS/settings_menu.gd" id="2_rwbl6"]
+[ext_resource type="AudioStream" uid="uid://d3rmk854uqt17" path="res://SFX/ui select.wav" id="4_t0xyb"]
+[ext_resource type="AudioStream" uid="uid://du6i7igev8i55" path="res://SFX/Menu_Select2.wav" id="5_dn4fw"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vgsqh"]
+shader = ExtResource("2_cmi0b")
+shader_parameter/overlay = false
+shader_parameter/scanlines_opacity = 0.1
+shader_parameter/scanlines_width = 0.25
+shader_parameter/grille_opacity = 0.3
+shader_parameter/resolution = Vector2(640, 480)
+shader_parameter/pixelate = true
+shader_parameter/roll = true
+shader_parameter/roll_speed = 2.0
+shader_parameter/roll_size = 5.0
+shader_parameter/roll_variation = 1.8
+shader_parameter/distort_intensity = 0.01
+shader_parameter/noise_opacity = 0.05
+shader_parameter/noise_speed = 5.0
+shader_parameter/static_noise_intensity = 0.06
+shader_parameter/aberration = 0.00300005
+shader_parameter/brightness = 1.5
+shader_parameter/discolor = false
+shader_parameter/warp_amount = 1.0
+shader_parameter/clip_warp = false
+shader_parameter/vignette_intensity = 0.4
+shader_parameter/vignette_opacity = 0.5
+
+[node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_iixn1")
+script = ExtResource("2_rwbl6")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 0
+offset_right = 1152.0
+offset_bottom = 648.0
+color = Color(0, 0, 0, 1)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="ColorRect"]
+
+[node name="ColorRect" type="ColorRect" parent="ColorRect/CanvasLayer"]
+material = SubResource("ShaderMaterial_vgsqh")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 0
+offset_right = 1152.0
+offset_bottom = 648.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer"]
+layout_mode = 2
+
+[node name="BackCont" type="VBoxContainer" parent="CenterContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/HBoxContainer/BackCont"]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="CenterContainer/HBoxContainer/BackCont"]
+layout_mode = 2
+
+[node name="Label3" type="Label" parent="CenterContainer/HBoxContainer/BackCont"]
+layout_mode = 2
+
+[node name="Label4" type="Label" parent="CenterContainer/HBoxContainer/BackCont"]
+layout_mode = 2
+
+[node name="BackButton" type="Button" parent="CenterContainer/HBoxContainer/BackCont"]
+layout_mode = 2
+text = "back"
+
+[node name="Label" type="Label" parent="CenterContainer/HBoxContainer"]
+layout_mode = 2
+text = "      "
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="SoundCont" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme = ExtResource("1_iixn1")
+
+[node name="Sound" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer/SoundCont"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 7
+text = "Sound"
+horizontal_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer/SoundCont"]
+visible = false
+layout_mode = 2
+
+[node name="Master" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer/SoundCont/HBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "MASTER"
+
+[node name="MasterSlide" type="HSlider" parent="CenterContainer/HBoxContainer/VBoxContainer/SoundCont/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer/SoundCont"]
+layout_mode = 2
+
+[node name="BGM" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer/SoundCont/HBoxContainer2"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.388235, 0.388235, 0.388235, 1)
+theme_override_font_sizes/font_size = 30
+text = "BGM      "
+
+[node name="BGMSlide" type="HSlider" parent="CenterContainer/HBoxContainer/VBoxContainer/SoundCont/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+step = 10.0
+value = 80.0
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer/SoundCont"]
+layout_mode = 2
+
+[node name="SFX" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer/SoundCont/HBoxContainer3"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.388235, 0.388235, 0.388235, 1)
+theme_override_font_sizes/font_size = 30
+text = "SFX      "
+
+[node name="SFXSlide" type="HSlider" parent="CenterContainer/HBoxContainer/VBoxContainer/SoundCont/HBoxContainer3"]
+layout_mode = 2
+size_flags_horizontal = 3
+step = 10.0
+value = 80.0
+
+[node name="ScreenCont" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer/ScreenCont"]
+layout_mode = 2
+
+[node name="Screen" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer/ScreenCont"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 7
+text = "Screen"
+horizontal_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer/ScreenCont"]
+layout_mode = 2
+
+[node name="WindowedButton" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer/ScreenCont/HBoxContainer"]
+layout_mode = 2
+text = "WINDOWED"
+
+[node name="FullButton" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer/ScreenCont/HBoxContainer"]
+layout_mode = 2
+text = "FULL"
+
+[node name="ControlCont" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont"]
+layout_mode = 2
+
+[node name="Controls" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 7
+text = "Controls"
+horizontal_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer"]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+text = "p1"
+
+[node name="Label" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "p1      "
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer"]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+text = "p2"
+
+[node name="Label2" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "      p2"
+horizontal_alignment = 2
+
+[node name="Label2" type="Label" parent="CenterContainer/HBoxContainer"]
+layout_mode = 2
+text = "     "
+
+[node name="ResetCont" type="VBoxContainer" parent="CenterContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/HBoxContainer/ResetCont"]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="CenterContainer/HBoxContainer/ResetCont"]
+layout_mode = 2
+
+[node name="Label3" type="Label" parent="CenterContainer/HBoxContainer/ResetCont"]
+layout_mode = 2
+
+[node name="Label4" type="Label" parent="CenterContainer/HBoxContainer/ResetCont"]
+layout_mode = 2
+
+[node name="ResetButton" type="Button" parent="CenterContainer/HBoxContainer/ResetCont"]
+layout_mode = 2
+text = "RESET"
+
+[node name="select" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_t0xyb")
+volume_db = -10.0
+
+[node name="move" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("5_dn4fw")
+
+[connection signal="pressed" from="CenterContainer/HBoxContainer/BackCont/BackButton" to="." method="_on_back_button_pressed"]

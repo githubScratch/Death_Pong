@@ -1,4 +1,4 @@
-[gd_scene load_steps=44 format=3 uid="uid://cqdw4ave7lpj2"]
+[gd_scene load_steps=48 format=3 uid="uid://cqdw4ave7lpj2"]
 
 [ext_resource type="Script" uid="uid://bh1cqpcey1nhk" path="res://ARENAS/tower.gd" id="1_mwjt1"]
 [ext_resource type="Shader" uid="uid://c3fmb76te1444" path="res://ARENAS/VHS.gdshader" id="1_qj6pt"]
@@ -48,6 +48,9 @@ size = Vector2(32, 2560)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_tyhyf"]
 size = Vector2(32, 2560)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_kksn1"]
+size = Vector2(256, 64)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_yifkf"]
 shader = ExtResource("1_qj6pt")
@@ -466,6 +469,331 @@ _data = {
 &"right_goal": SubResource("Animation_tgyg7")
 }
 
+[sub_resource type="Animation" id="Animation_03878"]
+resource_name = "movingparts"
+length = 70.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Platforms/PlatformShape:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 3.96667),
+"transitions": PackedFloat32Array(5, 1),
+"update": 0,
+"values": [Vector2(1, 1), Vector2(0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Platforms/PlatformShape2:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 3.93333),
+"transitions": PackedFloat32Array(5, 1),
+"update": 0,
+"values": [Vector2(1, 1), Vector2(0, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Platforms/PlatformShape3:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(3.93333, 7.96667),
+"transitions": PackedFloat32Array(3, 1),
+"update": 0,
+"values": [Vector2(192, -32), Vector2(-384, -32)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Platforms/PlatformShape4:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(3.93333, 7.96667),
+"transitions": PackedFloat32Array(3, 1),
+"update": 0,
+"values": [Vector2(448, -32), Vector2(1024, -32)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Platforms/PlatformShape5:position")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(10.0667, 14.1333),
+"transitions": PackedFloat32Array(3, 1),
+"update": 0,
+"values": [Vector2(64, 160), Vector2(1024, 160)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Platforms/PlatformShape6:position")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(10.0667, 14.1333),
+"transitions": PackedFloat32Array(3, 1),
+"update": 0,
+"values": [Vector2(576, 160), Vector2(-384, 160)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Platforms/PlatformShape7:scale")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(15.9667, 24.1, 28.0333),
+"transitions": PackedFloat32Array(3, 3, 1),
+"update": 0,
+"values": [Vector2(1, 1), Vector2(0.25, 4), Vector2(0, 0)]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("Platforms/PlatformShape8:scale")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(15.9667, 24.1, 28.0333),
+"transitions": PackedFloat32Array(3, 3, 1),
+"update": 0,
+"values": [Vector2(1, 1), Vector2(0.25, 4), Vector2(0, 0)]
+}
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("Platforms/PlatformShape9:rotation")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(26, 50),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 6.28319]
+}
+tracks/9/type = "value"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("Platforms/PlatformShape10:rotation")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"times": PackedFloat32Array(26, 50),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, -6.28319]
+}
+tracks/10/type = "value"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("Platforms/PlatformShape11:rotation")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"times": PackedFloat32Array(26, 50),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, -6.28319]
+}
+tracks/11/type = "value"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("Platforms/PlatformShape12:rotation")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"times": PackedFloat32Array(26, 50.0333),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 6.28319]
+}
+tracks/12/type = "value"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath("Platforms/PlatformShape13:scale")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/keys = {
+"times": PackedFloat32Array(58.9333, 66.2333, 67.1),
+"transitions": PackedFloat32Array(10, 3, 1),
+"update": 0,
+"values": [Vector2(5, 1), Vector2(2, 0.5), Vector2(0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_u7217"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Platforms/PlatformShape:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Platforms/PlatformShape2:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Platforms/PlatformShape3:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(192, -32)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Platforms/PlatformShape4:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(448, -32)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Platforms/PlatformShape5:position")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(64, 160)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Platforms/PlatformShape6:position")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(576, 160)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Platforms/PlatformShape7:scale")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("Platforms/PlatformShape8:scale")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("Platforms/PlatformShape9:rotation")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/9/type = "value"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("Platforms/PlatformShape10:rotation")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/10/type = "value"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("Platforms/PlatformShape11:rotation")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/11/type = "value"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("Platforms/PlatformShape12:rotation")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/12/type = "value"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath("Platforms/PlatformShape13:scale")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_nsywk"]
+_data = {
+&"RESET": SubResource("Animation_u7217"),
+&"movingparts": SubResource("Animation_03878")
+}
+
 [node name="Node2D" type="Node2D"]
 script = ExtResource("1_mwjt1")
 instance_scene = ExtResource("3_0b2xv")
@@ -616,6 +944,209 @@ collision_mask = 4
 [node name="CollisionShape2D" type="CollisionShape2D" parent="zones/rightslow"]
 position = Vector2(1104, 1344)
 shape = SubResource("RectangleShape2D_tyhyf")
+
+[node name="Platforms" type="Node2D" parent="."]
+position = Vector2(256, 704)
+
+[node name="PlatformShape" type="StaticBody2D" parent="Platforms"]
+position = Vector2(-64, -416)
+collision_layer = 2
+collision_mask = 7
+
+[node name="ColorRect" type="ColorRect" parent="Platforms/PlatformShape"]
+offset_left = -128.0
+offset_top = -32.0
+offset_right = 128.0
+offset_bottom = 32.0
+color = Color(0, 0, 0, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/PlatformShape"]
+shape = SubResource("RectangleShape2D_kksn1")
+
+[node name="PlatformShape2" type="StaticBody2D" parent="Platforms"]
+position = Vector2(704, -416)
+collision_layer = 2
+collision_mask = 7
+
+[node name="ColorRect" type="ColorRect" parent="Platforms/PlatformShape2"]
+offset_left = -128.0
+offset_top = -32.0
+offset_right = 128.0
+offset_bottom = 32.0
+color = Color(0, 0, 0, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/PlatformShape2"]
+shape = SubResource("RectangleShape2D_kksn1")
+
+[node name="PlatformShape3" type="StaticBody2D" parent="Platforms"]
+position = Vector2(192, -32)
+collision_layer = 2
+collision_mask = 7
+
+[node name="ColorRect" type="ColorRect" parent="Platforms/PlatformShape3"]
+offset_left = -128.0
+offset_top = -32.0
+offset_right = 128.0
+offset_bottom = 32.0
+color = Color(0, 0, 0, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/PlatformShape3"]
+shape = SubResource("RectangleShape2D_kksn1")
+
+[node name="PlatformShape4" type="StaticBody2D" parent="Platforms"]
+position = Vector2(448, -32)
+collision_layer = 2
+collision_mask = 7
+
+[node name="ColorRect" type="ColorRect" parent="Platforms/PlatformShape4"]
+offset_left = -128.0
+offset_top = -32.0
+offset_right = 128.0
+offset_bottom = 32.0
+color = Color(0, 0, 0, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/PlatformShape4"]
+shape = SubResource("RectangleShape2D_kksn1")
+
+[node name="PlatformShape5" type="StaticBody2D" parent="Platforms"]
+position = Vector2(64, 160)
+collision_layer = 2
+collision_mask = 7
+
+[node name="ColorRect" type="ColorRect" parent="Platforms/PlatformShape5"]
+offset_left = -128.0
+offset_top = -32.0
+offset_right = 128.0
+offset_bottom = 32.0
+color = Color(0, 0, 0, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/PlatformShape5"]
+shape = SubResource("RectangleShape2D_kksn1")
+
+[node name="PlatformShape6" type="StaticBody2D" parent="Platforms"]
+position = Vector2(576, 160)
+collision_layer = 2
+collision_mask = 7
+
+[node name="ColorRect" type="ColorRect" parent="Platforms/PlatformShape6"]
+offset_left = -128.0
+offset_top = -32.0
+offset_right = 128.0
+offset_bottom = 32.0
+color = Color(0, 0, 0, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/PlatformShape6"]
+shape = SubResource("RectangleShape2D_kksn1")
+
+[node name="PlatformShape7" type="StaticBody2D" parent="Platforms"]
+position = Vector2(-64, 352)
+collision_layer = 2
+collision_mask = 7
+
+[node name="ColorRect" type="ColorRect" parent="Platforms/PlatformShape7"]
+offset_left = -128.0
+offset_top = -32.0
+offset_right = 128.0
+offset_bottom = 32.0
+color = Color(0, 0, 0, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/PlatformShape7"]
+shape = SubResource("RectangleShape2D_kksn1")
+
+[node name="PlatformShape8" type="StaticBody2D" parent="Platforms"]
+position = Vector2(704, 352)
+collision_layer = 2
+collision_mask = 7
+
+[node name="ColorRect" type="ColorRect" parent="Platforms/PlatformShape8"]
+offset_left = -128.0
+offset_top = -32.0
+offset_right = 128.0
+offset_bottom = 32.0
+color = Color(0, 0, 0, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/PlatformShape8"]
+shape = SubResource("RectangleShape2D_kksn1")
+
+[node name="PlatformShape9" type="StaticBody2D" parent="Platforms"]
+position = Vector2(193, 608)
+collision_layer = 2
+collision_mask = 7
+
+[node name="ColorRect" type="ColorRect" parent="Platforms/PlatformShape9"]
+offset_left = -128.0
+offset_top = -32.0
+offset_right = 128.0
+offset_bottom = 32.0
+color = Color(0, 0, 0, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/PlatformShape9"]
+shape = SubResource("RectangleShape2D_kksn1")
+
+[node name="PlatformShape10" type="StaticBody2D" parent="Platforms"]
+position = Vector2(449, 608)
+collision_layer = 2
+collision_mask = 7
+
+[node name="ColorRect" type="ColorRect" parent="Platforms/PlatformShape10"]
+offset_left = -128.0
+offset_top = -32.0
+offset_right = 128.0
+offset_bottom = 32.0
+color = Color(0, 0, 0, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/PlatformShape10"]
+shape = SubResource("RectangleShape2D_kksn1")
+
+[node name="PlatformShape11" type="StaticBody2D" parent="Platforms"]
+position = Vector2(192, 864)
+collision_layer = 2
+collision_mask = 7
+
+[node name="ColorRect" type="ColorRect" parent="Platforms/PlatformShape11"]
+offset_left = -128.0
+offset_top = -32.0
+offset_right = 128.0
+offset_bottom = 32.0
+color = Color(0, 0, 0, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/PlatformShape11"]
+shape = SubResource("RectangleShape2D_kksn1")
+
+[node name="PlatformShape12" type="StaticBody2D" parent="Platforms"]
+position = Vector2(448, 864)
+collision_layer = 2
+collision_mask = 7
+
+[node name="ColorRect" type="ColorRect" parent="Platforms/PlatformShape12"]
+offset_left = -128.0
+offset_top = -32.0
+offset_right = 128.0
+offset_bottom = 32.0
+color = Color(0, 0, 0, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/PlatformShape12"]
+shape = SubResource("RectangleShape2D_kksn1")
+
+[node name="PlatformShape13" type="StaticBody2D" parent="Platforms"]
+position = Vector2(320, 1376)
+collision_layer = 2
+collision_mask = 7
+
+[node name="ColorRect" type="ColorRect" parent="Platforms/PlatformShape13"]
+offset_left = -128.0
+offset_top = -32.0
+offset_right = 128.0
+offset_bottom = 32.0
+color = Color(0, 0, 0, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/PlatformShape13"]
+shape = SubResource("RectangleShape2D_kksn1")
 
 [node name="Bricks" type="Node2D" parent="."]
 
@@ -858,288 +1389,144 @@ position = Vector2(0, 2432)
 [node name="RigidBody2D39" parent="Bricks/BricksRight" instance=ExtResource("6_7omse")]
 position = Vector2(0, 2496)
 
-[node name="BricksMiddle" type="Node2D" parent="Bricks"]
+[node name="BottomBricks" type="Node2D" parent="Bricks"]
 
-[node name="RigidBody2D" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(256, 704)
-
-[node name="RigidBody2D2" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(320, 704)
-
-[node name="RigidBody2D3" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(384, 704)
-
-[node name="RigidBody2D147" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(64, 192)
-
-[node name="RigidBody2D148" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(128, 192)
-
-[node name="RigidBody2D149" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(192, 192)
-
-[node name="RigidBody2D150" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(896, 192)
-
-[node name="RigidBody2D151" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(960, 192)
-
-[node name="RigidBody2D152" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(1024, 192)
-
-[node name="RigidBody2D154" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(512, 448)
-
-[node name="RigidBody2D155" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(576, 448)
-
-[node name="RigidBody2D4" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(704, 704)
-
-[node name="RigidBody2D5" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(768, 704)
-
-[node name="RigidBody2D6" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(832, 704)
-
-[node name="RigidBody2D7" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(448, 960)
-
-[node name="RigidBody2D8" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(512, 960)
-
-[node name="RigidBody2D9" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(576, 960)
-
-[node name="RigidBody2D10" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(640, 960)
-
-[node name="RigidBody2D11" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(64, 1088)
-
-[node name="RigidBody2D12" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(128, 1088)
-
-[node name="RigidBody2D13" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(192, 1088)
-
-[node name="RigidBody2D14" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(256, 1088)
-
-[node name="RigidBody2D15" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(832, 1088)
-
-[node name="RigidBody2D16" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(896, 1088)
-
-[node name="RigidBody2D17" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(960, 1088)
-
-[node name="RigidBody2D18" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(1024, 1088)
-
-[node name="RigidBody2D19" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(320, 1344)
-
-[node name="RigidBody2D20" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(384, 1344)
-
-[node name="RigidBody2D21" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(704, 1344)
-
-[node name="RigidBody2D22" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(768, 1344)
-
-[node name="RigidBody2D23" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(512, 1344)
-
-[node name="RigidBody2D24" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(576, 1344)
-
-[node name="RigidBody2D25" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(128, 1536)
-
-[node name="RigidBody2D26" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(192, 1536)
-
-[node name="RigidBody2D27" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(128, 1600)
-
-[node name="RigidBody2D28" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(192, 1600)
-
-[node name="RigidBody2D29" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(896, 1536)
-
-[node name="RigidBody2D30" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(960, 1536)
-
-[node name="RigidBody2D31" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(896, 1600)
-
-[node name="RigidBody2D32" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(960, 1600)
-
-[node name="RigidBody2D33" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(384, 1856)
-
-[node name="RigidBody2D34" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(448, 1856)
-
-[node name="RigidBody2D35" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(512, 1856)
-
-[node name="RigidBody2D36" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(576, 1856)
-
-[node name="RigidBody2D37" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(640, 1856)
-
-[node name="RigidBody2D38" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(704, 1856)
-
-[node name="RigidBody2D39" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(512, 1792)
-
-[node name="RigidBody2D40" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
-position = Vector2(576, 1792)
-
-[node name="RigidBody2D65" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="base" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(64, 2496)
 
-[node name="RigidBody2D66" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D66" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(128, 2496)
 
-[node name="RigidBody2D67" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D67" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(192, 2496)
 
-[node name="RigidBody2D68" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D68" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(256, 2496)
 
-[node name="RigidBody2D69" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D69" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(448, 2496)
 
-[node name="RigidBody2D70" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D70" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(512, 2496)
 
-[node name="RigidBody2D71" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D71" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(576, 2496)
 
-[node name="RigidBody2D72" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D72" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(640, 2496)
 
-[node name="RigidBody2D73" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D73" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(960, 2496)
 
-[node name="RigidBody2D74" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D74" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(1024, 2496)
 
-[node name="RigidBody2D75" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D75" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(832, 2496)
 
-[node name="RigidBody2D76" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D76" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(896, 2496)
 
-[node name="RigidBody2D77" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D77" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(768, 2496)
 
-[node name="RigidBody2D84" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D84" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(960, 2432)
 
-[node name="RigidBody2D85" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D85" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(1024, 2432)
 
-[node name="RigidBody2D86" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D86" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(832, 2432)
 
-[node name="RigidBody2D87" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D87" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(896, 2432)
 
-[node name="RigidBody2D88" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D88" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(768, 2432)
 
-[node name="RigidBody2D89" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D89" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(256, 2432)
 
-[node name="RigidBody2D90" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D90" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(320, 2432)
 
-[node name="RigidBody2D91" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D91" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(128, 2432)
 
-[node name="RigidBody2D92" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D92" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(192, 2432)
 
-[node name="RigidBody2D93" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D93" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(64, 2432)
 
-[node name="RigidBody2D99" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D99" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(192, 2368)
 
-[node name="RigidBody2D100" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D100" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(256, 2368)
 
-[node name="RigidBody2D101" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D101" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(64, 2368)
 
-[node name="RigidBody2D102" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D102" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(128, 2368)
 
-[node name="RigidBody2D103" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D103" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(192, 2304)
 
-[node name="RigidBody2D105" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D105" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(64, 2304)
 
-[node name="RigidBody2D106" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D106" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(128, 2304)
 
-[node name="RigidBody2D109" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D109" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(64, 2240)
 
-[node name="RigidBody2D110" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D110" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(128, 2240)
 
-[node name="RigidBody2D111" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D111" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(960, 2240)
 
-[node name="RigidBody2D112" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D112" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(1024, 2240)
 
-[node name="RigidBody2D115" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D115" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(960, 2304)
 
-[node name="RigidBody2D116" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D116" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(1024, 2304)
 
-[node name="RigidBody2D118" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D118" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(896, 2304)
 
-[node name="RigidBody2D119" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D119" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(960, 2368)
 
-[node name="RigidBody2D120" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D120" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(1024, 2368)
 
-[node name="RigidBody2D121" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D121" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(832, 2368)
 
-[node name="RigidBody2D122" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D122" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(896, 2368)
 
-[node name="RigidBody2D124" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D124" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(1024, 2176)
 
-[node name="RigidBody2D146" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D146" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(64, 2176)
 
-[node name="RigidBody2D78" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D78" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(320, 2496)
 
-[node name="RigidBody2D59" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D59" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(384, 2496)
 
-[node name="RigidBody2D63" parent="Bricks/BricksMiddle" instance=ExtResource("6_7omse")]
+[node name="RigidBody2D63" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(704, 2496)
 
 [node name="player1" parent="." instance=ExtResource("4_nw050")]
@@ -1383,6 +1770,12 @@ speed_scale = 0.15
 libraries = {
 &"": SubResource("AnimationLibrary_03878")
 }
+
+[node name="Platforms2" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_nsywk")
+}
+autoplay = "movingparts"
 
 [node name="goal" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("9_x5lnl")

@@ -16,4 +16,5 @@ script = ExtResource("1_o3uao")
 [node name="music" type="AudioStreamPlayer2D" parent="."]
 process_mode = 3
 stream = SubResource("AudioStreamPlaylist_oodd7")
+max_distance = 200000.0
 bus = &"Music"

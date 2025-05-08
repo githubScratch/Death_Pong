@@ -184,7 +184,15 @@ layout_mode = 2
 layout_mode = 2
 text = "Begin"
 
+[node name="Label2" type="Label" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Settings" type="Button" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+text = "settings"
+
 [node name="Label" type="Label" parent="CenterContainer/VBoxContainer"]
+visible = false
 layout_mode = 2
 
 [node name="Training" type="Button" parent="CenterContainer/VBoxContainer"]
@@ -220,4 +228,5 @@ stream = ExtResource("5_fke4p")
 [connection signal="pressed" from="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer2/On" to="." method="_on_on_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer2/Off" to="." method="_on_off_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer5/Begin" to="." method="_on_begin_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/Settings" to="." method="_on_settings_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/Training" to="." method="_on_training_pressed"]

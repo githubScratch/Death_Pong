@@ -99,3 +99,6 @@ func _update_button_states() -> void:
 
 func _on_training_pressed() -> void:
 	get_tree().change_scene_to_file("res://ARENAS/training.tscn")
+
+func _on_settings_pressed() -> void:
+	get_tree().change_scene_to_file("res://MENUS/Settings_Menu.tscn")
