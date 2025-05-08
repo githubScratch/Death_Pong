@@ -888,5 +888,6 @@ shape = SubResource("CircleShape2D_i67ey")
 [node name="deflect_SFX" type="AudioStreamPlayer2D" parent="."]
 position = Vector2(2.6, -31)
 stream = ExtResource("3_i67ey")
+bus = &"SFX"
 
 [connection signal="body_entered" from="Area2D" to="Area2D" method="_on_body_entered"]

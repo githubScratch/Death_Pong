@@ -85,14 +85,18 @@ texture = SubResource("GradientTexture2D_5u4yc")
 [node name="jump" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("4_i151x")
 volume_db = 8.0
+bus = &"SFX"
 
 [node name="spell" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("5_i151x")
 volume_db = 1.0
 pitch_scale = 0.8
+bus = &"SFX"
 
 [node name="dash" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("6_l8f1v")
+bus = &"SFX"
 
 [node name="land" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("7_5u4yc")
+bus = &"SFX"

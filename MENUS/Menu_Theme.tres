@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=8 format=3 uid="uid://dka4pq4oxkc3b"]
+[gd_resource type="Theme" load_steps=9 format=3 uid="uid://dka4pq4oxkc3b"]
 
 [ext_resource type="FontFile" uid="uid://dg8i0skfgpb02" path="res://SPRITES/Vermin Vibes 1989.ttf" id="1_m34gy"]
 [ext_resource type="Texture2D" uid="uid://lovia63fg07t" path="res://SPRITES/75.png" id="3_y4sy7"]
@@ -72,6 +72,8 @@ corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 corner_detail = 5
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_kikyh"]
+
 [resource]
 Button/colors/font_color = Color(0.389287, 0.389286, 0.389287, 1)
 Button/colors/font_disabled_color = Color(0.875, 0.875, 0.875, 0.5)
@@ -96,3 +98,6 @@ HSlider/icons/grabber = ExtResource("3_y4sy7")
 HSlider/icons/grabber_highlight = ExtResource("3_y4sy7")
 Label/font_sizes/font_size = 60
 Label/fonts/font = ExtResource("1_m34gy")
+OptionButton/fonts/font = ExtResource("1_m34gy")
+OptionButton/styles/focus = SubResource("StyleBoxEmpty_kikyh")
+Tree/fonts/font = ExtResource("1_m34gy")

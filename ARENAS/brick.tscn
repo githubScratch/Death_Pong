@@ -226,7 +226,9 @@ libraries = {
 
 [node name="brick_impact" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("3_eoubk")
+bus = &"SFX"
 
 [node name="brick_break" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("4_uci3o")
 volume_db = -5.0
+bus = &"SFX"

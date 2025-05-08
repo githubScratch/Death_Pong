@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://3ls6165g3nah"]
+[gd_scene load_steps=8 format=3 uid="uid://3ls6165g3nah"]
 
 [ext_resource type="Theme" uid="uid://dka4pq4oxkc3b" path="res://MENUS/Menu_Theme.tres" id="1_iixn1"]
 [ext_resource type="Shader" uid="uid://c3fmb76te1444" path="res://ARENAS/VHS.gdshader" id="2_cmi0b"]
 [ext_resource type="Script" uid="uid://dsacml1m4gkty" path="res://MENUS/settings_menu.gd" id="2_rwbl6"]
+[ext_resource type="Script" uid="uid://l2wql1i4tuay" path="res://MENUS/volume_slider.gd" id="4_dn4fw"]
 [ext_resource type="AudioStream" uid="uid://d3rmk854uqt17" path="res://SFX/ui select.wav" id="4_t0xyb"]
 [ext_resource type="AudioStream" uid="uid://du6i7igev8i55" path="res://SFX/Menu_Select2.wav" id="5_dn4fw"]
 
@@ -108,12 +109,16 @@ layout_mode = 2
 
 [node name="Master" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer/SoundCont/HBoxContainer"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.388235, 0.388235, 0.388235, 1)
 theme_override_font_sizes/font_size = 30
 text = "MASTER"
 
 [node name="MasterSlide" type="HSlider" parent="CenterContainer/HBoxContainer/VBoxContainer/SoundCont/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+max_value = 1.0
+step = 0.01
+value = 0.8
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer/SoundCont"]
 layout_mode = 2
@@ -122,13 +127,16 @@ layout_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.388235, 0.388235, 0.388235, 1)
 theme_override_font_sizes/font_size = 30
-text = "BGM      "
+text = "MUSIC      "
 
 [node name="BGMSlide" type="HSlider" parent="CenterContainer/HBoxContainer/VBoxContainer/SoundCont/HBoxContainer2"]
 layout_mode = 2
 size_flags_horizontal = 3
-step = 10.0
-value = 80.0
+max_value = 1.0
+step = 0.1
+value = 0.8
+script = ExtResource("4_dn4fw")
+bus_name = "Music"
 
 [node name="HBoxContainer3" type="HBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer/SoundCont"]
 layout_mode = 2
@@ -137,13 +145,16 @@ layout_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.388235, 0.388235, 0.388235, 1)
 theme_override_font_sizes/font_size = 30
-text = "SFX      "
+text = "EFFECTS "
 
 [node name="SFXSlide" type="HSlider" parent="CenterContainer/HBoxContainer/VBoxContainer/SoundCont/HBoxContainer3"]
 layout_mode = 2
 size_flags_horizontal = 3
-step = 10.0
-value = 80.0
+max_value = 1.0
+step = 0.1
+value = 0.8
+script = ExtResource("4_dn4fw")
+bus_name = "SFX"
 
 [node name="ScreenCont" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
@@ -164,10 +175,13 @@ layout_mode = 2
 
 [node name="WindowedButton" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer/ScreenCont/HBoxContainer"]
 layout_mode = 2
+toggle_mode = true
 text = "WINDOWED"
 
 [node name="FullButton" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer/ScreenCont/HBoxContainer"]
 layout_mode = 2
+toggle_mode = true
+button_pressed = true
 text = "FULL"
 
 [node name="ControlCont" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer"]
@@ -190,8 +204,9 @@ layout_mode = 2
 [node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer"]
 layout_mode = 2
 
-[node name="Button" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer"]
+[node name="P1C" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer"]
 layout_mode = 2
+toggle_mode = true
 text = "p1"
 
 [node name="Label" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer"]
@@ -202,8 +217,9 @@ text = "p1      "
 [node name="VBoxContainer2" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer"]
 layout_mode = 2
 
-[node name="Button" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer2"]
+[node name="P2C" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer2"]
 layout_mode = 2
+toggle_mode = true
 text = "p2"
 
 [node name="Label2" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer2"]
@@ -239,8 +255,13 @@ text = "RESET"
 [node name="select" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("4_t0xyb")
 volume_db = -10.0
+bus = &"SFX"
 
 [node name="move" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("5_dn4fw")
+bus = &"SFX"
 
 [connection signal="pressed" from="CenterContainer/HBoxContainer/BackCont/BackButton" to="." method="_on_back_button_pressed"]
+[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer/ScreenCont/HBoxContainer/WindowedButton" to="." method="_on_windowed_button_pressed"]
+[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer/ScreenCont/HBoxContainer/FullButton" to="." method="_on_full_button_pressed"]
+[connection signal="pressed" from="CenterContainer/HBoxContainer/ResetCont/ResetButton" to="." method="_on_reset_button_pressed"]

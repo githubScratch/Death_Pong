@@ -111,9 +111,11 @@ grow_vertical = 2
 [node name="select" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("5_rlwtf")
 volume_db = -10.0
+bus = &"SFX"
 
 [node name="move" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("6_qvjdj")
+bus = &"SFX"
 
 [connection signal="pressed" from="CenterContainer/VBoxContainer/Begin" to="." method="_on_begin_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/Options" to="." method="_on_options_pressed"]
