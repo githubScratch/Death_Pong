@@ -103,6 +103,7 @@ visible = false
 shape = SubResource("CircleShape2D_s0u7k")
 
 [node name="PointLight2D" type="PointLight2D" parent="RigidBody2D"]
+visible = false
 scale = Vector2(0.5, 0.453125)
 energy = 2.0
 texture = SubResource("GradientTexture2D_s0u7k")

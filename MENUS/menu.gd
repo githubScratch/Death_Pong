@@ -13,6 +13,7 @@ func _physics_process(_delta: float) -> void:
 	if Input.is_action_just_pressed("ui_select"):
 		select.pitch_scale = randf_range(0.9, 1.1)
 		select.play()
+	
 
 func _on_begin_pressed() -> void:
 	if GameSettings.game_arena == "arena":

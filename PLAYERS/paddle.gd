@@ -1,9 +1,9 @@
 extends StaticBody2D
 
-@export var speed = 250
+@export var speed = 10
 @export var deflection_force: float = 1200.0
 @export var friction: float = 1.0
-@export var reaction_speed: float = 100.0 # How quickly the paddle reacts (higher = faster response)
+@export var reaction_speed: float = 10.0 # How quickly the paddle reacts (higher = faster response)
 @export var max_velocity: float = 400.0
 
 @onready var deflect_sfx: AudioStreamPlayer2D = $"../../deflect_SFX"

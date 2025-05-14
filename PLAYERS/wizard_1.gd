@@ -47,7 +47,7 @@ func _physics_process(delta: float) -> void:
 	shape.scale.y = lerpf(sprite.scale.y, 1, 1 - pow(0.01, delta))
 	
 	# Handle jump.
-	if Input.is_action_just_pressed("up1"):
+	if Input.is_action_just_pressed("p1_up"):
 		create_new_instance()
 		if not is_on_floor():
 			velocity.y = DBL_JUMP_VELOCITY
@@ -61,7 +61,7 @@ func _physics_process(delta: float) -> void:
 			jump.play()
 	
 	# Handle dive.
-	if Input.is_action_just_pressed("down1"):
+	if Input.is_action_just_pressed("p1_down"):
 		if not is_on_floor():
 			velocity.y = DIVE_VELOCITY
 			dash.pitch_scale = randf_range(0.9, 1.1)
@@ -79,7 +79,7 @@ func _physics_process(delta: float) -> void:
 
 	
 	# Get the input direction and handle the movement/deceleration.
-	var direction := Input.get_axis("left1", "right1")
+	var direction := Input.get_axis("p1_left", "p1_right")
 	if direction:
 		velocity.x = direction * SPEED
 		if direction > 0:

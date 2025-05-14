@@ -1442,92 +1442,29 @@ position = Vector2(0, 2496)
 [node name="base" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(64, 2496)
 
-[node name="RigidBody2D66" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
-position = Vector2(128, 2496)
-
-[node name="RigidBody2D67" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
-position = Vector2(192, 2496)
-
-[node name="RigidBody2D68" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
-position = Vector2(256, 2496)
-
-[node name="RigidBody2D69" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
-position = Vector2(448, 2496)
-
-[node name="RigidBody2D70" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
-position = Vector2(512, 2496)
-
-[node name="RigidBody2D71" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
-position = Vector2(576, 2496)
-
-[node name="RigidBody2D72" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
-position = Vector2(640, 2496)
-
-[node name="RigidBody2D73" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
-position = Vector2(960, 2496)
-
 [node name="RigidBody2D74" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(1024, 2496)
-
-[node name="RigidBody2D75" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
-position = Vector2(832, 2496)
-
-[node name="RigidBody2D76" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
-position = Vector2(896, 2496)
-
-[node name="RigidBody2D77" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
-position = Vector2(768, 2496)
-
-[node name="RigidBody2D84" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
-position = Vector2(960, 2432)
 
 [node name="RigidBody2D85" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(1024, 2432)
 
-[node name="RigidBody2D86" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
-position = Vector2(960, 2176)
-
-[node name="RigidBody2D91" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
-position = Vector2(128, 2432)
-
 [node name="RigidBody2D93" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(64, 2432)
-
-[node name="RigidBody2D100" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
-position = Vector2(128, 2176)
 
 [node name="RigidBody2D101" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(64, 2368)
 
-[node name="RigidBody2D102" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
-position = Vector2(128, 2368)
-
 [node name="RigidBody2D105" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(64, 2304)
-
-[node name="RigidBody2D106" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
-position = Vector2(128, 2304)
 
 [node name="RigidBody2D109" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(64, 2240)
 
-[node name="RigidBody2D110" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
-position = Vector2(128, 2240)
-
-[node name="RigidBody2D111" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
-position = Vector2(960, 2240)
-
 [node name="RigidBody2D112" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(1024, 2240)
 
-[node name="RigidBody2D115" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
-position = Vector2(960, 2304)
-
 [node name="RigidBody2D116" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(1024, 2304)
-
-[node name="RigidBody2D119" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
-position = Vector2(960, 2368)
 
 [node name="RigidBody2D120" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(1024, 2368)
@@ -1538,26 +1475,11 @@ position = Vector2(1024, 2176)
 [node name="RigidBody2D146" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(64, 2176)
 
-[node name="RigidBody2D104" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
-position = Vector2(128, 2112)
-
 [node name="RigidBody2D147" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(64, 2112)
 
 [node name="RigidBody2D95" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(1024, 2112)
-
-[node name="RigidBody2D107" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
-position = Vector2(960, 2112)
-
-[node name="RigidBody2D78" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
-position = Vector2(320, 2496)
-
-[node name="RigidBody2D59" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
-position = Vector2(384, 2496)
-
-[node name="RigidBody2D63" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
-position = Vector2(704, 2496)
 
 [node name="player1" parent="." instance=ExtResource("4_nw050")]
 position = Vector2(128, 128)

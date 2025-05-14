@@ -17,15 +17,15 @@ curve = SubResource("Curve_ix2m6")
 
 [resource]
 particle_flag_disable_z = true
-emission_shape = 3
-emission_box_extents = Vector3(10, 75, 1)
+emission_shape = 1
+emission_sphere_radius = 1.0
 spread = 90.0
-gravity = Vector3(400, 0, 0)
+gravity = Vector3(0, 0, 0)
 linear_accel_curve = SubResource("CurveTexture_ix2m6")
 radial_accel_min = -500.0
 radial_accel_max = 500.0
 tangential_accel_min = -500.0
 tangential_accel_max = 500.0
-scale_max = 1.5
+scale_max = 4.0
 color = Color(0.960544, 0.0192845, 1, 1)
 color_ramp = SubResource("GradientTexture1D_0yefq")

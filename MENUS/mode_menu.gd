@@ -3,10 +3,10 @@ extends Control
 @onready var pure: Button = $CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer3/Pure
 @onready var random: Button = $CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer3/Random
 @onready var arena: Button = $CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer/Arena
-@onready var yonder: Button = $CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer/Yonder
+@onready var tower: Button = $CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer/Tower
 @onready var on: Button = $CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer2/On
 @onready var off: Button = $CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer2/Off
-@onready var random_map: Button = $CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer/RandomMap
+@onready var yonder: Button = $CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer/Yonder
 @onready var hot_potatoe: Button = $CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer3/Hot_Potatoe
 
 
@@ -38,8 +38,10 @@ func _on_back_pressed() -> void:
 func _on_begin_pressed() -> void:
 	if GameSettings.game_arena == "arena":
 		get_tree().change_scene_to_file("res://ARENAS/arena.tscn")
-	else:
+	if GameSettings.game_arena == "tower":
 		get_tree().change_scene_to_file("res://ARENAS/tower.tscn")
+	if GameSettings.game_arena == "yonder":
+		get_tree().change_scene_to_file("res://ARENAS/yonder.tscn")
 
 func _on_pure_pressed() -> void:
 	pure.set_pressed_no_signal(true)
@@ -60,19 +62,19 @@ func _on_hot_potatoe_pressed() -> void:
 
 func _on_arena_pressed() -> void:
 	arena.set_pressed_no_signal(true)
+	tower.set_pressed_no_signal(false)
 	yonder.set_pressed_no_signal(false)
-	random_map.set_pressed_no_signal(false)
 	GameSettings.set_game_arena("arena")
+func _on_tower_pressed() -> void:
+	arena.set_pressed_no_signal(false)
+	tower.set_pressed_no_signal(true)
+	yonder.set_pressed_no_signal(false)
+	GameSettings.set_game_arena("tower")
 func _on_yonder_pressed() -> void:
 	arena.set_pressed_no_signal(false)
+	tower.set_pressed_no_signal(false)
 	yonder.set_pressed_no_signal(true)
-	random_map.set_pressed_no_signal(false)
 	GameSettings.set_game_arena("yonder")
-func _on_random_map_pressed() -> void:
-	arena.set_pressed_no_signal(false)
-	yonder.set_pressed_no_signal(false)
-	random_map.set_pressed_no_signal(true)
-	GameSettings.set_game_arena("random_map")
 
 
 func _on_on_pressed() -> void:
@@ -90,8 +92,8 @@ func _update_button_states() -> void:
 	hot_potatoe.set_pressed_no_signal(GameSettings.game_mode == "hot")
 	
 	arena.set_pressed_no_signal(GameSettings.game_arena == "arena")
+	tower.set_pressed_no_signal(GameSettings.game_arena == "tower")
 	yonder.set_pressed_no_signal(GameSettings.game_arena == "yonder")
-	random_map.set_pressed_no_signal(GameSettings.game_arena == "random")
 	
 	on.set_pressed_no_signal(GameSettings.game_magic == "on")
 	off.set_pressed_no_signal(GameSettings.game_magic == "off")

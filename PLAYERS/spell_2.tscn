@@ -638,6 +638,7 @@ fill_to = Vector2(0, 0.5)
 radius = 56.0
 
 [node name="Node2D" type="Node2D"]
+z_index = 2
 
 [node name="outerlight" type="PointLight2D" parent="."]
 position = Vector2(4, 5)

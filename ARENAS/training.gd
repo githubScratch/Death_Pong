@@ -20,6 +20,10 @@ var current_instance: Node = null
 var ball_instances = []
 @onready var screen_shader: ColorRect = $CanvasLayer/ScreenShader
 @onready var score_player = $Training_HUD/ScorePlayer
+@onready var paddle: StaticBody2D = $Arena/Paddle
+
+@export var p2_scene: PackedScene
+var p2_playing = false
 
 func _ready() -> void:
 	
@@ -40,7 +44,6 @@ func _process(_delta: float) -> void:
 			select.pitch_scale = randf_range(0.9, 1.1)
 			select.play()
 	
-	
 	if Input.is_action_just_pressed("ui_select"):
 		if not is_paused and not is_victory:
 			pause()
@@ -51,12 +54,25 @@ func _process(_delta: float) -> void:
 			unpause_game()
 			print("UI accept pressed while paused")
 
+	if Input.is_action_just_pressed("p2_down") or Input.is_action_just_pressed("p2_left") or Input.is_action_just_pressed("p2_right") or Input.is_action_just_pressed("p2_up"):
+		summon_p2()
+
 func apply_game_settings() -> void:
 		create_new_instance()
 func _on_settings_changed() -> void:
 	# Re-apply settings when they change
 	apply_game_settings()
 
+
+func summon_p2():
+	if is_instance_valid(p2_scene) and not p2_playing:
+		p2_playing = true
+		#await get_tree().create_timer(0.5).timeout
+		var p2_instance = p2_scene.instantiate()
+		p2_instance.global_position = Vector2(576, 70)
+		get_tree().current_scene.add_child(p2_instance)
+		spawn_ball.pitch_scale = randf_range(1.4, 1.6)
+		spawn_ball.play()
 #Ball Reset
 func create_new_instance():
 	# Check if scene is assigned using is_instance_valid
@@ -79,6 +95,7 @@ func _on_goal_left_body_entered(body: Node2D) -> void:
 		goal_particles.play("RESET")
 		goal_particles.play("left_goal")
 		player1_score = 0
+		paddle.scale.y = 3 + player1_score
 		score_player.play("RESET")
 		score_player.play("p1")
 		hud.update_score(player1_score, player2_score)
@@ -97,6 +114,7 @@ func _on_goal_right_body_entered(body: Node2D) -> void:
 		goal_particles.play("RESET")
 		goal_particles.play("right_goal")
 		player1_score += 1
+		paddle.scale.y = 3 + (player1_score * 0.5)
 		score_player.play("RESET")
 		score_player.play("p1")
 		hud.update_score(player1_score, player2_score)
@@ -106,7 +124,7 @@ func _on_goal_right_body_entered(body: Node2D) -> void:
 		# Queue this specific ball for deletion
 		body.queue_free()
 		
-		if player1_score >= 10:
+		if player1_score >= 50:
 			# Clear all remaining balls
 			for ball in ball_instances:
 				if is_instance_valid(ball):
@@ -118,7 +136,7 @@ func _on_goal_right_body_entered(body: Node2D) -> void:
 			rematch_1.grab_focus()
 		else:
 			create_new_instance()
-
+		
 func pause():
 	get_tree().paused = true
 func unpause_game():

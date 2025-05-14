@@ -2,29 +2,30 @@ extends Node2D
 
 var player1_score = 0
 var player2_score = 0
+@onready var hud: Node2D = $HUD
+@onready var victory_screens: AnimationPlayer = $Victory_Screens
+@onready var rematch_1: Button = $Player_1_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch1
+@onready var rematch_2: Button = $Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch2
+@onready var player_1: Node2D = $player1
+@onready var player_2: Node2D = $player2
+@onready var continue_1: Button = $Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1
 var is_paused = false
 var is_victory = false
 var current_instance: Node = null
 @export var instance_scene: PackedScene
-@onready var hud: Node2D = $CameraPackage/HUD
-@onready var spawn_ball: AudioStreamPlayer2D = $spawn_ball
 @onready var goal: AudioStreamPlayer2D = $goal
-@onready var ballspawn: Area2D = $CameraPackage/ballspawn
-@onready var screen_player: AnimationPlayer = $CameraPackage/Screens/ScreenPlayer
-@onready var continue_1: Button = $CameraPackage/Screens/Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1
+@onready var spawn_ball: AudioStreamPlayer2D = $spawn_ball
 @onready var select: AudioStreamPlayer2D = $select
 @onready var move: AudioStreamPlayer2D = $move
-@onready var rematch_1: Button = $CameraPackage/Screens/Player_1_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch1
-@onready var rematch_2: Button = $CameraPackage/Screens/Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch2
-@onready var goal_player: AnimationPlayer = $GoalPlayer
-@onready var score_player = $CameraPackage/HUD/ScorePlayer
+@onready var goal_particles: AnimationPlayer = $Goal_Particles
 var ball_instances = []
+@onready var screen_shader: ColorRect = $CanvasLayer/ScreenShader
+@onready var score_player = $HUD/ScorePlayer
 @onready var mid_barrier: Node2D = $Mid_Barrier
 @onready var mid_collision: StaticBody2D = $Mid_Barrier/Mid_Collision
 
-
-# Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	
 	apply_game_settings() 
 	Engine.time_scale = 1.0
 	is_victory = false
@@ -32,8 +33,6 @@ func _ready() -> void:
 	
 	GameSettings.settings_changed.connect(_on_settings_changed)
 
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta: float) -> void:
 	if Input.is_action_just_pressed("ui_left") or Input.is_action_just_pressed("ui_right"):
 		if is_paused or is_victory:
@@ -43,10 +42,12 @@ func _process(_delta: float) -> void:
 		if is_paused or is_victory:
 			select.pitch_scale = randf_range(0.9, 1.1)
 			select.play()
+	
+	
 	if Input.is_action_just_pressed("ui_select"):
 		if not is_paused and not is_victory:
 			pause()
-			screen_player.play("pause")
+			victory_screens.play("Pause")
 			is_paused = true
 			continue_1.grab_focus()
 		elif is_paused and not is_victory:
@@ -72,22 +73,21 @@ func create_new_instance():
 	if is_instance_valid(instance_scene):
 		await get_tree().create_timer(0.5).timeout
 		var instance = instance_scene.instantiate()
-		instance.global_position = ballspawn.global_position
+		instance.global_position = Vector2(576, 70)
 		get_tree().current_scene.add_child(instance)
 		# Add the instance to our array
 		ball_instances.append(instance)
 		spawn_ball.pitch_scale = randf_range(0.4, 0.6)
 		spawn_ball.play()
 
-
-
-func _on_leftgoal_body_entered(body: Node2D) -> void:
+#Scoring
+func _on_goal_left_body_entered(body: Node2D) -> void:
 	if body.is_in_group("ball"):
 		# Remove this specific ball from our array
 		if ball_instances.has(body):
 			ball_instances.erase(body)
-		
-		goal_player.play("left_goal")
+		goal_particles.play("RESET")
+		goal_particles.play("left_goal")
 		player2_score += 1
 		score_player.play("RESET")
 		score_player.play("p2")
@@ -105,7 +105,7 @@ func _on_leftgoal_body_entered(body: Node2D) -> void:
 					ball.queue_free()
 			ball_instances.clear()
 			
-			screen_player.play("Player_2_Victory")
+			victory_screens.play("Player_2_Victory")
 			is_victory = true
 			rematch_2.grab_focus()
 		elif player2_score >= 5 and GameSettings.game_mode == "random":
@@ -114,7 +114,7 @@ func _on_leftgoal_body_entered(body: Node2D) -> void:
 					ball.queue_free()
 			ball_instances.clear()
 			
-			screen_player.play("Player_2_Victory")
+			victory_screens.play("Player_2_Victory")
 			is_victory = true
 			rematch_2.grab_focus()
 		else:
@@ -123,15 +123,13 @@ func _on_leftgoal_body_entered(body: Node2D) -> void:
 				create_new_instance()
 			else:
 				create_new_instance()
-
-
-func _on_rightgoal_body_entered(body: Node2D) -> void:
+func _on_goal_right_body_entered(body: Node2D) -> void:
 	if body.is_in_group("ball"):
 		# Remove this specific ball from our array
 		if ball_instances.has(body):
 			ball_instances.erase(body)
-		
-		goal_player.play("right_goal")
+		goal_particles.play("RESET")
+		goal_particles.play("right_goal")
 		player1_score += 1
 		score_player.play("RESET")
 		score_player.play("p1")
@@ -149,7 +147,7 @@ func _on_rightgoal_body_entered(body: Node2D) -> void:
 					ball.queue_free()
 			ball_instances.clear()
 			
-			screen_player.play("Player_1_Victory")
+			victory_screens.play("Player_1_Victory")
 			is_victory = true
 			rematch_1.grab_focus()
 		elif player1_score >= 5 and GameSettings.game_mode == "random":
@@ -158,7 +156,7 @@ func _on_rightgoal_body_entered(body: Node2D) -> void:
 					ball.queue_free()
 			ball_instances.clear()
 			
-			screen_player.play("Player_1_Victory")
+			victory_screens.play("Player_1_Victory")
 			is_victory = true
 			rematch_1.grab_focus()
 		else:
@@ -168,46 +166,43 @@ func _on_rightgoal_body_entered(body: Node2D) -> void:
 			else:
 				create_new_instance()
 
+func pause():
+	get_tree().paused = true
+func unpause_game():
+	is_paused = false
+	continue_1.release_focus()
+	victory_screens.play("Clear")
+	await get_tree().create_timer(0.5).timeout
+	get_tree().paused = false
 
-func _on_leftslow_body_entered(body: Node2D) -> void:
+
+#Time Slow Zones ---  debug shader parameter tweens
+func _on_zone_left_body_entered(body: Node2D) -> void:
 	if body.is_in_group("ball"):
 		Engine.time_scale = 0.35
-func _on_leftslow_body_exited(body: Node2D) -> void:
+		#screen_shader.material.set_shader_parameter("Abberation", 1)
+func _on_zone_left_body_exited(body: Node2D) -> void:
+	if body.is_in_group("ball"):
+		Engine.time_scale = 1.0
+func _on_zone_right_body_entered(body: Node2D) -> void:
+	if body.is_in_group("ball"):
+		Engine.time_scale = 0.35
+func _on_zone_right_body_exited(body: Node2D) -> void:
 	if body.is_in_group("ball"):
 		Engine.time_scale = 1.0
 
-func _on_rightslow_body_entered(body: Node2D) -> void:
-	if body.is_in_group("ball"):
-		Engine.time_scale = 0.35
-func _on_rightslow_body_exited(body: Node2D) -> void:
-	if body.is_in_group("ball"):
-		Engine.time_scale = 1.0
-
-
+#UI
 func _on_rematch_1_pressed() -> void:
-	get_tree().change_scene_to_file("res://ARENAS/tower.tscn")
+	get_tree().change_scene_to_file("res://ARENAS/yonder.tscn")
 func _on_rematch_2_pressed() -> void:
-	get_tree().change_scene_to_file("res://ARENAS/tower.tscn")
-
-
+	get_tree().change_scene_to_file("res://ARENAS/yonder.tscn")
 func _on_menu_1_pressed() -> void:
 	get_tree().change_scene_to_file("res://MENUS/Menu.tscn")
 func _on_menu_2_pressed() -> void:
 	get_tree().change_scene_to_file("res://MENUS/Menu.tscn")
-
-
 func _on_continue_1_pressed() -> void:
 	unpause_game()
 func _on_menu_3_pressed() -> void:
 	is_paused = false
 	get_tree().paused = false
 	get_tree().change_scene_to_file("res://MENUS/Menu.tscn")
-
-func pause():
-	get_tree().paused = true
-func unpause_game():
-	is_paused = false
-	continue_1.release_focus()
-	screen_player.play("clear")
-	await get_tree().create_timer(0.5).timeout
-	get_tree().paused = false

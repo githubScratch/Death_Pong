@@ -1,7 +1,8 @@
-[gd_scene load_steps=45 format=3 uid="uid://cfs8q111iyhd7"]
+[gd_scene load_steps=46 format=3 uid="uid://cfs8q111iyhd7"]
 
 [ext_resource type="Script" uid="uid://3qh880skgy66" path="res://ARENAS/training.gd" id="1_dyoqr"]
 [ext_resource type="PackedScene" uid="uid://y5oxfkoo8240" path="res://ARENAS/ball.tscn" id="2_idtaw"]
+[ext_resource type="PackedScene" uid="uid://il58hnsuqbax" path="res://PLAYERS/wizard_2.tscn" id="3_idtaw"]
 [ext_resource type="Texture2D" uid="uid://digthh0it584s" path="res://SPRITES/88.png" id="4_q3utb"]
 [ext_resource type="Material" uid="uid://brqgt7jbrx5hb" path="res://ARENAS/green_particles.tres" id="5_aulle"]
 [ext_resource type="PackedScene" uid="uid://5enwj83o6uc4" path="res://PLAYERS/paddle.tscn" id="5_g3b2f"]
@@ -107,7 +108,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0.266667, 0.733333, 1.03333, 1.3, 1.73333, 2),
 "transitions": PackedFloat32Array(0.5, 0.5, 0.5, 0.5, 0.5, 0.5),
 "update": 0,
-"values": [Vector2(1, 1), Vector2(0.25, 7), Vector2(0.5, 2), Vector2(0.25, 5), Vector2(0.5, 2), Vector2(0.25, 4)]
+"values": [Vector2(1, 1), Vector2(0.25, 7), Vector2(0.5, 2), Vector2(0.25, 5), Vector2(0.5, 2), Vector2(0.25, 3)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -650,6 +651,18 @@ tracks/3/keys = {
 "update": 0,
 "values": [5.0]
 }
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("../Arena/Paddle:skew")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
 
 [sub_resource type="Animation" id="Animation_ji56j"]
 resource_name = "left_goal"
@@ -728,6 +741,18 @@ tracks/2/keys = {
 "update": 0,
 "values": [5.0, 1.0, 5.0]
 }
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("../Arena/Paddle:skew")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.3, 0.433333, 0.566667, 0.7),
+"transitions": PackedFloat32Array(2, 2, 2, 2, 1),
+"update": 0,
+"values": [0.0, 0.261799, -0.523599, 0.261799, 0.0]
+}
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_knbf3"]
 _data = {
@@ -739,6 +764,7 @@ _data = {
 [node name="Node2D" type="Node2D"]
 script = ExtResource("1_dyoqr")
 instance_scene = ExtResource("2_idtaw")
+p2_scene = ExtResource("3_idtaw")
 
 [node name="Arena" type="Node2D" parent="."]
 
@@ -962,7 +988,7 @@ layout_mode = 2
 layout_mode = 2
 theme = ExtResource("10_vtlgo")
 theme_override_colors/font_color = Color(0.639216, 0.00392157, 1, 1)
-text = "PURPLE WIZARD WINS"
+text = "YER A WIZARD"
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Player_1_Victory/CenterContainer/VBoxContainer"]
 modulate = Color(1, 1, 1, 0)
