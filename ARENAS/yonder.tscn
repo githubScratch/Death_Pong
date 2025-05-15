@@ -1,4 +1,4 @@
-[gd_scene load_steps=45 format=3 uid="uid://dgwvptvanlrmw"]
+[gd_scene load_steps=66 format=3 uid="uid://dgwvptvanlrmw"]
 
 [ext_resource type="Script" uid="uid://bgrjsmb0uowwo" path="res://ARENAS/yonder.gd" id="1_2qecu"]
 [ext_resource type="PackedScene" uid="uid://y5oxfkoo8240" path="res://ARENAS/ball.tscn" id="2_0dqhp"]
@@ -15,7 +15,13 @@
 [ext_resource type="AudioStream" uid="uid://du6i7igev8i55" path="res://SFX/Menu_Select2.wav" id="14_7w3lq"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_444vf"]
-size = Vector2(1656, 67.25)
+size = Vector2(824, 64)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0dqhp"]
+size = Vector2(824, 64)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hhauf"]
+size = Vector2(826, 64)
 
 [sub_resource type="Gradient" id="Gradient_2qecu"]
 offsets = PackedFloat32Array(0.182, 0.24, 0.357, 0.63)
@@ -31,7 +37,7 @@ radius = 128.25
 
 [sub_resource type="Gradient" id="Gradient_tyr75"]
 offsets = PackedFloat32Array(0.442, 0.539, 0.701)
-colors = PackedColorArray(0, 0.698039, 0.101961, 1, 0, 0, 0, 0.658824, 0, 0, 0, 0)
+colors = PackedColorArray(0, 0.7, 0.105, 1, 0, 0, 0, 0.658824, 0, 0, 0, 0)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_0dqhp"]
 gradient = SubResource("Gradient_tyr75")
@@ -72,7 +78,7 @@ fill_from = Vector2(0.5, 0.5)
 
 [sub_resource type="Gradient" id="Gradient_0dqhp"]
 offsets = PackedFloat32Array(0.441558, 0.538961, 0.701299)
-colors = PackedColorArray(0.639216, 0.00392157, 1, 1, 0, 0, 0, 0.72549, 0, 0, 0, 0)
+colors = PackedColorArray(0.633333, 0, 1, 1, 0, 0, 0, 0.72549, 0, 0, 0, 0)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_hhauf"]
 gradient = SubResource("Gradient_0dqhp")
@@ -81,6 +87,37 @@ fill_from = Vector2(0.5, 0.5)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_tyr75"]
 radius = 24.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_e055s"]
+size = Vector2(2368, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_evosj"]
+size = Vector2(2304, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2qecu"]
+size = Vector2(1408, 88)
+
+[sub_resource type="Gradient" id="Gradient_e055s"]
+offsets = PackedFloat32Array(0.194805, 1)
+colors = PackedColorArray(0.34, 0.681, 1, 0, 1, 1, 1, 0.34902)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_2qecu"]
+gradient = SubResource("Gradient_e055s")
+fill_from = Vector2(1, 0)
+fill_to = Vector2(1, 1)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_tyr75"]
+size = Vector2(1408, 80)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_6yia0"]
+gradient = SubResource("Gradient_e055s")
+fill_from = Vector2(1, 1)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_6yia0"]
+size = Vector2(1409, 9)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_pmepg"]
+size = Vector2(1408, 8)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_55po1"]
 shader = ExtResource("9_tcwve")
@@ -365,7 +402,7 @@ length = 0.001
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("../Arena/walls/left_goal_pack/Goal_Left/leftparticles:emitting")
+tracks/0/path = NodePath("../Yonder/walls/left_goal_pack/Goal_Left/leftparticles:emitting")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -377,7 +414,7 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("../Arena/walls/right_goal_pack/Goal_Right/rightparticles:emitting")
+tracks/1/path = NodePath("../Yonder/walls/right_goal_pack/Goal_Right/rightparticles:emitting")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -389,7 +426,7 @@ tracks/1/keys = {
 tracks/2/type = "value"
 tracks/2/imported = false
 tracks/2/enabled = true
-tracks/2/path = NodePath("../Arena/walls/left_goal_pack/Zone_Left/PointLight2D:texture_scale")
+tracks/2/path = NodePath("../Yonder/walls/left_goal_pack/Zone_Left/PointLight2D:texture_scale")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
@@ -401,7 +438,7 @@ tracks/2/keys = {
 tracks/3/type = "value"
 tracks/3/imported = false
 tracks/3/enabled = true
-tracks/3/path = NodePath("../Arena/walls/right_goal_pack/Zone_Right/PointLight2D2:energy")
+tracks/3/path = NodePath("../Yonder/walls/right_goal_pack/Zone_Right/PointLight2D2:energy")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
@@ -416,7 +453,7 @@ resource_name = "left_goal"
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("../Arena/walls/left_goal_pack/Goal_Left/leftparticles:emitting")
+tracks/0/path = NodePath("../Yonder/walls/left_goal_pack/Goal_Left/leftparticles:emitting")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -428,7 +465,7 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("../Arena/walls/left_goal_pack/Zone_Left/PointLight2D:texture_scale")
+tracks/1/path = NodePath("../Yonder/walls/left_goal_pack/Zone_Left/PointLight2D:texture_scale")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -440,7 +477,7 @@ tracks/1/keys = {
 tracks/2/type = "value"
 tracks/2/imported = false
 tracks/2/enabled = true
-tracks/2/path = NodePath("../Arena/walls/left_goal_pack/Zone_Left/PointLight2D:energy")
+tracks/2/path = NodePath("../Yonder/walls/left_goal_pack/Zone_Left/PointLight2D:energy")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
@@ -455,7 +492,7 @@ resource_name = "right_goal"
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("../Arena/walls/right_goal_pack/Goal_Right/rightparticles:emitting")
+tracks/0/path = NodePath("../Yonder/walls/right_goal_pack/Goal_Right/rightparticles:emitting")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -467,7 +504,7 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("../Arena/walls/right_goal_pack/Zone_Right/PointLight2D2:texture_scale")
+tracks/1/path = NodePath("../Yonder/walls/right_goal_pack/Zone_Right/PointLight2D2:texture_scale")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -479,7 +516,7 @@ tracks/1/keys = {
 tracks/2/type = "value"
 tracks/2/imported = false
 tracks/2/enabled = true
-tracks/2/path = NodePath("../Arena/walls/right_goal_pack/Zone_Right/PointLight2D2:energy")
+tracks/2/path = NodePath("../Yonder/walls/right_goal_pack/Zone_Right/PointLight2D2:energy")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
@@ -494,6 +531,326 @@ _data = {
 &"RESET": SubResource("Animation_6dkjy"),
 &"left_goal": SubResource("Animation_ji56j"),
 &"right_goal": SubResource("Animation_4q2d8")
+}
+
+[sub_resource type="Animation" id="Animation_0dqhp"]
+resource_name = "top_glow"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("../Yonder/portals/portal_top/Sprite2D:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.133333, 0.5),
+"transitions": PackedFloat32Array(0.3, 0.3, 1),
+"update": 0,
+"values": [Vector2(22, 1), Vector2(22, 2), Vector2(22, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("../Yonder/portals/portal_bottom/Sprite2D2:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.133333, 0.5),
+"transitions": PackedFloat32Array(0.3, 0.3, 1),
+"update": 0,
+"values": [Vector2(22, 1), Vector2(22, 2), Vector2(22, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_hhauf"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("../Yonder/portals/portal_top/Sprite2D:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(22, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_evosj"]
+resource_name = "bot_glow"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("../Yonder/portals/portal_bottom/Sprite2D2:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.133333, 0.5),
+"transitions": PackedFloat32Array(0.3, 0.3, 1),
+"update": 0,
+"values": [Vector2(22, 1), Vector2(22, 2), Vector2(22, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("../Yonder/portals/portal_top/Sprite2D:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.133333, 0.5),
+"transitions": PackedFloat32Array(0.3, 0.3, 1),
+"update": 0,
+"values": [Vector2(22, 1), Vector2(22, 2), Vector2(22, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_e055s"]
+_data = {
+&"RESET": SubResource("Animation_hhauf"),
+&"bot_glow": SubResource("Animation_evosj"),
+&"top_glow": SubResource("Animation_0dqhp")
+}
+
+[sub_resource type="Animation" id="Animation_2qecu"]
+resource_name = "orbit"
+length = 10.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("../Yonder/walls/left_goal_pack:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 10),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, -6.28319]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("../Yonder/walls/right_goal_pack:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 10),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 6.28319]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("../Yonder/walls/right_goal_pack:scale")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 5, 5.5, 10),
+"transitions": PackedFloat32Array(0.5, 0.5, 1, 1),
+"update": 0,
+"values": [Vector2(1, 1), Vector2(0.5, 0.5), Vector2(0.5, 0.5), Vector2(1, 1)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("../Yonder/walls/left_goal_pack:scale")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 5, 5.5, 10),
+"transitions": PackedFloat32Array(0.5, 0.5, 1, 1),
+"update": 0,
+"values": [Vector2(1, 1), Vector2(0.5, 0.5), Vector2(0.5, 0.5), Vector2(1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_tyr75"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("../Yonder/walls/left_goal_pack:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("../Yonder/walls/right_goal_pack:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("../Yonder/walls/left_goal_pack:scale")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("../Yonder/walls/right_goal_pack:scale")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_0dqhp"]
+_data = {
+&"RESET": SubResource("Animation_tyr75"),
+&"orbit": SubResource("Animation_2qecu")
+}
+
+[sub_resource type="Animation" id="Animation_e055s"]
+resource_name = "opening"
+length = 30.0
+loop_mode = 2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Yonder/walls/top_left:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 5, 27.5, 30),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(-248, -128), Vector2(-248, -128), Vector2(-952, -128), Vector2(-952, -128)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Yonder/walls/top_right:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 5, 27.5, 30),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(576, -128), Vector2(576, -128), Vector2(1280, -128), Vector2(1280, -128)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Yonder/walls/bottom_left:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 5, 27.5, 30),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(-248, 704), Vector2(-248, 704), Vector2(-952, 704), Vector2(-952, 704)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Yonder/walls/bottom_right:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 5, 27.5, 30),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(576, 704), Vector2(576, 704), Vector2(1280, 704), Vector2(1280, 704)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = false
+tracks/4/path = NodePath("Yonder/walls/false_floor:position")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(30, 59.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(-576, 832), Vector2(-576, -192)]
+}
+
+[sub_resource type="Animation" id="Animation_6yia0"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Yonder/walls/top_left:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(-248, -128)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Yonder/walls/top_right:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(576, -128)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Yonder/walls/bottom_left:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(-248, 704)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Yonder/walls/bottom_right:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(576, 704)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Yonder/walls/false_floor:position")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(-576, 752)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_pmepg"]
+_data = {
+&"RESET": SubResource("Animation_6yia0"),
+&"opening": SubResource("Animation_e055s")
 }
 
 [sub_resource type="Gradient" id="Gradient_0yefq"]
@@ -513,69 +870,117 @@ gradient = SubResource("Gradient_ji56j")
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_knbf3"]
 size = Vector2(16.5, 1088)
 
-[node name="Node2D" type="Node2D"]
+[node name="Node2D" type="Node2D" node_paths=PackedStringArray("swap_area_top", "swap_area_bottom")]
 script = ExtResource("1_2qecu")
 instance_scene = ExtResource("2_0dqhp")
+swap_area_top = NodePath("Yonder/portals/portal_bottom_exit")
+swap_area_bottom = NodePath("Yonder/portals/portal_top_exit")
 
-[node name="Arena" type="Node2D" parent="."]
+[node name="Yonder" type="Node2D" parent="."]
 
-[node name="walls" type="Node2D" parent="Arena"]
+[node name="walls" type="Node2D" parent="Yonder"]
 
-[node name="top" type="StaticBody2D" parent="Arena/walls"]
-position = Vector2(16, -128)
+[node name="top_left" type="StaticBody2D" parent="Yonder/walls"]
+position = Vector2(-248, -128)
 collision_layer = 2
 collision_mask = 7
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Arena/walls/top"]
-position = Vector2(564, 31.75)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Yonder/walls/top_left"]
+position = Vector2(412, 32)
 shape = SubResource("RectangleShape2D_444vf")
 
-[node name="ColorRect7" type="ColorRect" parent="Arena/walls/top"]
-offset_left = -264.0
-offset_right = 1392.0
+[node name="ColorRect7" type="ColorRect" parent="Yonder/walls/top_left"]
+offset_left = 0.153076
+offset_top = 0.27446
+offset_right = 824.153
+offset_bottom = 64.2745
+color = Color(0, 0, 0, 1)
+
+[node name="top_right" type="StaticBody2D" parent="Yonder/walls"]
+position = Vector2(576, -128)
+collision_layer = 2
+collision_mask = 7
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Yonder/walls/top_right"]
+position = Vector2(412, 32)
+shape = SubResource("RectangleShape2D_0dqhp")
+
+[node name="ColorRect" type="ColorRect" parent="Yonder/walls/top_right"]
+offset_right = 824.0
 offset_bottom = 64.0
 color = Color(0, 0, 0, 1)
 
-[node name="right" type="StaticBody2D" parent="Arena/walls"]
+[node name="bottom_left" type="StaticBody2D" parent="Yonder/walls"]
+position = Vector2(-248, 704)
+collision_layer = 2
+collision_mask = 7
+
+[node name="ColorRect4" type="ColorRect" parent="Yonder/walls/bottom_left"]
+offset_right = 824.0
+offset_bottom = 64.0
+color = Color(0, 0, 0, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Yonder/walls/bottom_left"]
+visible = false
+position = Vector2(412, 32)
+shape = SubResource("RectangleShape2D_444vf")
+
+[node name="bottom_right" type="StaticBody2D" parent="Yonder/walls"]
+position = Vector2(576, 704)
+collision_layer = 2
+collision_mask = 7
+
+[node name="ColorRect" type="ColorRect" parent="Yonder/walls/bottom_right"]
+offset_right = 824.0
+offset_bottom = 64.0
+color = Color(0, 0, 0, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Yonder/walls/bottom_right"]
+visible = false
+position = Vector2(412, 32)
+shape = SubResource("RectangleShape2D_hhauf")
+
+[node name="right_wall" type="StaticBody2D" parent="Yonder/walls"]
 position = Vector2(192, 2)
 collision_layer = 2
 collision_mask = 7
 
-[node name="CollisionPolygon2D2" type="CollisionPolygon2D" parent="Arena/walls/right"]
+[node name="CollisionPolygon2D2" type="CollisionPolygon2D" parent="Yonder/walls/right_wall"]
 position = Vector2(1088, 0)
 polygon = PackedVector2Array(0, -448, 64, -448, 64, 1088, 0, 1088, 0, 416, 0, 224)
 
-[node name="ColorRect6" type="ColorRect" parent="Arena/walls/right"]
+[node name="ColorRect6" type="ColorRect" parent="Yonder/walls/right_wall"]
 offset_left = 1088.0
 offset_top = -448.0
 offset_right = 1152.0
 offset_bottom = 1088.0
 color = Color(0, 0, 0, 1)
 
-[node name="left" type="StaticBody2D" parent="Arena/walls"]
+[node name="left_wall" type="StaticBody2D" parent="Yonder/walls"]
 position = Vector2(-192, 8)
 collision_layer = 2
 collision_mask = 7
 
-[node name="ColorRect5" type="ColorRect" parent="Arena/walls/left"]
+[node name="ColorRect5" type="ColorRect" parent="Yonder/walls/left_wall"]
 offset_top = -448.0
 offset_right = 64.0
 offset_bottom = 1088.0
 color = Color(0, 0, 0, 1)
 
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Arena/walls/left"]
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Yonder/walls/left_wall"]
 z_index = -1
 polygon = PackedVector2Array(0, -448, 64, -448, 64, 224, 64, 416, 64, 1088, 0, 1088)
 
-[node name="right_goal_pack" type="Node2D" parent="Arena/walls"]
-position = Vector2(192, 2)
+[node name="right_goal_pack" type="Node2D" parent="Yonder/walls"]
+position = Vector2(769, 320)
 
-[node name="Zone_Right" type="Area2D" parent="Arena/walls/right_goal_pack"]
-position = Vector2(896, 190)
+[node name="Zone_Right" type="Area2D" parent="Yonder/walls/right_goal_pack"]
+position = Vector2(256, -128)
+scale = Vector2(1.5, 1.5)
 collision_layer = 4
 collision_mask = 4
 
-[node name="PointLight2D2" type="PointLight2D" parent="Arena/walls/right_goal_pack/Zone_Right"]
+[node name="PointLight2D2" type="PointLight2D" parent="Yonder/walls/right_goal_pack/Zone_Right"]
 z_index = 3
 position = Vector2(-2.28882e-05, 1)
 scale = Vector2(4, 3.97917)
@@ -584,24 +989,24 @@ energy = 2.0
 texture = SubResource("GradientTexture2D_tyr75")
 texture_scale = 1.5
 
-[node name="CollisionShape2D2" type="CollisionShape2D" parent="Arena/walls/right_goal_pack/Zone_Right"]
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="Yonder/walls/right_goal_pack/Zone_Right"]
 visible = false
 shape = SubResource("CircleShape2D_2udws")
 
-[node name="Goal_Right" type="Area2D" parent="Arena/walls/right_goal_pack"]
-position = Vector2(896, 190)
+[node name="Goal_Right" type="Area2D" parent="Yonder/walls/right_goal_pack"]
+position = Vector2(256, -128)
 scale = Vector2(2, 2)
 collision_layer = 4
 collision_mask = 4
 
-[node name="Sprite2D" type="Sprite2D" parent="Arena/walls/right_goal_pack/Goal_Right"]
+[node name="Sprite2D" type="Sprite2D" parent="Yonder/walls/right_goal_pack/Goal_Right"]
 z_index = 1
 texture = SubResource("GradientTexture2D_0dqhp")
 
-[node name="CollisionShape2D2" type="CollisionShape2D" parent="Arena/walls/right_goal_pack/Goal_Right"]
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="Yonder/walls/right_goal_pack/Goal_Right"]
 shape = SubResource("CircleShape2D_hhauf")
 
-[node name="rightparticles" type="GPUParticles2D" parent="Arena/walls/right_goal_pack/Goal_Right"]
+[node name="rightparticles" type="GPUParticles2D" parent="Yonder/walls/right_goal_pack/Goal_Right"]
 z_index = -1
 emitting = false
 amount = 80
@@ -611,19 +1016,20 @@ explosiveness = 1.0
 randomness = 1.0
 process_material = SubResource("ParticleProcessMaterial_0yefq")
 
-[node name="left_goal_pack" type="Node2D" parent="Arena/walls"]
-position = Vector2(-192, 8)
+[node name="left_goal_pack" type="Node2D" parent="Yonder/walls"]
+position = Vector2(384, 320)
 
-[node name="Zone_Left" type="Area2D" parent="Arena/walls/left_goal_pack"]
-position = Vector2(256, 184)
+[node name="Zone_Left" type="Area2D" parent="Yonder/walls/left_goal_pack"]
+position = Vector2(-256, -128)
+scale = Vector2(1.5, 1.5)
 collision_layer = 4
 collision_mask = 4
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Arena/walls/left_goal_pack/Zone_Left"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Yonder/walls/left_goal_pack/Zone_Left"]
 visible = false
 shape = SubResource("CircleShape2D_2udws")
 
-[node name="PointLight2D" type="PointLight2D" parent="Arena/walls/left_goal_pack/Zone_Left"]
+[node name="PointLight2D" type="PointLight2D" parent="Yonder/walls/left_goal_pack/Zone_Left"]
 z_index = 3
 position = Vector2(1.71661e-05, 1.00003)
 scale = Vector2(4, 3.97917)
@@ -632,20 +1038,20 @@ energy = 2.0
 texture = SubResource("GradientTexture2D_evosj")
 texture_scale = 1.5
 
-[node name="Goal_Left" type="Area2D" parent="Arena/walls/left_goal_pack"]
-position = Vector2(256, 184)
+[node name="Goal_Left" type="Area2D" parent="Yonder/walls/left_goal_pack"]
+position = Vector2(-256, -128)
 scale = Vector2(2, 2)
 collision_layer = 4
 collision_mask = 4
 
-[node name="Sprite2D" type="Sprite2D" parent="Arena/walls/left_goal_pack/Goal_Left"]
+[node name="Sprite2D" type="Sprite2D" parent="Yonder/walls/left_goal_pack/Goal_Left"]
 texture = SubResource("GradientTexture2D_hhauf")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Arena/walls/left_goal_pack/Goal_Left"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Yonder/walls/left_goal_pack/Goal_Left"]
 visible = false
 shape = SubResource("CircleShape2D_tyr75")
 
-[node name="leftparticles" type="GPUParticles2D" parent="Arena/walls/left_goal_pack/Goal_Left"]
+[node name="leftparticles" type="GPUParticles2D" parent="Yonder/walls/left_goal_pack/Goal_Left"]
 z_index = -1
 emitting = false
 amount = 80
@@ -654,22 +1060,7 @@ lifetime = 1.5
 explosiveness = 1.0
 process_material = ExtResource("5_e055s")
 
-[node name="bottom" type="StaticBody2D" parent="Arena/walls"]
-position = Vector2(576, 736)
-collision_layer = 2
-collision_mask = 7
-
-[node name="ColorRect4" type="ColorRect" parent="Arena/walls/bottom"]
-offset_left = -824.0
-offset_top = -34.0
-offset_right = 832.0
-offset_bottom = 38.0
-color = Color(0, 0, 0, 1)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Arena/walls/bottom"]
-shape = SubResource("RectangleShape2D_444vf")
-
-[node name="Background" type="ColorRect" parent="Arena/walls"]
+[node name="Background" type="ColorRect" parent="Yonder/walls"]
 z_index = -2
 offset_left = -128.0
 offset_top = -128.0
@@ -677,13 +1068,99 @@ offset_right = 1280.0
 offset_bottom = 760.0
 color = Color(0.165656, 0.165656, 0.165656, 1)
 
-[node name="BackBorder" type="ColorRect" parent="Arena/walls"]
+[node name="BackBorder" type="ColorRect" parent="Yonder/walls"]
 z_index = -3
 offset_left = -384.0
-offset_top = -320.0
+offset_top = -352.0
 offset_right = 1544.0
-offset_bottom = 960.0
+offset_bottom = 928.0
 color = Color(0, 0, 0, 1)
+
+[node name="false_roof" type="StaticBody2D" parent="Yonder/walls"]
+position = Vector2(-576, -192)
+collision_layer = 2
+collision_mask = 7
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Yonder/walls/false_roof"]
+visible = false
+position = Vector2(1184, 16)
+shape = SubResource("RectangleShape2D_e055s")
+
+[node name="ColorRect" type="ColorRect" parent="Yonder/walls/false_roof"]
+offset_right = 2368.0
+offset_bottom = 64.0
+color = Color(0, 0, 0, 1)
+
+[node name="false_floor" type="StaticBody2D" parent="Yonder/walls"]
+position = Vector2(-576, 752)
+collision_layer = 2
+collision_mask = 7
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Yonder/walls/false_floor"]
+visible = false
+position = Vector2(1152, 16)
+shape = SubResource("RectangleShape2D_evosj")
+debug_color = Color(0.231004, 0.622322, 0.405135, 0.42)
+
+[node name="ColorRect" type="ColorRect" parent="Yonder/walls/false_floor"]
+offset_left = 384.0
+offset_right = 1920.0
+offset_bottom = 80.0
+color = Color(0, 0, 0, 1)
+
+[node name="portals" type="Node2D" parent="Yonder"]
+
+[node name="portal_bottom" type="Area2D" parent="Yonder/portals"]
+z_index = -1
+position = Vector2(584, 752)
+collision_layer = 0
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Yonder/portals/portal_bottom"]
+visible = false
+position = Vector2(-8, 36)
+shape = SubResource("RectangleShape2D_2qecu")
+debug_color = Color(0.847059, 0.27451, 0.643137, 0.419608)
+
+[node name="Sprite2D2" type="Sprite2D" parent="Yonder/portals/portal_bottom"]
+position = Vector2(-8.00003, -24)
+scale = Vector2(22, 1)
+texture = SubResource("GradientTexture2D_2qecu")
+
+[node name="portal_top" type="Area2D" parent="Yonder/portals"]
+position = Vector2(576, -120)
+collision_layer = 0
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Yonder/portals/portal_top"]
+visible = false
+position = Vector2(0, -32)
+shape = SubResource("RectangleShape2D_tyr75")
+debug_color = Color(0.482828, 0.570018, 0.397459, 0.42)
+
+[node name="Sprite2D" type="Sprite2D" parent="Yonder/portals/portal_top"]
+z_index = -1
+position = Vector2(3.05176e-05, 24)
+scale = Vector2(22, 1)
+texture = SubResource("GradientTexture2D_6yia0")
+
+[node name="portal_bottom_exit" type="Area2D" parent="Yonder/portals"]
+position = Vector2(-128, -112)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Yonder/portals/portal_bottom_exit"]
+visible = false
+position = Vector2(703.5, 3.5)
+shape = SubResource("RectangleShape2D_6yia0")
+debug_color = Color(0.848985, 0.27542, 0.643684, 0.42)
+
+[node name="portal_top_exit" type="Area2D" parent="Yonder/portals"]
+position = Vector2(-128, 736)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Yonder/portals/portal_top_exit"]
+visible = false
+position = Vector2(704, 4)
+shape = SubResource("RectangleShape2D_pmepg")
+debug_color = Color(0.482353, 0.568627, 0.396078, 0.419608)
 
 [node name="player1" parent="." instance=ExtResource("6_6yia0")]
 position = Vector2(192, 568)
@@ -713,8 +1190,10 @@ offset_bottom = 648.0
 
 [node name="ColorRect" type="ColorRect" parent="Player_1_Victory"]
 layout_mode = 0
-offset_right = 1152.0
-offset_bottom = 648.0
+offset_left = -264.0
+offset_top = -144.0
+offset_right = 1424.0
+offset_bottom = 808.0
 color = Color(0, 0, 0, 0.666667)
 
 [node name="CenterContainer" type="CenterContainer" parent="Player_1_Victory"]
@@ -756,8 +1235,10 @@ offset_bottom = 648.0
 
 [node name="ColorRect" type="ColorRect" parent="Player_2_Victory"]
 layout_mode = 0
-offset_right = 1152.0
-offset_bottom = 648.0
+offset_left = -272.0
+offset_top = -144.0
+offset_right = 1424.0
+offset_bottom = 800.0
 color = Color(0, 0, 0, 0.666667)
 
 [node name="CenterContainer" type="CenterContainer" parent="Player_2_Victory"]
@@ -800,10 +1281,16 @@ offset_right = 1152.0
 offset_bottom = 648.0
 
 [node name="ColorRect" type="ColorRect" parent="Pause"]
-layout_mode = 0
-offset_right = 1152.0
-offset_bottom = 648.0
+layout_mode = 1
+anchors_preset = -1
+anchor_left = -0.208333
+anchor_top = -0.209877
+anchor_right = 1.23611
+anchor_bottom = 1.23457
+grow_horizontal = 2
+grow_vertical = 2
 color = Color(0, 0, 0, 0.666667)
+metadata/_edit_use_anchors_ = true
 
 [node name="CenterContainer" type="CenterContainer" parent="Pause"]
 layout_mode = 0
@@ -845,6 +1332,26 @@ libraries = {
 &"": SubResource("AnimationLibrary_knbf3")
 }
 
+[node name="Portal_VFX" type="AnimationPlayer" parent="."]
+root_node = NodePath("../Moving_Portals")
+libraries = {
+&"": SubResource("AnimationLibrary_e055s")
+}
+
+[node name="Moving_Goals" type="AnimationPlayer" parent="."]
+root_node = NodePath("../Moving_Portals")
+libraries = {
+&"": SubResource("AnimationLibrary_0dqhp")
+}
+autoplay = "orbit"
+speed_scale = 0.25
+
+[node name="Moving_Portals" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_pmepg")
+}
+autoplay = "opening"
+
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(576, 327)
 zoom = Vector2(0.7, 0.7)
@@ -871,7 +1378,7 @@ stream = ExtResource("14_7w3lq")
 max_distance = 5000.0
 bus = &"SFX"
 
-[node name="CanvasModulate" type="CanvasModulate" parent="."]
+[node name="darkness" type="CanvasModulate" parent="."]
 visible = false
 color = Color(0.18359, 0.18359, 0.18359, 1)
 
@@ -900,12 +1407,14 @@ collision_mask = 0
 position = Vector2(575.75, 352)
 shape = SubResource("RectangleShape2D_knbf3")
 
-[connection signal="body_entered" from="Arena/walls/right_goal_pack/Zone_Right" to="." method="_on_zone_right_body_entered"]
-[connection signal="body_exited" from="Arena/walls/right_goal_pack/Zone_Right" to="." method="_on_zone_right_body_exited"]
-[connection signal="body_entered" from="Arena/walls/right_goal_pack/Goal_Right" to="." method="_on_goal_right_body_entered"]
-[connection signal="body_entered" from="Arena/walls/left_goal_pack/Zone_Left" to="." method="_on_zone_left_body_entered"]
-[connection signal="body_exited" from="Arena/walls/left_goal_pack/Zone_Left" to="." method="_on_zone_left_body_exited"]
-[connection signal="body_entered" from="Arena/walls/left_goal_pack/Goal_Left" to="." method="_on_goal_left_body_entered"]
+[connection signal="body_entered" from="Yonder/walls/right_goal_pack/Zone_Right" to="." method="_on_zone_right_body_entered"]
+[connection signal="body_exited" from="Yonder/walls/right_goal_pack/Zone_Right" to="." method="_on_zone_right_body_exited"]
+[connection signal="body_entered" from="Yonder/walls/right_goal_pack/Goal_Right" to="." method="_on_goal_right_body_entered"]
+[connection signal="body_entered" from="Yonder/walls/left_goal_pack/Zone_Left" to="." method="_on_zone_left_body_entered"]
+[connection signal="body_exited" from="Yonder/walls/left_goal_pack/Zone_Left" to="." method="_on_zone_left_body_exited"]
+[connection signal="body_entered" from="Yonder/walls/left_goal_pack/Goal_Left" to="." method="_on_goal_left_body_entered"]
+[connection signal="body_entered" from="Yonder/portals/portal_bottom" to="." method="_on_portal_bottom_body_entered"]
+[connection signal="body_entered" from="Yonder/portals/portal_top" to="." method="_on_portal_top_body_entered"]
 [connection signal="pressed" from="Player_1_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch1" to="." method="_on_rematch_1_pressed"]
 [connection signal="pressed" from="Player_1_Victory/CenterContainer/VBoxContainer/HBoxContainer/Menu1" to="." method="_on_menu_1_pressed"]
 [connection signal="pressed" from="Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch2" to="." method="_on_rematch_2_pressed"]

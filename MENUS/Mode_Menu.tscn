@@ -110,7 +110,7 @@ text = "TOWER"
 layout_mode = 2
 theme = ExtResource("2_vllpc")
 toggle_mode = true
-text = "yonder"
+text = "cosmos"
 
 [node name="VBoxContainer3" type="VBoxContainer" parent="CenterContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2

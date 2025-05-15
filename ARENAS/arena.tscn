@@ -1034,7 +1034,7 @@ stream = ExtResource("12_fro25")
 max_distance = 5000.0
 bus = &"SFX"
 
-[node name="CanvasModulate" type="CanvasModulate" parent="."]
+[node name="darkness" type="CanvasModulate" parent="."]
 visible = false
 color = Color(0.18359, 0.18359, 0.18359, 1)
 

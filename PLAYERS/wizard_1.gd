@@ -21,6 +21,7 @@ var DIVE_VELOCITY = 1400
 var current_instance: Node = null
 var hit_the_ground = false
 var fading_instances = []
+var max_fall_speed = 6000
 
 ### WIZARD 1 ###
 
@@ -29,6 +30,8 @@ func _physics_process(delta: float) -> void:
 	# Add the gravity and stretch.
 	if not is_on_floor():
 		velocity += get_gravity() * 2 * delta
+		if velocity.y > max_fall_speed:
+			velocity.y = max_fall_speed
 		if abs(velocity.y) > 350.0:
 			sprite.scale.y = 0.4
 			sprite.scale.x = 0.25

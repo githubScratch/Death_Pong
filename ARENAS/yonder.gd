@@ -23,6 +23,11 @@ var ball_instances = []
 @onready var score_player = $HUD/ScorePlayer
 @onready var mid_barrier: Node2D = $Mid_Barrier
 @onready var mid_collision: StaticBody2D = $Mid_Barrier/Mid_Collision
+@onready var portal_vfx: AnimationPlayer = $Portal_VFX
+@export var swap_area_top: Area2D
+@export var swap_area_bottom: Area2D
+@export var teleport_cooldown: float = 0.1
+var teleporting_objects = {}
 
 func _ready() -> void:
 	
@@ -34,6 +39,17 @@ func _ready() -> void:
 	GameSettings.settings_changed.connect(_on_settings_changed)
 
 func _process(_delta: float) -> void:
+	var keys_to_remove = []
+	for body in teleporting_objects:
+		teleporting_objects[body] -= _delta
+		if teleporting_objects[body] <= 0:
+			keys_to_remove.append(body)
+	
+	# Remove objects that have completed their cooldown
+	for body in keys_to_remove:
+		teleporting_objects.erase(body)
+
+	#Pause screen inputs
 	if Input.is_action_just_pressed("ui_left") or Input.is_action_just_pressed("ui_right"):
 		if is_paused or is_victory:
 			move.pitch_scale = randf_range(0.9, 1.1)
@@ -42,7 +58,6 @@ func _process(_delta: float) -> void:
 		if is_paused or is_victory:
 			select.pitch_scale = randf_range(0.9, 1.1)
 			select.play()
-	
 	
 	if Input.is_action_just_pressed("ui_select"):
 		if not is_paused and not is_victory:
@@ -206,3 +221,61 @@ func _on_menu_3_pressed() -> void:
 	is_paused = false
 	get_tree().paused = false
 	get_tree().change_scene_to_file("res://MENUS/Menu.tscn")
+
+
+func _on_portal_bottom_body_entered(body: Node2D) -> void:
+	if can_teleport(body):
+		# Get the top area's position
+		portal_vfx.stop()
+		portal_vfx.play("bot_glow")
+		var target_y = swap_area_top.global_position.y
+		
+		# Calculate the y offset to position the object just above the top area
+		var offset_y = 0
+		if swap_area_top.has_node("CollisionShape2D"):
+			var shape = swap_area_top.get_node("CollisionShape2D").shape
+			if shape is RectangleShape2D:
+				offset_y = -shape.size.y / 2
+		
+		# Keep the x-coordinate the same, change only the y
+		var new_position = Vector2(body.global_position.x, target_y + offset_y)
+		
+		# Perform teleportation
+		teleport_object(body, new_position)
+
+func _on_portal_top_body_entered(body: Node2D) -> void:
+	if can_teleport(body):
+		# Get the bottom area's position
+		portal_vfx.play("top_glow")
+		var target_y = swap_area_bottom.global_position.y
+		
+		# Calculate the y offset to position the object just below the bottom area
+		var offset_y = 0
+		if swap_area_bottom.has_node("CollisionShape2D"):
+			var shape = swap_area_bottom.get_node("CollisionShape2D").shape
+			if shape is RectangleShape2D:
+				offset_y = shape.size.y / 2
+		
+		# Keep the x-coordinate the same, change only the y
+		var new_position = Vector2(body.global_position.x, target_y + offset_y)
+		
+		# Perform teleportation
+		teleport_object(body, new_position)
+
+func teleport_object(body, new_position):
+	# Set the new position
+	body.global_position = new_position
+	
+	# Add object to teleporting list with cooldown
+	teleporting_objects[body] = teleport_cooldown
+	
+	# Create a timer to remove the cooldown
+	get_tree().create_timer(teleport_cooldown).timeout.connect(
+		func(): 
+			if teleporting_objects.has(body):
+				teleporting_objects.erase(body)
+	)
+
+func can_teleport(body):
+	# Check if the object is currently on cooldown
+	return not teleporting_objects.has(body)
