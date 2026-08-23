@@ -872,7 +872,7 @@ visible = false
 position = Vector2(0.800001, 0.800001)
 scale = Vector2(3.275, 3.275)
 sprite_frames = SubResource("SpriteFrames_v2pj1")
-animation = &"create"
+animation = &"hold"
 autoplay = "hold"
 
 [node name="Area2D" type="Area2D" parent="."]

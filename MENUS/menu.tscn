@@ -48,21 +48,24 @@ offset_bottom = 648.0
 [node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="CenterContainer/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/HBoxContainer"]
 z_index = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(0.639216, 0.00392157, 1, 1)
 theme_override_fonts/font = ExtResource("1_phoou")
 theme_override_font_sizes/font_size = 140
-text = "POWER WORD:"
+text = "WIZARD"
 
-[node name="Label2" type="Label" parent="CenterContainer/VBoxContainer"]
+[node name="Label2" type="Label" parent="CenterContainer/VBoxContainer/HBoxContainer"]
 z_index = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.698039, 0.101961, 1)
 theme_override_fonts/font = ExtResource("1_phoou")
 theme_override_font_sizes/font_size = 140
-text = "BALLS"
+text = "PONG"
 horizontal_alignment = 1
 
 [node name="Begin" type="Button" parent="CenterContainer/VBoxContainer"]

@@ -1,4 +1,4 @@
-[gd_scene load_steps=42 format=3 uid="uid://dgpeqxyiiriwx"]
+[gd_scene load_steps=44 format=3 uid="uid://dgpeqxyiiriwx"]
 
 [ext_resource type="Script" uid="uid://dg4utk7dcltn2" path="res://ARENAS/arena.gd" id="1_3ujay"]
 [ext_resource type="PackedScene" uid="uid://6pxseqnx1718" path="res://PLAYERS/wizard_1.tscn" id="1_4j1kj"]
@@ -14,6 +14,8 @@
 [ext_resource type="AudioStream" uid="uid://k7573muxw1h7" path="res://SFX/Menu_Start.wav" id="10_uu0rc"]
 [ext_resource type="AudioStream" uid="uid://d3rmk854uqt17" path="res://SFX/ui select.wav" id="11_bbeva"]
 [ext_resource type="AudioStream" uid="uid://du6i7igev8i55" path="res://SFX/Menu_Select2.wav" id="12_fro25"]
+[ext_resource type="PackedScene" uid="uid://cqlx4xf16e1yb" path="res://PLAYERS/wizard_3.tscn" id="15_0yefq"]
+[ext_resource type="PackedScene" uid="uid://cpf3m3dqeamqt" path="res://PLAYERS/wizard_4.tscn" id="16_ji56j"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_444vf"]
 size = Vector2(1146, 67.25)
@@ -1063,6 +1065,12 @@ collision_mask = 0
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Mid_Barrier/Mid_Collision"]
 position = Vector2(575.75, 321.5)
 shape = SubResource("RectangleShape2D_knbf3")
+
+[node name="Node2D" parent="." instance=ExtResource("15_0yefq")]
+position = Vector2(352, 360)
+
+[node name="Node2D2" parent="." instance=ExtResource("16_ji56j")]
+position = Vector2(776, 368)
 
 [connection signal="body_entered" from="Arena/walls/right/Zone_Right" to="." method="_on_zone_right_body_entered"]
 [connection signal="body_exited" from="Arena/walls/right/Zone_Right" to="." method="_on_zone_right_body_exited"]

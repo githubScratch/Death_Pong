@@ -1,7 +1,7 @@
 [gd_scene load_steps=66 format=3 uid="uid://dgwvptvanlrmw"]
 
 [ext_resource type="Script" uid="uid://bgrjsmb0uowwo" path="res://ARENAS/yonder.gd" id="1_2qecu"]
-[ext_resource type="PackedScene" uid="uid://y5oxfkoo8240" path="res://ARENAS/ball.tscn" id="2_0dqhp"]
+[ext_resource type="PackedScene" uid="uid://bce3ta6nq22gc" path="res://ARENAS/ball_big.tscn" id="2_2qecu"]
 [ext_resource type="Texture2D" uid="uid://digthh0it584s" path="res://SPRITES/88.png" id="4_evosj"]
 [ext_resource type="Material" uid="uid://brqgt7jbrx5hb" path="res://ARENAS/green_particles.tres" id="5_e055s"]
 [ext_resource type="PackedScene" uid="uid://6pxseqnx1718" path="res://PLAYERS/wizard_1.tscn" id="6_6yia0"]
@@ -533,33 +533,6 @@ _data = {
 &"right_goal": SubResource("Animation_4q2d8")
 }
 
-[sub_resource type="Animation" id="Animation_0dqhp"]
-resource_name = "top_glow"
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("../Yonder/portals/portal_top/Sprite2D:scale")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.133333, 0.5),
-"transitions": PackedFloat32Array(0.3, 0.3, 1),
-"update": 0,
-"values": [Vector2(22, 1), Vector2(22, 2), Vector2(22, 1)]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("../Yonder/portals/portal_bottom/Sprite2D2:scale")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.133333, 0.5),
-"transitions": PackedFloat32Array(0.3, 0.3, 1),
-"update": 0,
-"values": [Vector2(22, 1), Vector2(22, 2), Vector2(22, 1)]
-}
-
 [sub_resource type="Animation" id="Animation_hhauf"]
 length = 0.001
 tracks/0/type = "value"
@@ -602,11 +575,89 @@ tracks/1/keys = {
 "values": [Vector2(22, 1), Vector2(22, 2), Vector2(22, 1)]
 }
 
+[sub_resource type="Animation" id="Animation_0dqhp"]
+resource_name = "top_glow"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("../Yonder/portals/portal_top/Sprite2D:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.133333, 0.5),
+"transitions": PackedFloat32Array(0.3, 0.3, 1),
+"update": 0,
+"values": [Vector2(22, 1), Vector2(22, 2), Vector2(22, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("../Yonder/portals/portal_bottom/Sprite2D2:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.133333, 0.5),
+"transitions": PackedFloat32Array(0.3, 0.3, 1),
+"update": 0,
+"values": [Vector2(22, 1), Vector2(22, 2), Vector2(22, 1)]
+}
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_e055s"]
 _data = {
 &"RESET": SubResource("Animation_hhauf"),
 &"bot_glow": SubResource("Animation_evosj"),
 &"top_glow": SubResource("Animation_0dqhp")
+}
+
+[sub_resource type="Animation" id="Animation_tyr75"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("../Yonder/walls/left_goal_pack:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("../Yonder/walls/right_goal_pack:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("../Yonder/walls/left_goal_pack:scale")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("../Yonder/walls/right_goal_pack:scale")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
 }
 
 [sub_resource type="Animation" id="Animation_2qecu"]
@@ -662,126 +713,10 @@ tracks/3/keys = {
 "values": [Vector2(1, 1), Vector2(0.5, 0.5), Vector2(0.5, 0.5), Vector2(1, 1)]
 }
 
-[sub_resource type="Animation" id="Animation_tyr75"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("../Yonder/walls/left_goal_pack:rotation")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [0.0]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("../Yonder/walls/right_goal_pack:rotation")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [0.0]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("../Yonder/walls/left_goal_pack:scale")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(1, 1)]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("../Yonder/walls/right_goal_pack:scale")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(1, 1)]
-}
-
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_0dqhp"]
 _data = {
 &"RESET": SubResource("Animation_tyr75"),
 &"orbit": SubResource("Animation_2qecu")
-}
-
-[sub_resource type="Animation" id="Animation_e055s"]
-resource_name = "opening"
-length = 30.0
-loop_mode = 2
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Yonder/walls/top_left:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 5, 27.5, 30),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 0,
-"values": [Vector2(-248, -128), Vector2(-248, -128), Vector2(-952, -128), Vector2(-952, -128)]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("Yonder/walls/top_right:position")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 5, 27.5, 30),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 0,
-"values": [Vector2(576, -128), Vector2(576, -128), Vector2(1280, -128), Vector2(1280, -128)]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("Yonder/walls/bottom_left:position")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0, 5, 27.5, 30),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 0,
-"values": [Vector2(-248, 704), Vector2(-248, 704), Vector2(-952, 704), Vector2(-952, 704)]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("Yonder/walls/bottom_right:position")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"times": PackedFloat32Array(0, 5, 27.5, 30),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 0,
-"values": [Vector2(576, 704), Vector2(576, 704), Vector2(1280, 704), Vector2(1280, 704)]
-}
-tracks/4/type = "value"
-tracks/4/imported = false
-tracks/4/enabled = false
-tracks/4/path = NodePath("Yonder/walls/false_floor:position")
-tracks/4/interp = 1
-tracks/4/loop_wrap = true
-tracks/4/keys = {
-"times": PackedFloat32Array(30, 59.5),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Vector2(-576, 832), Vector2(-576, -192)]
 }
 
 [sub_resource type="Animation" id="Animation_6yia0"]
@@ -847,6 +782,71 @@ tracks/4/keys = {
 "values": [Vector2(-576, 752)]
 }
 
+[sub_resource type="Animation" id="Animation_e055s"]
+resource_name = "opening"
+length = 80.0
+loop_mode = 2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Yonder/walls/top_left:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 2.6, 27.4333, 30, 56.7, 59.7667, 77.3, 79.7667),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(-248, -128), Vector2(-248, -128), Vector2(-952, -128), Vector2(-952, -128), Vector2(-248, -128), Vector2(-248, -128), Vector2(160, -128), Vector2(160, -128)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Yonder/walls/top_right:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 2.6, 27.5, 30, 56.7, 59.8, 77.3, 79.7667),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(576, -128), Vector2(576, -128), Vector2(1280, -128), Vector2(1280, -128), Vector2(576, -128), Vector2(576, -128), Vector2(160, -128), Vector2(160, -128)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Yonder/walls/bottom_left:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 2.6, 27.5, 30, 56.7, 59.7667, 77.3, 79.7667),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(-248, 704), Vector2(-248, 704), Vector2(-952, 704), Vector2(-952, 704), Vector2(-248, 704), Vector2(-248, 704), Vector2(160, 704), Vector2(160, 704)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Yonder/walls/bottom_right:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 2.6, 27.5, 30, 56.7, 59.7667, 77.3, 79.7667),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(576, 704), Vector2(576, 704), Vector2(1280, 704), Vector2(1280, 704), Vector2(576, 704), Vector2(576, 704), Vector2(160, 704), Vector2(160, 704)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = false
+tracks/4/path = NodePath("Yonder/walls/false_floor:position")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(30, 59.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(-576, 832), Vector2(-576, -192)]
+}
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_pmepg"]
 _data = {
 &"RESET": SubResource("Animation_6yia0"),
@@ -872,7 +872,7 @@ size = Vector2(16.5, 1088)
 
 [node name="Node2D" type="Node2D" node_paths=PackedStringArray("swap_area_top", "swap_area_bottom")]
 script = ExtResource("1_2qecu")
-instance_scene = ExtResource("2_0dqhp")
+instance_scene = ExtResource("2_2qecu")
 swap_area_top = NodePath("Yonder/portals/portal_bottom_exit")
 swap_area_bottom = NodePath("Yonder/portals/portal_top_exit")
 
@@ -1351,6 +1351,7 @@ libraries = {
 &"": SubResource("AnimationLibrary_pmepg")
 }
 autoplay = "opening"
+speed_scale = 2.0
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(576, 327)

@@ -24,6 +24,8 @@ var ball_instances = []
 @onready var mid_barrier: Node2D = $Mid_Barrier
 @onready var mid_collision: StaticBody2D = $Mid_Barrier/Mid_Collision
 
+var slowmo_stack: int = 0
+
 func _ready() -> void:
 	
 	apply_game_settings() 
@@ -80,6 +82,20 @@ func create_new_instance():
 		spawn_ball.pitch_scale = randf_range(0.4, 0.6)
 		spawn_ball.play()
 
+#Slow-mo stack — lets goal slow-mo and zone slow-mo coexist without
+#one clobbering the other when they overlap in the same frame.
+func request_slowmo(scale: float, duration: float = -1.0) -> void:
+	slowmo_stack += 1
+	Engine.time_scale = scale
+	if duration > 0.0:
+		var t := get_tree().create_timer(duration, true, false, true)
+		t.timeout.connect(_end_slowmo)
+
+func _end_slowmo() -> void:
+	slowmo_stack = max(slowmo_stack - 1, 0)
+	if slowmo_stack == 0:
+		Engine.time_scale = 1.0
+
 #Scoring
 func _on_goal_left_body_entered(body: Node2D) -> void:
 	if body.is_in_group("ball"):
@@ -94,6 +110,7 @@ func _on_goal_left_body_entered(body: Node2D) -> void:
 		hud.update_score(player1_score, player2_score)
 		goal.pitch_scale = randf_range(0.9, 1.1)
 		goal.play()
+		request_slowmo(0.35, 0.75)
 		
 		# Queue this specific ball for deletion
 		body.queue_free()
@@ -136,6 +153,7 @@ func _on_goal_right_body_entered(body: Node2D) -> void:
 		hud.update_score(player1_score, player2_score)
 		goal.pitch_scale = randf_range(0.9, 1.1)
 		goal.play()
+		request_slowmo(0.35, 0.75)
 		
 		# Queue this specific ball for deletion
 		body.queue_free()
@@ -179,17 +197,17 @@ func unpause_game():
 #Time Slow Zones ---  debug shader parameter tweens
 func _on_zone_left_body_entered(body: Node2D) -> void:
 	if body.is_in_group("ball"):
-		Engine.time_scale = 0.35
+		request_slowmo(0.35)
 		#screen_shader.material.set_shader_parameter("Abberation", 1)
 func _on_zone_left_body_exited(body: Node2D) -> void:
 	if body.is_in_group("ball"):
-		Engine.time_scale = 1.0
+		_end_slowmo()
 func _on_zone_right_body_entered(body: Node2D) -> void:
 	if body.is_in_group("ball"):
-		Engine.time_scale = 0.35
+		request_slowmo(0.35)
 func _on_zone_right_body_exited(body: Node2D) -> void:
 	if body.is_in_group("ball"):
-		Engine.time_scale = 1.0
+		_end_slowmo()
 
 #UI
 func _on_rematch_1_pressed() -> void:

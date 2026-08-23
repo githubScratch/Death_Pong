@@ -1,0 +1,160 @@
+[gd_scene load_steps=15 format=3 uid="uid://bce3ta6nq22gc"]
+
+[ext_resource type="Script" uid="uid://bdulix6lfw4mi" path="res://ARENAS/ball.gd" id="1_bv5oo"]
+[ext_resource type="Texture2D" uid="uid://cko7vsk2xq7mw" path="res://SPRITES/circle_03.png" id="2_3o4jr"]
+[ext_resource type="Texture2D" uid="uid://lovia63fg07t" path="res://SPRITES/75.png" id="3_1o5bs"]
+[ext_resource type="AudioStream" uid="uid://cjvvgvl850g8g" path="res://SFX/thwomp.wav" id="4_5cxf0"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_41u45"]
+friction = 0.05
+bounce = 0.9
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_41u45"]
+radius = 8.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_s0u7k"]
+radius = 12.0
+
+[sub_resource type="Gradient" id="Gradient_i151x"]
+offsets = PackedFloat32Array(0.435065, 0.590909, 0.727273)
+colors = PackedColorArray(0, 0, 0, 0.937255, 0.87, 0.87, 0.87, 0.686275, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_s0u7k"]
+gradient = SubResource("Gradient_i151x")
+fill = 1
+fill_from = Vector2(0.495413, 0.463303)
+fill_to = Vector2(0, 0.5)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_350rd"]
+gradient = SubResource("Gradient_i151x")
+fill = 1
+fill_from = Vector2(0.495413, 0.477064)
+
+[sub_resource type="Gradient" id="Gradient_bc5wg"]
+offsets = PackedFloat32Array(0.52, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 0)
+
+[sub_resource type="Animation" id="Animation_x2fff"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("sparks:emitting")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+
+[sub_resource type="Animation" id="Animation_uok0w"]
+resource_name = "sparks"
+length = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("sparks:emitting")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_wiuo0"]
+_data = {
+&"RESET": SubResource("Animation_x2fff"),
+&"sparks": SubResource("Animation_uok0w")
+}
+
+[node name="Node2D" type="Node2D"]
+scale = Vector2(3, 3)
+
+[node name="RigidBody2D" type="RigidBody2D" parent="." groups=["ball"]]
+z_index = 4
+collision_layer = 4
+collision_mask = 14
+mass = 10.0
+physics_material_override = SubResource("PhysicsMaterial_41u45")
+gravity_scale = 0.6
+lock_rotation = true
+linear_damp = 0.5
+angular_damp = 1.0
+script = ExtResource("1_bv5oo")
+stretch_factor = 1.5
+min_velocity_for_sound = 500.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D"]
+visible = false
+shape = SubResource("CircleShape2D_41u45")
+
+[node name="Sprite2D" type="Sprite2D" parent="RigidBody2D"]
+z_index = 1
+scale = Vector2(0.05, 0.05)
+texture = ExtResource("2_3o4jr")
+
+[node name="SFX_area" type="Area2D" parent="RigidBody2D"]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D/SFX_area"]
+visible = false
+shape = SubResource("CircleShape2D_s0u7k")
+
+[node name="PointLight2D" type="PointLight2D" parent="RigidBody2D"]
+visible = false
+scale = Vector2(0.5, 0.453125)
+energy = 2.0
+texture = SubResource("GradientTexture2D_s0u7k")
+
+[node name="PointLight2D2" type="PointLight2D" parent="RigidBody2D"]
+visible = false
+z_index = 2
+position = Vector2(-1.90735e-06, -1.90735e-06)
+scale = Vector2(2, 2)
+texture = SubResource("GradientTexture2D_350rd")
+texture_scale = 5.0
+
+[node name="ColorRect" type="ColorRect" parent="RigidBody2D"]
+visible = false
+z_index = -1
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 24.0
+offset_bottom = 24.0
+color = Color(0, 0, 0, 1)
+
+[node name="sparks" type="CPUParticles2D" parent="RigidBody2D"]
+emitting = false
+amount = 20
+texture = ExtResource("3_1o5bs")
+lifetime = 0.5
+one_shot = true
+explosiveness = 1.0
+emission_shape = 1
+emission_sphere_radius = 10.0
+direction = Vector2(0, 0)
+spread = 0.0
+gravity = Vector2(0, 0)
+angular_velocity_min = -100.0
+angular_velocity_max = 100.0
+radial_accel_min = 100.0
+radial_accel_max = 1000.0
+scale_amount_min = 0.3
+scale_amount_max = 0.5
+color_ramp = SubResource("Gradient_bc5wg")
+
+[node name="SparksPlayer" type="AnimationPlayer" parent="RigidBody2D"]
+libraries = {
+&"": SubResource("AnimationLibrary_wiuo0")
+}
+
+[node name="wall_impact" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_5cxf0")
+bus = &"SFX"
+
+[connection signal="body_entered" from="RigidBody2D/SFX_area" to="RigidBody2D" method="_on_sfx_area_body_entered"]
