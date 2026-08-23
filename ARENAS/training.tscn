@@ -1,11 +1,13 @@
-[gd_scene load_steps=46 format=3 uid="uid://cfs8q111iyhd7"]
+[gd_scene load_steps=48 format=3 uid="uid://cfs8q111iyhd7"]
 
 [ext_resource type="Script" uid="uid://3qh880skgy66" path="res://ARENAS/training.gd" id="1_dyoqr"]
 [ext_resource type="PackedScene" uid="uid://y5oxfkoo8240" path="res://ARENAS/ball.tscn" id="2_idtaw"]
 [ext_resource type="PackedScene" uid="uid://il58hnsuqbax" path="res://PLAYERS/wizard_2.tscn" id="3_idtaw"]
+[ext_resource type="PackedScene" uid="uid://cqlx4xf16e1yb" path="res://PLAYERS/wizard_3.tscn" id="4_aulle"]
 [ext_resource type="Texture2D" uid="uid://digthh0it584s" path="res://SPRITES/88.png" id="4_q3utb"]
 [ext_resource type="Material" uid="uid://brqgt7jbrx5hb" path="res://ARENAS/green_particles.tres" id="5_aulle"]
 [ext_resource type="PackedScene" uid="uid://5enwj83o6uc4" path="res://PLAYERS/paddle.tscn" id="5_g3b2f"]
+[ext_resource type="PackedScene" uid="uid://cpf3m3dqeamqt" path="res://PLAYERS/wizard_4.tscn" id="5_woq6c"]
 [ext_resource type="PackedScene" uid="uid://6pxseqnx1718" path="res://PLAYERS/wizard_1.tscn" id="6_woq6c"]
 [ext_resource type="PackedScene" uid="uid://btp3sgc0jgi68" path="res://MENUS/Training_HUD.tscn" id="7_g3b2f"]
 [ext_resource type="Shader" uid="uid://c3fmb76te1444" path="res://ARENAS/VHS.gdshader" id="9_albp4"]
@@ -765,6 +767,8 @@ _data = {
 script = ExtResource("1_dyoqr")
 instance_scene = ExtResource("2_idtaw")
 p2_scene = ExtResource("3_idtaw")
+p3_scene = ExtResource("4_aulle")
+p4_scene = ExtResource("5_woq6c")
 
 [node name="Arena" type="Node2D" parent="."]
 
@@ -1158,6 +1162,6 @@ color = Color(0.18359, 0.18359, 0.18359, 1)
 [connection signal="pressed" from="Player_1_Victory/CenterContainer/VBoxContainer/HBoxContainer/Menu1" to="." method="_on_menu_1_pressed"]
 [connection signal="pressed" from="Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch2" to="." method="_on_rematch_2_pressed"]
 [connection signal="pressed" from="Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer/Menu2" to="." method="_on_menu_2_pressed"]
-[connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1" to="." method="_on_continue_pressed"]
 [connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1" to="." method="_on_continue_1_pressed"]
+[connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1" to="." method="_on_continue_pressed"]
 [connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Menu3" to="." method="_on_menu_3_pressed"]

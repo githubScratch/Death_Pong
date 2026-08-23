@@ -1,9 +1,10 @@
 extends Area2D
-class_name DeflectionShield1
+class_name DeflectionShield3
 
 @export var deflection_force: float = 1200.0
-@onready var deflect_sfx: AudioStreamPlayer2D = $"../deflect_SFX"
 @onready var animation_player: AnimationPlayer = $"../AnimationPlayer"
+@onready var deflect_sfx: AudioStreamPlayer2D = $"../deflect_SFX"
+
 
 var _freeze_queue = []
 var _is_processing_freeze = false

@@ -2,9 +2,9 @@
 
 [ext_resource type="Texture2D" uid="uid://digthh0it584s" path="res://SPRITES/88.png" id="1_jhama"]
 [ext_resource type="Texture2D" uid="uid://y358y2w6rnmf" path="res://SPRITES/475.png" id="1_rbx67"]
-[ext_resource type="Script" uid="uid://cnnna2t78kfvw" path="res://PLAYERS/spell_1.gd" id="2_wuwwc"]
 [ext_resource type="Texture2D" uid="uid://lovia63fg07t" path="res://SPRITES/75.png" id="2_yargl"]
 [ext_resource type="AudioStream" uid="uid://dtnhs6dommt08" path="res://SFX/thump.wav" id="3_wuwwc"]
+[ext_resource type="Script" uid="uid://dqfu3jnydr7g5" path="res://PLAYERS/spell_2.gd" id="4_jhama"]
 
 [sub_resource type="Gradient" id="Gradient_i151x"]
 offsets = PackedFloat32Array(0.5, 0.733766, 0.993506, 1)
@@ -725,7 +725,7 @@ position = Vector2(0, 1)
 collision_layer = 8
 collision_mask = 4
 monitoring = false
-script = ExtResource("2_wuwwc")
+script = ExtResource("4_jhama")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
 visible = false

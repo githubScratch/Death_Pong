@@ -24,6 +24,10 @@ var ball_instances = []
 
 @export var p2_scene: PackedScene
 var p2_playing = false
+@export var p3_scene: PackedScene
+var p3_playing = false
+@export var p4_scene: PackedScene
+var p4_playing = false
 
 func _ready() -> void:
 	
@@ -73,6 +77,28 @@ func summon_p2():
 		get_tree().current_scene.add_child(p2_instance)
 		spawn_ball.pitch_scale = randf_range(1.4, 1.6)
 		spawn_ball.play()
+
+func summon_p3():
+	if is_instance_valid(p3_scene) and not p3_playing:
+		p3_playing = true
+		#await get_tree().create_timer(0.5).timeout
+		var p3_instance = p3_scene.instantiate()
+		p3_instance.global_position = Vector2(576, 70)
+		get_tree().current_scene.add_child(p3_instance)
+		spawn_ball.pitch_scale = randf_range(1.4, 1.6)
+		spawn_ball.play()
+
+func summon_p4():
+	if is_instance_valid(p4_scene) and not p4_playing:
+		p4_playing = true
+		#await get_tree().create_timer(0.5).timeout
+		var p4_instance = p4_scene.instantiate()
+		p4_instance.global_position = Vector2(576, 70)
+		get_tree().current_scene.add_child(p4_instance)
+		spawn_ball.pitch_scale = randf_range(1.4, 1.6)
+		spawn_ball.play()
+
+
 #Ball Reset
 func create_new_instance():
 	# Check if scene is assigned using is_instance_valid

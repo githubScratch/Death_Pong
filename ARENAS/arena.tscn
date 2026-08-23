@@ -654,6 +654,8 @@ size = Vector2(16.5, 525)
 [node name="Node2D" type="Node2D"]
 script = ExtResource("1_3ujay")
 instance_scene = ExtResource("3_uo83q")
+p3_scene = ExtResource("15_0yefq")
+p4_scene = ExtResource("16_ji56j")
 
 [node name="Arena" type="Node2D" parent="."]
 
@@ -1066,12 +1068,6 @@ collision_mask = 0
 position = Vector2(575.75, 321.5)
 shape = SubResource("RectangleShape2D_knbf3")
 
-[node name="Node2D" parent="." instance=ExtResource("15_0yefq")]
-position = Vector2(352, 360)
-
-[node name="Node2D2" parent="." instance=ExtResource("16_ji56j")]
-position = Vector2(776, 368)
-
 [connection signal="body_entered" from="Arena/walls/right/Zone_Right" to="." method="_on_zone_right_body_entered"]
 [connection signal="body_exited" from="Arena/walls/right/Zone_Right" to="." method="_on_zone_right_body_exited"]
 [connection signal="body_entered" from="Arena/walls/right/Goal_Right" to="." method="_on_goal_right_body_entered"]
@@ -1082,6 +1078,6 @@ position = Vector2(776, 368)
 [connection signal="pressed" from="Player_1_Victory/CenterContainer/VBoxContainer/HBoxContainer/Menu1" to="." method="_on_menu_1_pressed"]
 [connection signal="pressed" from="Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch2" to="." method="_on_rematch_2_pressed"]
 [connection signal="pressed" from="Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer/Menu2" to="." method="_on_menu_2_pressed"]
-[connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1" to="." method="_on_continue_pressed"]
 [connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1" to="." method="_on_continue_1_pressed"]
+[connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1" to="." method="_on_continue_pressed"]
 [connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Menu3" to="." method="_on_menu_3_pressed"]

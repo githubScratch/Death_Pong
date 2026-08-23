@@ -24,6 +24,11 @@ var ball_instances = []
 @onready var mid_barrier: Node2D = $Mid_Barrier
 @onready var mid_collision: StaticBody2D = $Mid_Barrier/Mid_Collision
 
+@export var p3_scene: PackedScene
+var p3_playing = false
+@export var p4_scene: PackedScene
+var p4_playing = false
+
 var slowmo_stack: int = 0
 
 func _ready() -> void:
@@ -44,7 +49,10 @@ func _process(_delta: float) -> void:
 		if is_paused or is_victory:
 			select.pitch_scale = randf_range(0.9, 1.1)
 			select.play()
-	
+	if Input.is_action_just_pressed("p3_down"):
+		summon_p3()
+	if Input.is_action_just_pressed("p4_down"):
+		summon_p4()
 	
 	if Input.is_action_just_pressed("ui_select"):
 		if not is_paused and not is_victory:
@@ -224,3 +232,23 @@ func _on_menu_3_pressed() -> void:
 	is_paused = false
 	get_tree().paused = false
 	get_tree().change_scene_to_file("res://MENUS/Menu.tscn")
+
+func summon_p3():
+	if is_instance_valid(p3_scene) and not p3_playing:
+		p3_playing = true
+		#await get_tree().create_timer(0.5).timeout
+		var p3_instance = p3_scene.instantiate()
+		p3_instance.global_position = Vector2(576, 70)
+		get_tree().current_scene.add_child(p3_instance)
+		spawn_ball.pitch_scale = randf_range(1.4, 1.6)
+		spawn_ball.play()
+
+func summon_p4():
+	if is_instance_valid(p4_scene) and not p4_playing:
+		p4_playing = true
+		#await get_tree().create_timer(0.5).timeout
+		var p4_instance = p4_scene.instantiate()
+		p4_instance.global_position = Vector2(576, 70)
+		get_tree().current_scene.add_child(p4_instance)
+		spawn_ball.pitch_scale = randf_range(1.4, 1.6)
+		spawn_ball.play()
