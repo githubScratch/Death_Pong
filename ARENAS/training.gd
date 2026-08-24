@@ -60,6 +60,10 @@ func _process(_delta: float) -> void:
 
 	if Input.is_action_just_pressed("p2_down") or Input.is_action_just_pressed("p2_left") or Input.is_action_just_pressed("p2_right") or Input.is_action_just_pressed("p2_up"):
 		summon_p2()
+	if Input.is_action_just_pressed("p3_down"):
+		summon_p3()
+	if Input.is_action_just_pressed("p4_down"):
+		summon_p4()
 
 func apply_game_settings() -> void:
 		create_new_instance()

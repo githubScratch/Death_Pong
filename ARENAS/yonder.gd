@@ -74,6 +74,11 @@ func _process(_delta: float) -> void:
 			unpause_game()
 			print("UI accept pressed while paused")
 
+	if Input.is_action_just_pressed("p3_down"):
+		summon_p3()
+	if Input.is_action_just_pressed("p4_down"):
+		summon_p4()
+		
 func apply_game_settings() -> void:
 	if GameSettings.game_mode == "random":
 		pass

@@ -23,7 +23,7 @@ var hit_the_ground = false
 var fading_instances = []
 var max_fall_speed = 6000
 
-### WIZARD 1 ###
+### WIZARD 2 ###
 
 func _physics_process(delta: float) -> void:
 	
@@ -42,7 +42,7 @@ func _physics_process(delta: float) -> void:
 		land.play()
 		sprite.scale.y = 0.15
 		sprite.scale.x = 0.6
-		
+	
 	#Reset Stretch over time
 	sprite.scale.x = lerpf(sprite.scale.x, 0.333, 1 - pow(0.01, delta))
 	sprite.scale.y = lerpf(sprite.scale.y, 0.333, 1 - pow(0.01, delta))
@@ -50,7 +50,7 @@ func _physics_process(delta: float) -> void:
 	shape.scale.y = lerpf(sprite.scale.y, 1, 1 - pow(0.01, delta))
 	
 	# Handle jump.
-	if Input.is_action_just_pressed("p1_up"):
+	if Input.is_action_just_pressed("p2_up"):
 		create_new_instance()
 		if not is_on_floor():
 			velocity.y = DBL_JUMP_VELOCITY
@@ -63,8 +63,9 @@ func _physics_process(delta: float) -> void:
 			jump.pitch_scale = randf_range(0.9, 1.1)
 			jump.play()
 	
+
 	# Handle dive.
-	if Input.is_action_just_pressed("p1_down"):
+	if Input.is_action_just_pressed("p2_down"):
 		if not is_on_floor():
 			velocity.y = DIVE_VELOCITY
 			dash.pitch_scale = randf_range(0.9, 1.1)
@@ -80,9 +81,8 @@ func _physics_process(delta: float) -> void:
 			#set_collision_layer(1)
 			SPEED = INIT_SPEED
 
-	
 	# Get the input direction and handle the movement/deceleration.
-	var direction := Input.get_axis("p1_left", "p1_right")
+	var direction := Input.get_axis("p2_left", "p2_right")
 	if direction:
 		velocity.x = direction * SPEED
 		if direction > 0:
@@ -93,7 +93,6 @@ func _physics_process(delta: float) -> void:
 		velocity.x = move_toward(velocity.x, 0, SPEED)
 
 	move_and_slide()
-
 
 func create_new_instance():
 	# If there's a current instance, start its fade animation

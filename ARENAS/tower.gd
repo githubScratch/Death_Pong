@@ -56,7 +56,11 @@ func _process(_delta: float) -> void:
 		elif is_paused and not is_victory:
 			unpause_game()
 			print("UI accept pressed while paused")
-
+	if Input.is_action_just_pressed("p3_down"):
+		summon_p3()
+	if Input.is_action_just_pressed("p4_down"):
+		summon_p4()
+		
 func apply_game_settings() -> void:
 	if GameSettings.game_mode == "random":
 		pass
@@ -221,7 +225,7 @@ func summon_p3():
 		p3_playing = true
 		#await get_tree().create_timer(0.5).timeout
 		var p3_instance = p3_scene.instantiate()
-		p3_instance.global_position = Vector2(576, 70)
+		p3_instance.global_position = ballspawn.global_position
 		get_tree().current_scene.add_child(p3_instance)
 		spawn_ball.pitch_scale = randf_range(1.4, 1.6)
 		spawn_ball.play()
@@ -231,7 +235,7 @@ func summon_p4():
 		p4_playing = true
 		#await get_tree().create_timer(0.5).timeout
 		var p4_instance = p4_scene.instantiate()
-		p4_instance.global_position = Vector2(576, 70)
+		p4_instance.global_position = ballspawn.global_position
 		get_tree().current_scene.add_child(p4_instance)
 		spawn_ball.pitch_scale = randf_range(1.4, 1.6)
 		spawn_ball.play()

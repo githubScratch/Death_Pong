@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3 uid="uid://b8nh7yxds3rl1"]
+[gd_scene load_steps=31 format=3 uid="uid://b8nh7yxds3rl1"]
 
 [ext_resource type="Texture2D" uid="uid://y358y2w6rnmf" path="res://SPRITES/475.png" id="1_w65ow"]
 [ext_resource type="Texture2D" uid="uid://digthh0it584s" path="res://SPRITES/88.png" id="1_xjnls"]
@@ -116,6 +116,30 @@ tracks/6/keys = {
 "update": 0,
 "values": [1.0]
 }
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath(".:animation")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [&"pop"]
+}
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath(".:rotation")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
 
 [sub_resource type="Animation" id="Animation_03oq3"]
 resource_name = "deflect"
@@ -179,6 +203,18 @@ tracks/4/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 1,
 "values": [true]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath(".:rotation")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0.0333333, 0.05),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 0.261799]
 }
 
 [sub_resource type="Animation" id="Animation_m0sya"]
@@ -282,6 +318,18 @@ tracks/7/keys = {
 "update": 0,
 "values": [1.0, 0.0]
 }
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath(".:animation")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0.0333333),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [&"pop"]
+}
 
 [sub_resource type="Animation" id="Animation_i67ey"]
 resource_name = "light"
@@ -379,10 +427,6 @@ region = Rect2(448, 64, 64, 64)
 atlas = ExtResource("1_w65ow")
 region = Rect2(512, 64, 64, 64)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_7mc3g"]
-atlas = ExtResource("1_w65ow")
-region = Rect2(128, 64, 64, 64)
-
 [sub_resource type="AtlasTexture" id="AtlasTexture_beftw"]
 atlas = ExtResource("1_w65ow")
 region = Rect2(384, 64, 64, 64)
@@ -394,6 +438,22 @@ region = Rect2(448, 64, 64, 64)
 [sub_resource type="AtlasTexture" id="AtlasTexture_gl7aw"]
 atlas = ExtResource("1_w65ow")
 region = Rect2(512, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v2pj1"]
+atlas = ExtResource("1_w65ow")
+region = Rect2(512, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pfkne"]
+atlas = ExtResource("1_w65ow")
+region = Rect2(576, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_td6mq"]
+atlas = ExtResource("1_w65ow")
+region = Rect2(640, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u3dqs"]
+atlas = ExtResource("1_w65ow")
+region = Rect2(704, 64, 64, 64)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_v2pj1"]
 animations = [{
@@ -421,9 +481,6 @@ animations = [{
 "speed": 20.0
 }, {
 "frames": [{
-"duration": 0.5,
-"texture": SubResource("AtlasTexture_7mc3g")
-}, {
 "duration": 0.5,
 "texture": SubResource("AtlasTexture_i67ey")
 }, {
@@ -796,13 +853,47 @@ animations = [{
 "loop": true,
 "name": &"hold",
 "speed": 9.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v2pj1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pfkne")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_td6mq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_u3dqs")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_td6mq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_u3dqs")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_td6mq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_u3dqs")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_u3dqs")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_u3dqs")
+}],
+"loop": true,
+"name": &"pop",
+"speed": 9.0
 }]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_i67ey"]
 radius = 56.0
 
 [node name="Node2D" type="Node2D"]
-z_index = 2
 
 [node name="outerlight" type="PointLight2D" parent="."]
 position = Vector2(4.99999, 5)
@@ -868,11 +959,13 @@ libraries = {
 autoplay = "light"
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-visible = false
-position = Vector2(0.800001, 0.800001)
-scale = Vector2(3.275, 3.275)
+modulate = Color(1, 1, 1, 0.305882)
+show_behind_parent = true
+light_mask = 2
+position = Vector2(2, 6)
+scale = Vector2(2.5, 2.5)
 sprite_frames = SubResource("SpriteFrames_v2pj1")
-animation = &"hold"
+animation = &"pop"
 autoplay = "hold"
 
 [node name="Area2D" type="Area2D" parent="."]

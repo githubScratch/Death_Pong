@@ -6,6 +6,7 @@ class_name DeflectionShield4
 @onready var deflect_sfx: AudioStreamPlayer2D = $"../deflect_SFX"
 
 
+
 var _freeze_queue = []
 var _is_processing_freeze = false
 

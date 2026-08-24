@@ -1,8 +1,10 @@
-[gd_scene load_steps=66 format=3 uid="uid://dgwvptvanlrmw"]
+[gd_scene load_steps=68 format=3 uid="uid://dgwvptvanlrmw"]
 
 [ext_resource type="Script" uid="uid://bgrjsmb0uowwo" path="res://ARENAS/yonder.gd" id="1_2qecu"]
 [ext_resource type="PackedScene" uid="uid://bce3ta6nq22gc" path="res://ARENAS/ball_big.tscn" id="2_2qecu"]
+[ext_resource type="PackedScene" uid="uid://cqlx4xf16e1yb" path="res://PLAYERS/wizard_3.tscn" id="3_0dqhp"]
 [ext_resource type="Texture2D" uid="uid://digthh0it584s" path="res://SPRITES/88.png" id="4_evosj"]
+[ext_resource type="PackedScene" uid="uid://cpf3m3dqeamqt" path="res://PLAYERS/wizard_4.tscn" id="4_hhauf"]
 [ext_resource type="Material" uid="uid://brqgt7jbrx5hb" path="res://ARENAS/green_particles.tres" id="5_e055s"]
 [ext_resource type="PackedScene" uid="uid://6pxseqnx1718" path="res://PLAYERS/wizard_1.tscn" id="6_6yia0"]
 [ext_resource type="PackedScene" uid="uid://il58hnsuqbax" path="res://PLAYERS/wizard_2.tscn" id="7_pmepg"]
@@ -875,6 +877,8 @@ script = ExtResource("1_2qecu")
 instance_scene = ExtResource("2_2qecu")
 swap_area_top = NodePath("Yonder/portals/portal_bottom_exit")
 swap_area_bottom = NodePath("Yonder/portals/portal_top_exit")
+p3_scene = ExtResource("3_0dqhp")
+p4_scene = ExtResource("4_hhauf")
 
 [node name="Yonder" type="Node2D" parent="."]
 
@@ -1420,6 +1424,6 @@ shape = SubResource("RectangleShape2D_knbf3")
 [connection signal="pressed" from="Player_1_Victory/CenterContainer/VBoxContainer/HBoxContainer/Menu1" to="." method="_on_menu_1_pressed"]
 [connection signal="pressed" from="Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch2" to="." method="_on_rematch_2_pressed"]
 [connection signal="pressed" from="Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer/Menu2" to="." method="_on_menu_2_pressed"]
-[connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1" to="." method="_on_continue_pressed"]
 [connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1" to="." method="_on_continue_1_pressed"]
+[connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1" to="." method="_on_continue_pressed"]
 [connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Menu3" to="." method="_on_menu_3_pressed"]

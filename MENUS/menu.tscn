@@ -65,7 +65,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.698039, 0.101961, 1)
 theme_override_fonts/font = ExtResource("1_phoou")
 theme_override_font_sizes/font_size = 140
-text = "PONG"
+text = "BALLS"
 horizontal_alignment = 1
 
 [node name="Begin" type="Button" parent="CenterContainer/VBoxContainer"]
