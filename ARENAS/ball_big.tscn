@@ -89,7 +89,7 @@ stretch_factor = 1.5
 min_velocity_for_sound = 500.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D"]
-visible = false
+scale = Vector2(1.25, 1.25)
 shape = SubResource("CircleShape2D_41u45")
 
 [node name="Sprite2D" type="Sprite2D" parent="RigidBody2D"]

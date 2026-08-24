@@ -205,14 +205,14 @@ func unpause_game():
 #Time Slow Zones ---  debug shader parameter tweens
 func _on_zone_left_body_entered(body: Node2D) -> void:
 	if body.is_in_group("ball"):
-		request_slowmo(0.35)
+		request_slowmo(0.5)
 		#screen_shader.material.set_shader_parameter("Abberation", 1)
 func _on_zone_left_body_exited(body: Node2D) -> void:
 	if body.is_in_group("ball"):
 		_end_slowmo()
 func _on_zone_right_body_entered(body: Node2D) -> void:
 	if body.is_in_group("ball"):
-		request_slowmo(0.35)
+		request_slowmo(0.5)
 func _on_zone_right_body_exited(body: Node2D) -> void:
 	if body.is_in_group("ball"):
 		_end_slowmo()

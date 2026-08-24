@@ -1,4 +1,4 @@
-[gd_scene load_steps=44 format=3 uid="uid://dgpeqxyiiriwx"]
+[gd_scene load_steps=45 format=3 uid="uid://dgpeqxyiiriwx"]
 
 [ext_resource type="Script" uid="uid://dg4utk7dcltn2" path="res://ARENAS/arena.gd" id="1_3ujay"]
 [ext_resource type="PackedScene" uid="uid://6pxseqnx1718" path="res://PLAYERS/wizard_1.tscn" id="1_4j1kj"]
@@ -9,6 +9,7 @@
 [ext_resource type="Material" uid="uid://brqgt7jbrx5hb" path="res://ARENAS/green_particles.tres" id="5_1xjwm"]
 [ext_resource type="Texture2D" uid="uid://cn2njurkxp3iq" path="res://SPRITES/2d_lights_and_shadows_neutral_point_light.webp" id="5_55po1"]
 [ext_resource type="Shader" uid="uid://c3fmb76te1444" path="res://ARENAS/VHS.gdshader" id="6_2udws"]
+[ext_resource type="Texture2D" uid="uid://dlodwdaaexmf4" path="res://TILESETS/background.png" id="8_6dkjy"]
 [ext_resource type="Theme" uid="uid://dka4pq4oxkc3b" path="res://MENUS/Menu_Theme.tres" id="8_a13du"]
 [ext_resource type="AudioStream" uid="uid://bfh2mp44mk037" path="res://SFX/goal.wav" id="9_05y3v"]
 [ext_resource type="AudioStream" uid="uid://k7573muxw1h7" path="res://SFX/Menu_Start.wav" id="10_uu0rc"]
@@ -814,6 +815,14 @@ offset_right = 1408.0
 offset_bottom = 904.0
 color = Color(0, 0, 0, 1)
 
+[node name="Background2" type="Sprite2D" parent="Arena/walls"]
+visible = false
+light_mask = 2
+z_index = -2
+position = Vector2(568, 320)
+scale = Vector2(3.28, 2.88)
+texture = ExtResource("8_6dkjy")
+
 [node name="Right_Plat" type="StaticBody2D" parent="Arena"]
 z_index = -1
 position = Vector2(640, 384)
@@ -1078,6 +1087,6 @@ shape = SubResource("RectangleShape2D_knbf3")
 [connection signal="pressed" from="Player_1_Victory/CenterContainer/VBoxContainer/HBoxContainer/Menu1" to="." method="_on_menu_1_pressed"]
 [connection signal="pressed" from="Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch2" to="." method="_on_rematch_2_pressed"]
 [connection signal="pressed" from="Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer/Menu2" to="." method="_on_menu_2_pressed"]
-[connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1" to="." method="_on_continue_1_pressed"]
 [connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1" to="." method="_on_continue_pressed"]
+[connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1" to="." method="_on_continue_1_pressed"]
 [connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Menu3" to="." method="_on_menu_3_pressed"]

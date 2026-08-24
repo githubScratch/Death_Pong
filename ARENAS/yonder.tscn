@@ -1,4 +1,4 @@
-[gd_scene load_steps=68 format=3 uid="uid://dgwvptvanlrmw"]
+[gd_scene load_steps=71 format=3 uid="uid://dgwvptvanlrmw"]
 
 [ext_resource type="Script" uid="uid://bgrjsmb0uowwo" path="res://ARENAS/yonder.gd" id="1_2qecu"]
 [ext_resource type="PackedScene" uid="uid://bce3ta6nq22gc" path="res://ARENAS/ball_big.tscn" id="2_2qecu"]
@@ -7,8 +7,11 @@
 [ext_resource type="PackedScene" uid="uid://cpf3m3dqeamqt" path="res://PLAYERS/wizard_4.tscn" id="4_hhauf"]
 [ext_resource type="Material" uid="uid://brqgt7jbrx5hb" path="res://ARENAS/green_particles.tres" id="5_e055s"]
 [ext_resource type="PackedScene" uid="uid://6pxseqnx1718" path="res://PLAYERS/wizard_1.tscn" id="6_6yia0"]
+[ext_resource type="Texture2D" uid="uid://dlodwdaaexmf4" path="res://TILESETS/background.png" id="7_hhauf"]
 [ext_resource type="PackedScene" uid="uid://il58hnsuqbax" path="res://PLAYERS/wizard_2.tscn" id="7_pmepg"]
+[ext_resource type="Texture2D" uid="uid://cor3iehmup225" path="res://TILESETS/mountains.png" id="8_e055s"]
 [ext_resource type="PackedScene" uid="uid://cjh86iplxrtmc" path="res://MENUS/HUD.tscn" id="8_k7eei"]
+[ext_resource type="Texture2D" uid="uid://ctjer445pklsc" path="res://TILESETS/graveyard.png" id="9_6yia0"]
 [ext_resource type="Shader" uid="uid://c3fmb76te1444" path="res://ARENAS/VHS.gdshader" id="9_tcwve"]
 [ext_resource type="Theme" uid="uid://dka4pq4oxkc3b" path="res://MENUS/Menu_Theme.tres" id="10_4whtw"]
 [ext_resource type="AudioStream" uid="uid://bfh2mp44mk037" path="res://SFX/goal.wav" id="11_sq5bc"]
@@ -958,6 +961,7 @@ offset_left = 1088.0
 offset_top = -448.0
 offset_right = 1152.0
 offset_bottom = 1088.0
+scale = Vector2(4.16, 1)
 color = Color(0, 0, 0, 1)
 
 [node name="left_wall" type="StaticBody2D" parent="Yonder/walls"]
@@ -966,9 +970,11 @@ collision_layer = 2
 collision_mask = 7
 
 [node name="ColorRect5" type="ColorRect" parent="Yonder/walls/left_wall"]
-offset_top = -448.0
-offset_right = 64.0
-offset_bottom = 1088.0
+offset_left = -256.0
+offset_top = -454.0
+offset_right = -192.0
+offset_bottom = 1082.0
+scale = Vector2(5, 1)
 color = Color(0, 0, 0, 1)
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Yonder/walls/left_wall"]
@@ -1071,6 +1077,25 @@ offset_top = -128.0
 offset_right = 1280.0
 offset_bottom = 760.0
 color = Color(0.165656, 0.165656, 0.165656, 1)
+
+[node name="Background2" type="Sprite2D" parent="Yonder/walls"]
+z_index = -2
+position = Vector2(576, 344)
+scale = Vector2(4.11436, 4.04197)
+texture = ExtResource("7_hhauf")
+
+[node name="Mountains" type="Sprite2D" parent="Yonder/walls"]
+modulate = Color(1, 1, 1, 0.247059)
+z_index = -2
+position = Vector2(552, 656)
+scale = Vector2(8.16, 3)
+texture = ExtResource("8_e055s")
+
+[node name="Graveyard" type="Sprite2D" parent="Yonder/walls"]
+z_index = -2
+position = Vector2(600, 776)
+scale = Vector2(4.8, 3.44)
+texture = ExtResource("9_6yia0")
 
 [node name="BackBorder" type="ColorRect" parent="Yonder/walls"]
 z_index = -3
@@ -1424,6 +1449,6 @@ shape = SubResource("RectangleShape2D_knbf3")
 [connection signal="pressed" from="Player_1_Victory/CenterContainer/VBoxContainer/HBoxContainer/Menu1" to="." method="_on_menu_1_pressed"]
 [connection signal="pressed" from="Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch2" to="." method="_on_rematch_2_pressed"]
 [connection signal="pressed" from="Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer/Menu2" to="." method="_on_menu_2_pressed"]
-[connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1" to="." method="_on_continue_1_pressed"]
 [connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1" to="." method="_on_continue_pressed"]
+[connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1" to="." method="_on_continue_1_pressed"]
 [connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Menu3" to="." method="_on_menu_3_pressed"]

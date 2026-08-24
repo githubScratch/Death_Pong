@@ -1,6 +1,5 @@
-[gd_scene load_steps=30 format=3 uid="uid://dweqrqyfhjtdy"]
+[gd_scene load_steps=29 format=3 uid="uid://dweqrqyfhjtdy"]
 
-[ext_resource type="Texture2D" uid="uid://digthh0it584s" path="res://SPRITES/88.png" id="1_mqdsd"]
 [ext_resource type="Texture2D" uid="uid://lovia63fg07t" path="res://SPRITES/75.png" id="2_alabh"]
 [ext_resource type="Texture2D" uid="uid://y358y2w6rnmf" path="res://SPRITES/475.png" id="3_u0u2f"]
 [ext_resource type="Script" uid="uid://cdknqygcb2w7" path="res://PLAYERS/spell_4.gd" id="4_mqdsd"]
@@ -737,7 +736,7 @@ texture = SubResource("GradientTexture2D_dk7g5")
 
 [node name="passivebubbles" type="CPUParticles2D" parent="."]
 position = Vector2(4.2, -0.6)
-texture = ExtResource("1_mqdsd")
+texture = ExtResource("2_alabh")
 lifetime = 1.5
 emission_shape = 1
 emission_sphere_radius = 40.0
