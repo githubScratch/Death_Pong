@@ -19,7 +19,7 @@ var current_instance: Node = null
 @onready var move: AudioStreamPlayer2D = $move
 @onready var goal_particles: AnimationPlayer = $Goal_Particles
 var ball_instances = []
-@onready var screen_shader: ColorRect = $CanvasLayer/ScreenShader
+@onready var canvas_layer: CanvasLayer = $Yonder/CanvasLayer
 @onready var score_player = $HUD/ScorePlayer
 @onready var mid_barrier: Node2D = $Mid_Barrier
 @onready var mid_collision: StaticBody2D = $Mid_Barrier/Mid_Collision
@@ -33,6 +33,8 @@ var teleporting_objects = {}
 var p3_playing = false
 @export var p4_scene: PackedScene
 var p4_playing = false
+@onready var ball_spawn: AnimationPlayer = $Ball_Spawn
+
 
 func _ready() -> void:
 	
@@ -96,9 +98,10 @@ func _on_settings_changed() -> void:
 func create_new_instance():
 	# Check if scene is assigned using is_instance_valid
 	if is_instance_valid(instance_scene):
-		await get_tree().create_timer(0.5).timeout
+		ball_spawn.play("spawn")
+		await get_tree().create_timer(0.7).timeout
 		var instance = instance_scene.instantiate()
-		instance.global_position = Vector2(576, 70)
+		instance.global_position = Vector2(574, 160)
 		get_tree().current_scene.add_child(instance)
 		# Add the instance to our array
 		ball_instances.append(instance)
@@ -204,14 +207,14 @@ func unpause_game():
 #Time Slow Zones ---  debug shader parameter tweens
 func _on_zone_left_body_entered(body: Node2D) -> void:
 	if body.is_in_group("ball"):
-		Engine.time_scale = 0.35
+		Engine.time_scale = 0.5
 		#screen_shader.material.set_shader_parameter("Abberation", 1)
 func _on_zone_left_body_exited(body: Node2D) -> void:
 	if body.is_in_group("ball"):
 		Engine.time_scale = 1.0
 func _on_zone_right_body_entered(body: Node2D) -> void:
 	if body.is_in_group("ball"):
-		Engine.time_scale = 0.35
+		Engine.time_scale = 0.5
 func _on_zone_right_body_exited(body: Node2D) -> void:
 	if body.is_in_group("ball"):
 		Engine.time_scale = 1.0

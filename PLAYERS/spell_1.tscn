@@ -1,10 +1,11 @@
-[gd_scene load_steps=31 format=3 uid="uid://b8nh7yxds3rl1"]
+[gd_scene load_steps=32 format=3 uid="uid://b8nh7yxds3rl1"]
 
 [ext_resource type="Texture2D" uid="uid://y358y2w6rnmf" path="res://SPRITES/475.png" id="1_w65ow"]
 [ext_resource type="Texture2D" uid="uid://digthh0it584s" path="res://SPRITES/88.png" id="1_xjnls"]
 [ext_resource type="Texture2D" uid="uid://lovia63fg07t" path="res://SPRITES/75.png" id="2_03oq3"]
 [ext_resource type="Script" uid="uid://cnnna2t78kfvw" path="res://PLAYERS/spell_1.gd" id="2_7mc3g"]
 [ext_resource type="AudioStream" uid="uid://dtnhs6dommt08" path="res://SFX/thump.wav" id="3_i67ey"]
+[ext_resource type="Texture2D" uid="uid://dlodwdaaexmf4" path="res://TILESETS/background.png" id="6_m0sya"]
 
 [sub_resource type="Gradient" id="Gradient_m0sya"]
 offsets = PackedFloat32Array(0.5, 0.733766, 0.993506, 1)
@@ -983,5 +984,10 @@ shape = SubResource("CircleShape2D_i67ey")
 position = Vector2(2.6, -31)
 stream = ExtResource("3_i67ey")
 bus = &"SFX"
+
+[node name="Background" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(-62, 14)
+texture = ExtResource("6_m0sya")
 
 [connection signal="body_entered" from="Area2D" to="Area2D" method="_on_body_entered"]

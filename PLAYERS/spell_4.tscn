@@ -1,9 +1,10 @@
-[gd_scene load_steps=29 format=3 uid="uid://dweqrqyfhjtdy"]
+[gd_scene load_steps=30 format=3 uid="uid://dweqrqyfhjtdy"]
 
 [ext_resource type="Texture2D" uid="uid://lovia63fg07t" path="res://SPRITES/75.png" id="2_alabh"]
 [ext_resource type="Texture2D" uid="uid://y358y2w6rnmf" path="res://SPRITES/475.png" id="3_u0u2f"]
 [ext_resource type="Script" uid="uid://cdknqygcb2w7" path="res://PLAYERS/spell_4.gd" id="4_mqdsd"]
 [ext_resource type="AudioStream" uid="uid://dtnhs6dommt08" path="res://SFX/thump.wav" id="5_lei3y"]
+[ext_resource type="Texture2D" uid="uid://dlodwdaaexmf4" path="res://TILESETS/background.png" id="5_mqdsd"]
 
 [sub_resource type="Gradient" id="Gradient_i151x"]
 offsets = PackedFloat32Array(0.5, 0.733766, 0.993506, 1)
@@ -732,6 +733,7 @@ texture = SubResource("GradientTexture2D_s8his")
 position = Vector2(0, -1)
 scale = Vector2(0.1, 0.1)
 color = Color(0.73, 0.11607, 0.0949, 1)
+energy = 0.0
 texture = SubResource("GradientTexture2D_dk7g5")
 
 [node name="passivebubbles" type="CPUParticles2D" parent="."]
@@ -794,6 +796,7 @@ scale = Vector2(2.5, 2.5)
 sprite_frames = SubResource("SpriteFrames_00ppf")
 animation = &"pop"
 autoplay = "hold"
+frame_progress = 0.574699
 
 [node name="PointLight2D" type="PointLight2D" parent="AnimatedSprite2D"]
 visible = false
@@ -818,5 +821,11 @@ shape = SubResource("CircleShape2D_asf77")
 position = Vector2(5.8, -31)
 stream = ExtResource("5_lei3y")
 bus = &"SFX"
+
+[node name="Background" type="Sprite2D" parent="."]
+visible = false
+z_index = -1
+position = Vector2(-108, -16)
+texture = ExtResource("5_mqdsd")
 
 [connection signal="body_entered" from="Area2D" to="Area2D" method="_on_body_entered"]

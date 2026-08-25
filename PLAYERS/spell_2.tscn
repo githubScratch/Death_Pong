@@ -1,30 +1,30 @@
-[gd_scene load_steps=30 format=3 uid="uid://ct4ajy6y060p0"]
+[gd_scene load_steps=33 format=3 uid="uid://ct4ajy6y060p0"]
 
 [ext_resource type="Texture2D" uid="uid://digthh0it584s" path="res://SPRITES/88.png" id="1_jhama"]
 [ext_resource type="Texture2D" uid="uid://y358y2w6rnmf" path="res://SPRITES/475.png" id="1_rbx67"]
 [ext_resource type="Texture2D" uid="uid://lovia63fg07t" path="res://SPRITES/75.png" id="2_yargl"]
 [ext_resource type="AudioStream" uid="uid://dtnhs6dommt08" path="res://SFX/thump.wav" id="3_wuwwc"]
 [ext_resource type="Script" uid="uid://dqfu3jnydr7g5" path="res://PLAYERS/spell_2.gd" id="4_jhama"]
+[ext_resource type="Texture2D" uid="uid://dlodwdaaexmf4" path="res://TILESETS/background.png" id="8_pkfns"]
 
-[sub_resource type="Gradient" id="Gradient_i151x"]
-offsets = PackedFloat32Array(0.5, 0.733766, 0.993506, 1)
-colors = PackedColorArray(0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1)
+[sub_resource type="Gradient" id="Gradient_bip18"]
+offsets = PackedFloat32Array(0.428571, 0.532468)
+colors = PackedColorArray(0, 0.7, 0.105, 0.376471, 0, 0.7, 0.105, 0)
 
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_s8his"]
-gradient = SubResource("Gradient_i151x")
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_ihxnt"]
+gradient = SubResource("Gradient_bip18")
 fill = 1
-fill_from = Vector2(0.495413, 0.463303)
-fill_to = Vector2(0, 0.486239)
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0, 1)
 
-[sub_resource type="Gradient" id="Gradient_i67ey"]
-interpolation_mode = 1
-colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+[sub_resource type="Gradient" id="Gradient_vo6dj"]
+offsets = PackedFloat32Array(0, 0.344156, 0.428571, 0.512987, 0.597403)
+colors = PackedColorArray(0.94, 0.94, 0.94, 0, 0.5628, 0.84, 0.60438, 0.113725, 0.4559, 0.97, 0.533015, 0.792157, 0.4399, 0.83, 0.498415, 0.321569, 1, 1, 1, 0)
 
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_dk7g5"]
-gradient = SubResource("Gradient_i67ey")
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_p1lg4"]
+gradient = SubResource("Gradient_vo6dj")
 fill = 1
-fill_from = Vector2(0.518349, 0.513761)
-fill_to = Vector2(0.848624, 0.270642)
+fill_from = Vector2(0.5, 0.5)
 
 [sub_resource type="Gradient" id="Gradient_uw7x3"]
 offsets = PackedFloat32Array(0, 0.533333, 1)
@@ -47,62 +47,174 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("../outerlight:scale")
+tracks/1/path = NodePath("../passivebubbles:emitting")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(0.0999999, 0.0999999)]
+"update": 1,
+"values": [true]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
 tracks/2/enabled = true
-tracks/2/path = NodePath("../outerlight:energy")
+tracks/2/path = NodePath("../Area2D:monitoring")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [1.0]
+"update": 1,
+"values": [false]
 }
 tracks/3/type = "value"
 tracks/3/imported = false
 tracks/3/enabled = true
-tracks/3/path = NodePath("../corelight:scale")
+tracks/3/path = NodePath(".:animation")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(0.1, 0.1)]
+"update": 1,
+"values": [&"pop"]
 }
 tracks/4/type = "value"
 tracks/4/imported = false
 tracks/4/enabled = true
-tracks/4/path = NodePath("../passivebubbles:emitting")
+tracks/4/path = NodePath(".:rotation")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [true]
+"update": 0,
+"values": [0.0]
 }
 tracks/5/type = "value"
 tracks/5/imported = false
 tracks/5/enabled = true
-tracks/5/path = NodePath("../Area2D:monitoring")
+tracks/5/path = NodePath("../CoreSprite:scale")
 tracks/5/interp = 1
 tracks/5/loop_wrap = true
 tracks/5/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(2, 2)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("../CoreSprite:modulate")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("../OuterSprite:scale")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(2.3, 2.3)]
+}
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("../OuterSprite:modulate")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_jhama"]
+resource_name = "deflect"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("../passivebubbles:emitting")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.1),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [false]
+"values": [true]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("../sparks:emitting")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath(".:rotation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.05, 0.1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.261799, 0.0]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("../OuterSprite:scale")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.166667, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(2.3, 2.3), Vector2(2.65, 2.65), Vector2(2.3, 2.3)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("../CoreSprite:modulate")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.333333),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(1, 1, 1, 1)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("../CoreSprite:scale")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(2, 2)]
 }
 tracks/6/type = "value"
 tracks/6/imported = false
@@ -114,95 +226,19 @@ tracks/6/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [&"pop"]
+"values": [&"hold"]
 }
 tracks/7/type = "value"
 tracks/7/imported = false
 tracks/7/enabled = true
-tracks/7/path = NodePath(".:rotation")
+tracks/7/path = NodePath("../OuterSprite:modulate")
 tracks/7/interp = 1
 tracks/7/loop_wrap = true
 tracks/7/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [0.0]
-}
-
-[sub_resource type="Animation" id="Animation_jhama"]
-resource_name = "deflect"
-length = 0.5
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("../outerlight:energy")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.3),
-"transitions": PackedFloat32Array(0.233258, 0.31864, 0.210224),
-"update": 0,
-"values": [2.0, 3.0, 2.0]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("../outerlight:scale")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.3),
-"transitions": PackedFloat32Array(1, 1, 1),
-"update": 0,
-"values": [Vector2(2.125, 2.125), Vector2(2.3, 2.3), Vector2(2.125, 2.125)]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("../corelight:scale")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(2, 2)]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("../passivebubbles:emitting")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"times": PackedFloat32Array(0.1),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [true]
-}
-tracks/4/type = "value"
-tracks/4/imported = false
-tracks/4/enabled = true
-tracks/4/path = NodePath("../sparks:emitting")
-tracks/4/interp = 1
-tracks/4/loop_wrap = true
-tracks/4/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [true]
-}
-tracks/5/type = "value"
-tracks/5/imported = false
-tracks/5/enabled = true
-tracks/5/path = NodePath(".:rotation")
-tracks/5/interp = 1
-tracks/5/loop_wrap = true
-tracks/5/keys = {
-"times": PackedFloat32Array(0.05, 0.1),
+"times": PackedFloat32Array(0, 0.266667),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [0.261799, 0.0]
+"values": [Color(0, 0.65, 0.184167, 0.384314), Color(0, 0.65, 0.184167, 1)]
 }
 
 [sub_resource type="Animation" id="Animation_yargl"]
@@ -211,82 +247,46 @@ length = 0.5
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("../outerlight:energy")
+tracks/0/path = NodePath("../sparks:emitting")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(0.267943),
-"update": 0,
-"values": [2.0]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("../corelight:scale")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.5),
-"transitions": PackedFloat32Array(0.406126, 1),
-"update": 0,
-"values": [Vector2(2, 2), Vector2(0, 0)]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("../outerlight:scale")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.333333),
-"transitions": PackedFloat32Array(1, 0.189465),
-"update": 0,
-"values": [Vector2(2.125, 2.125), Vector2(0, 0)]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("../sparks:emitting")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
 "values": [true]
 }
-tracks/4/type = "value"
-tracks/4/imported = false
-tracks/4/enabled = true
-tracks/4/path = NodePath("../passivebubbles:emitting")
-tracks/4/interp = 1
-tracks/4/loop_wrap = true
-tracks/4/keys = {
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("../passivebubbles:emitting")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
 "times": PackedFloat32Array(0.1),
 "transitions": PackedFloat32Array(1),
 "update": 1,
 "values": [false]
 }
-tracks/5/type = "value"
-tracks/5/imported = false
-tracks/5/enabled = true
-tracks/5/path = NodePath("../Area2D:monitoring")
-tracks/5/interp = 1
-tracks/5/loop_wrap = true
-tracks/5/keys = {
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("../Area2D:monitoring")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
 "values": [false]
 }
-tracks/6/type = "method"
-tracks/6/imported = false
-tracks/6/enabled = true
-tracks/6/path = NodePath("..")
-tracks/6/interp = 1
-tracks/6/loop_wrap = true
-tracks/6/keys = {
+tracks/3/type = "method"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("..")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
 "times": PackedFloat32Array(0.5),
 "transitions": PackedFloat32Array(1),
 "values": [{
@@ -294,29 +294,53 @@ tracks/6/keys = {
 "method": &"queue_free"
 }]
 }
-tracks/7/type = "value"
-tracks/7/imported = false
-tracks/7/enabled = true
-tracks/7/path = NodePath("../corelight:energy")
-tracks/7/interp = 1
-tracks/7/loop_wrap = true
-tracks/7/keys = {
-"times": PackedFloat32Array(0, 0.5),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [1.0, 0.0]
-}
-tracks/8/type = "value"
-tracks/8/imported = false
-tracks/8/enabled = true
-tracks/8/path = NodePath(".:animation")
-tracks/8/interp = 1
-tracks/8/loop_wrap = true
-tracks/8/keys = {
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath(".:animation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
 "times": PackedFloat32Array(0.0333333),
 "transitions": PackedFloat32Array(1),
 "update": 1,
 "values": [&"pop"]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("../CoreSprite:modulate")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 0.166667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(0, 0.698039, 0.101961, 1), Color(1, 1, 1, 0.00392157)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("../OuterSprite:modulate")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0, 0.3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(0, 0.698039, 0.101961, 1), Color(1, 1, 1, 0)]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("../OuterSprite:scale")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0.2, 0.466667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(2.3, 2.3), Vector2(0, 0)]
 }
 
 [sub_resource type="Animation" id="Animation_gpwpy"]
@@ -325,74 +349,86 @@ length = 0.5
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("../outerlight:scale")
+tracks/0/path = NodePath("../sparks:emitting")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0.0333333, 0.133333),
-"transitions": PackedFloat32Array(0.267943, 0.287175),
-"update": 0,
-"values": [Vector2(0.0999999, 0.0999999), Vector2(2.125, 2.125)]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("../corelight:scale")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0.0333333, 0.133333),
-"transitions": PackedFloat32Array(0.258816, 1),
-"update": 0,
-"values": [Vector2(0.1, 0.1), Vector2(2, 2)]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("../outerlight:energy")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0.1, 0.2),
-"transitions": PackedFloat32Array(2.73208, 3.13834),
-"update": 0,
-"values": [1.0, 2.0]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("../sparks:emitting")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
 "times": PackedFloat32Array(0.0333333),
 "transitions": PackedFloat32Array(1),
 "update": 1,
 "values": [true]
 }
-tracks/4/type = "value"
-tracks/4/imported = false
-tracks/4/enabled = true
-tracks/4/path = NodePath("../passivebubbles:emitting")
-tracks/4/interp = 1
-tracks/4/loop_wrap = true
-tracks/4/keys = {
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("../passivebubbles:emitting")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
 "times": PackedFloat32Array(0, 0.2),
 "transitions": PackedFloat32Array(1, 1),
 "update": 1,
 "values": [false, true]
 }
-tracks/5/type = "value"
-tracks/5/imported = false
-tracks/5/enabled = true
-tracks/5/path = NodePath("../Area2D:monitoring")
-tracks/5/interp = 1
-tracks/5/loop_wrap = true
-tracks/5/keys = {
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("../Area2D:monitoring")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
 "values": [true]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("../CoreSprite:scale")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.166667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(2, 2)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("../CoreSprite:modulate")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(1, 1, 1, 1)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("../OuterSprite:scale")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0.0333333),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(2.3, 2.3)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("../OuterSprite:modulate")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0.0333333, 0.3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(0, 0.65, 0.184167, 0), Color(0, 0.65, 0.184167, 1)]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_bip18"]
@@ -426,6 +462,14 @@ region = Rect2(448, 192, 64, 64)
 [sub_resource type="AtlasTexture" id="AtlasTexture_ir8j7"]
 atlas = ExtResource("1_rbx67")
 region = Rect2(512, 192, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gpwpy"]
+atlas = ExtResource("1_rbx67")
+region = Rect2(576, 192, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_aqj70"]
+atlas = ExtResource("1_rbx67")
+region = Rect2(640, 192, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_jhama"]
 atlas = ExtResource("1_rbx67")
@@ -470,31 +514,13 @@ animations = [{
 "texture": SubResource("AtlasTexture_ir8j7")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_mjyfn")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_e1xov")
+"texture": SubResource("AtlasTexture_gpwpy")
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_ir8j7")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_mjyfn")
-}, {
-"duration": 1.0,
 "texture": SubResource("AtlasTexture_e1xov")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_ir8j7")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_mjyfn")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_e1xov")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_ir8j7")
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_mjyfn")
@@ -506,31 +532,19 @@ animations = [{
 "texture": SubResource("AtlasTexture_ir8j7")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_mjyfn")
+"texture": SubResource("AtlasTexture_gpwpy")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_e1xov")
+"texture": SubResource("AtlasTexture_aqj70")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_ir8j7")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_mjyfn")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_e1xov")
+"texture": SubResource("AtlasTexture_gpwpy")
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_ir8j7")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_mjyfn")
-}, {
-"duration": 1.0,
 "texture": SubResource("AtlasTexture_e1xov")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_ir8j7")
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_mjyfn")
@@ -542,31 +556,19 @@ animations = [{
 "texture": SubResource("AtlasTexture_ir8j7")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_mjyfn")
+"texture": SubResource("AtlasTexture_gpwpy")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_e1xov")
+"texture": SubResource("AtlasTexture_aqj70")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_ir8j7")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_mjyfn")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_e1xov")
+"texture": SubResource("AtlasTexture_gpwpy")
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_ir8j7")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_mjyfn")
-}, {
-"duration": 1.0,
 "texture": SubResource("AtlasTexture_e1xov")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_ir8j7")
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_mjyfn")
@@ -578,31 +580,19 @@ animations = [{
 "texture": SubResource("AtlasTexture_ir8j7")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_mjyfn")
+"texture": SubResource("AtlasTexture_gpwpy")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_e1xov")
+"texture": SubResource("AtlasTexture_aqj70")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_ir8j7")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_mjyfn")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_e1xov")
+"texture": SubResource("AtlasTexture_gpwpy")
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_ir8j7")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_mjyfn")
-}, {
-"duration": 1.0,
 "texture": SubResource("AtlasTexture_e1xov")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_ir8j7")
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_mjyfn")
@@ -614,31 +604,19 @@ animations = [{
 "texture": SubResource("AtlasTexture_ir8j7")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_mjyfn")
+"texture": SubResource("AtlasTexture_gpwpy")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_e1xov")
+"texture": SubResource("AtlasTexture_aqj70")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_ir8j7")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_mjyfn")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_e1xov")
+"texture": SubResource("AtlasTexture_gpwpy")
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_ir8j7")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_mjyfn")
-}, {
-"duration": 1.0,
 "texture": SubResource("AtlasTexture_e1xov")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_ir8j7")
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_mjyfn")
@@ -650,6 +628,21 @@ animations = [{
 "texture": SubResource("AtlasTexture_ir8j7")
 }, {
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_gpwpy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_aqj70")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gpwpy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ir8j7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e1xov")
+}, {
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_mjyfn")
 }, {
 "duration": 1.0,
@@ -659,6 +652,21 @@ animations = [{
 "texture": SubResource("AtlasTexture_ir8j7")
 }, {
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_gpwpy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_aqj70")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gpwpy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ir8j7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e1xov")
+}, {
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_mjyfn")
 }, {
 "duration": 1.0,
@@ -668,6 +676,21 @@ animations = [{
 "texture": SubResource("AtlasTexture_ir8j7")
 }, {
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_gpwpy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_aqj70")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gpwpy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ir8j7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e1xov")
+}, {
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_mjyfn")
 }, {
 "duration": 1.0,
@@ -675,6 +698,45 @@ animations = [{
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_ir8j7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gpwpy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_aqj70")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gpwpy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ir8j7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e1xov")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mjyfn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e1xov")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ir8j7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gpwpy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_aqj70")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gpwpy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ir8j7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e1xov")
 }],
 "loop": true,
 "name": &"hold",
@@ -706,7 +768,7 @@ animations = [{
 "texture": SubResource("AtlasTexture_dk7g5")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_dk7g5")
+"texture": SubResource("AtlasTexture_s8his")
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_dk7g5")
@@ -732,17 +794,13 @@ radius = 56.0
 [node name="Node2D" type="Node2D"]
 z_index = 2
 
-[node name="outerlight" type="PointLight2D" parent="."]
-position = Vector2(4, 5)
-scale = Vector2(0.0999999, 0.0999999)
-color = Color(0.219608, 1, 0, 1)
-texture = SubResource("GradientTexture2D_s8his")
+[node name="CoreSprite" type="Sprite2D" parent="."]
+scale = Vector2(2, 2)
+texture = SubResource("GradientTexture2D_ihxnt")
 
-[node name="corelight" type="PointLight2D" parent="."]
-position = Vector2(0, -1)
-scale = Vector2(0.1, 0.1)
-color = Color(0.219608, 1, 0, 1)
-texture = SubResource("GradientTexture2D_dk7g5")
+[node name="OuterSprite" type="Sprite2D" parent="."]
+scale = Vector2(2.3, 2.3)
+texture = SubResource("GradientTexture2D_p1lg4")
 
 [node name="passivebubbles" type="CPUParticles2D" parent="."]
 position = Vector2(4.2, -0.6)
@@ -764,17 +822,19 @@ texture = ExtResource("2_yargl")
 lifetime = 0.8
 one_shot = true
 explosiveness = 1.0
-emission_shape = 1
-emission_sphere_radius = 40.0
-gravity = Vector2(0, -500)
-orbit_velocity_min = -1.0
-orbit_velocity_max = 1.0
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 140.85
+initial_velocity_max = 200.0
+angular_velocity_max = 223.1
 radial_accel_min = -5.0
 radial_accel_max = 5.0
 tangential_accel_min = -500.0
 tangential_accel_max = 500.0
 damping_min = 50.0
 damping_max = 500.0
+angle_min = -720.0
+angle_max = 720.0
 scale_amount_min = 0.2
 scale_amount_max = 0.5
 color = Color(0.216667, 1, 0, 0.541176)
@@ -797,13 +857,17 @@ libraries = {
 autoplay = "light"
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-modulate = Color(1, 1, 1, 0.305882)
+modulate = Color(1, 1, 1, 0.823529)
 light_mask = 2
-position = Vector2(1, 3)
+z_index = 2
+z_as_relative = false
+position = Vector2(-2, 3)
 scale = Vector2(2.5, 2.5)
 sprite_frames = SubResource("SpriteFrames_00ppf")
 animation = &"pop"
 autoplay = "hold"
+frame = 9
+frame_progress = 1.0
 
 [node name="PointLight2D" type="PointLight2D" parent="AnimatedSprite2D"]
 visible = false
@@ -828,5 +892,11 @@ shape = SubResource("CircleShape2D_asf77")
 position = Vector2(5.8, -31)
 stream = ExtResource("3_wuwwc")
 bus = &"SFX"
+
+[node name="Background" type="Sprite2D" parent="."]
+visible = false
+z_index = -1
+position = Vector2(-16, 12)
+texture = ExtResource("8_pkfns")
 
 [connection signal="body_entered" from="Area2D" to="Area2D" method="_on_body_entered"]
