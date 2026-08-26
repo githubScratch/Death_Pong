@@ -299,7 +299,7 @@ func summon_p3():
 		p3_playing = true
 		#await get_tree().create_timer(0.5).timeout
 		var p3_instance = p3_scene.instantiate()
-		p3_instance.global_position = Vector2(576, 70)
+		p3_instance.global_position = Vector2(566, 143)
 		get_tree().current_scene.add_child(p3_instance)
 		spawn_ball.pitch_scale = randf_range(1.4, 1.6)
 		spawn_ball.play()
