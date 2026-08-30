@@ -50,6 +50,7 @@ offset_bottom = 840.0
 color = Color(0, 0, 0, 1)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="ColorRect"]
+visible = false
 
 [node name="ColorRect" type="ColorRect" parent="ColorRect/CanvasLayer"]
 material = SubResource("ShaderMaterial_vgsqh")
@@ -174,6 +175,7 @@ horizontal_alignment = 1
 
 [node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer/ScreenCont"]
 layout_mode = 2
+alignment = 1
 
 [node name="WindowedButton" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer/ScreenCont/HBoxContainer"]
 layout_mode = 2
@@ -229,6 +231,36 @@ layout_mode = 2
 size_flags_horizontal = 4
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 text = "      p2"
+horizontal_alignment = 2
+
+[node name="VBoxContainer3" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer"]
+layout_mode = 2
+
+[node name="P2C" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer3"]
+layout_mode = 2
+toggle_mode = true
+text = "p3"
+
+[node name="Label2" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer3"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "      p3"
+horizontal_alignment = 2
+
+[node name="VBoxContainer4" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer"]
+layout_mode = 2
+
+[node name="P2C" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer4"]
+layout_mode = 2
+toggle_mode = true
+text = "p4"
+
+[node name="Label2" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer4"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "      p4"
 horizontal_alignment = 2
 
 [node name="Label2" type="Label" parent="CenterContainer/HBoxContainer"]
