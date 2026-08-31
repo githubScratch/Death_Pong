@@ -1,4 +1,4 @@
-[gd_scene load_steps=93 format=4 uid="uid://dgwvptvanlrmw"]
+[gd_scene load_steps=99 format=4 uid="uid://dgwvptvanlrmw"]
 
 [ext_resource type="Script" uid="uid://bgrjsmb0uowwo" path="res://ARENAS/yonder.gd" id="1_2qecu"]
 [ext_resource type="PackedScene" uid="uid://bce3ta6nq22gc" path="res://ARENAS/ball_big.tscn" id="2_2qecu"]
@@ -22,6 +22,9 @@
 [ext_resource type="AudioStream" uid="uid://d3rmk854uqt17" path="res://SFX/ui select.wav" id="13_sufn2"]
 [ext_resource type="AudioStream" uid="uid://du6i7igev8i55" path="res://SFX/Menu_Select2.wav" id="14_7w3lq"]
 [ext_resource type="Texture2D" uid="uid://cxgqus77brn4x" path="res://SPRITES/circle_02.png" id="15_6yia0"]
+[ext_resource type="Texture2D" uid="uid://d084xm2o04kye" path="res://SPRITES/Cloud 2.png" id="16_fp02a"]
+[ext_resource type="Texture2D" uid="uid://beihvojgp3o58" path="res://SPRITES/Cloud 15.png" id="17_7w3lq"]
+[ext_resource type="Texture2D" uid="uid://duq20f6s4u56d" path="res://SPRITES/Cloud 17.png" id="18_fpm8b"]
 [ext_resource type="Texture2D" uid="uid://cykl1kylednjg" path="res://TILESETS/env_ground.png" id="23_sq5bc"]
 [ext_resource type="Texture2D" uid="uid://d17upxey2ydk0" path="res://TILESETS/castle_env.png" id="24_fp02a"]
 
@@ -2911,6 +2914,44 @@ _data = {
 &"opening": SubResource("Animation_e055s")
 }
 
+[sub_resource type="Animation" id="Animation_fpm8b"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("..:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 143)]
+}
+
+[sub_resource type="Animation" id="Animation_7w3lq"]
+resource_name = "cloudsway"
+length = 10.0
+loop_mode = 2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("..:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 10),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(-500, 143), Vector2(1000, 143)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_hgsl5"]
+_data = {
+&"RESET": SubResource("Animation_fpm8b"),
+&"cloudsway": SubResource("Animation_7w3lq")
+}
+
 [sub_resource type="Gradient" id="Gradient_0yefq"]
 offsets = PackedFloat32Array(0, 0.88961, 1)
 colors = PackedColorArray(0, 0, 0, 1, 0.639216, 0.00392157, 1, 1, 0.920919, 0.860828, 1, 1)
@@ -3379,6 +3420,34 @@ position = Vector2(704, 4)
 shape = SubResource("RectangleShape2D_pmepg")
 debug_color = Color(0.482353, 0.568627, 0.396078, 0.419608)
 
+[node name="Clouds" type="Node2D" parent="Yonder"]
+position = Vector2(0, 143)
+scale = Vector2(5, 5)
+
+[node name="Cloud" type="Sprite2D" parent="Yonder/Clouds"]
+modulate = Color(0.508946, 0.307441, 0.570057, 0.392157)
+z_index = 12
+texture = ExtResource("16_fp02a")
+
+[node name="Cloud2" type="Sprite2D" parent="Yonder/Clouds"]
+modulate = Color(0.508946, 0.307441, 0.570057, 0.392157)
+z_index = 4
+position = Vector2(243.8, 58)
+texture = ExtResource("17_7w3lq")
+
+[node name="Cloud3" type="Sprite2D" parent="Yonder/Clouds"]
+modulate = Color(0.508946, 0.307441, 0.570057, 0.392157)
+z_index = 4
+position = Vector2(256, -41.4)
+texture = ExtResource("18_fpm8b")
+
+[node name="Cloud4" type="Sprite2D" parent="Yonder/Clouds"]
+modulate = Color(0.508946, 0.307441, 0.570057, 0.392157)
+z_index = 4
+position = Vector2(-13.2, 94.8)
+scale = Vector2(3, 3)
+texture = ExtResource("16_fp02a")
+
 [node name="player1" parent="." instance=ExtResource("6_6yia0")]
 position = Vector2(192, 568)
 
@@ -3573,6 +3642,14 @@ libraries = {
 }
 autoplay = "opening"
 speed_scale = 2.0
+
+[node name="Cloud_Player" type="AnimationPlayer" parent="."]
+root_node = NodePath("../Yonder/Clouds/Cloud")
+libraries = {
+&"": SubResource("AnimationLibrary_hgsl5")
+}
+autoplay = "cloudsway"
+speed_scale = 0.3
 
 [node name="MoonGlow" type="Sprite2D" parent="."]
 modulate = Color(0.67, 0.1876, 0.56548, 1)

@@ -50,7 +50,6 @@ offset_bottom = 840.0
 color = Color(0, 0, 0, 1)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="ColorRect"]
-visible = false
 
 [node name="ColorRect" type="ColorRect" parent="ColorRect/CanvasLayer"]
 material = SubResource("ShaderMaterial_vgsqh")

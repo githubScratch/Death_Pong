@@ -76,6 +76,9 @@ func _process(_delta: float) -> void:
 			unpause_game()
 			print("UI accept pressed while paused")
 
+	if Input.is_action_just_pressed("ui_back") and is_paused and not is_victory:
+		unpause_game()
+
 	if Input.is_action_just_pressed("p3_down"):
 		summon_p3()
 	if Input.is_action_just_pressed("p4_down"):

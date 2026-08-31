@@ -1,0 +1,72 @@
+[gd_scene load_steps=3 format=3 uid="uid://d2v55w8qc8mvb"]
+
+[ext_resource type="Theme" uid="uid://dka4pq4oxkc3b" path="res://MENUS/Menu_Theme.tres" id="1_theme"]
+[ext_resource type="Script" uid="uid://3vjhi3udaqcf" path="res://MENUS/rebind_menu.gd" id="2_script"]
+
+[node name="RebindMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_theme")
+script = ExtResource("2_script")
+
+[node name="Dim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.878431)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(380, 0)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="CenterContainer/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 24
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "P1 CONTROLS"
+horizontal_alignment = 1
+
+[node name="UpButton" type="Button" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+text = "UP — W"
+
+[node name="DownButton" type="Button" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+text = "DOWN — S"
+
+[node name="LeftButton" type="Button" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+text = "LEFT — A"
+
+[node name="RightButton" type="Button" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+text = "RIGHT — D"
+
+[node name="ConfirmButton" type="Button" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+text = "CONFIRM"

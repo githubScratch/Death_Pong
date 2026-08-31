@@ -1,4 +1,4 @@
-[gd_scene load_steps=52 format=4 uid="uid://dgpeqxyiiriwx"]
+[gd_scene load_steps=57 format=4 uid="uid://dgpeqxyiiriwx"]
 
 [ext_resource type="Script" uid="uid://dg4utk7dcltn2" path="res://ARENAS/arena.gd" id="1_3ujay"]
 [ext_resource type="PackedScene" uid="uid://6pxseqnx1718" path="res://PLAYERS/wizard_1.tscn" id="1_4j1kj"]
@@ -20,6 +20,7 @@
 [ext_resource type="AudioStream" uid="uid://du6i7igev8i55" path="res://SFX/Menu_Select2.wav" id="12_fro25"]
 [ext_resource type="PackedScene" uid="uid://cqlx4xf16e1yb" path="res://PLAYERS/wizard_3.tscn" id="15_0yefq"]
 [ext_resource type="PackedScene" uid="uid://cpf3m3dqeamqt" path="res://PLAYERS/wizard_4.tscn" id="16_ji56j"]
+[ext_resource type="Texture2D" uid="uid://lovia63fg07t" path="res://SPRITES/75.png" id="21_ps7ku"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_444vf"]
 size = Vector2(1146, 67.25)
@@ -945,6 +946,51 @@ gradient = SubResource("Gradient_ji56j")
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_knbf3"]
 size = Vector2(16.5, 525)
 
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_liqqh"]
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(596, 1, 1)
+gravity = Vector3(-100, 298, 0)
+scale_min = 0.05
+scale_max = 0.2
+
+[sub_resource type="Animation" id="Animation_liqqh"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:process_material")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [SubResource("ParticleProcessMaterial_liqqh")]
+}
+
+[sub_resource type="Animation" id="Animation_ps7ku"]
+resource_name = "rainsway"
+length = 8.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:process_material")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.0333333, 2, 4, 6, 8),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 1,
+"values": [SubResource("ParticleProcessMaterial_liqqh"), SubResource("ParticleProcessMaterial_liqqh"), SubResource("ParticleProcessMaterial_liqqh"), SubResource("ParticleProcessMaterial_liqqh"), SubResource("ParticleProcessMaterial_liqqh")]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_y3sxm"]
+_data = {
+&"RESET": SubResource("Animation_liqqh"),
+&"rainsway": SubResource("Animation_ps7ku")
+}
+
 [node name="Node2D" type="Node2D"]
 script = ExtResource("1_3ujay")
 instance_scene = ExtResource("3_uo83q")
@@ -1424,6 +1470,22 @@ collision_mask = 0
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Mid_Barrier/Mid_Collision"]
 position = Vector2(575.75, 321.5)
 shape = SubResource("RectangleShape2D_knbf3")
+
+[node name="RainPlayer" type="AnimationPlayer" parent="."]
+root_node = NodePath("../RainParticles")
+libraries = {
+&"": SubResource("AnimationLibrary_y3sxm")
+}
+autoplay = "rainsway"
+
+[node name="RainParticles" type="GPUParticles2D" parent="."]
+position = Vector2(576, -64)
+amount = 40
+texture = ExtResource("21_ps7ku")
+lifetime = 3.0
+trail_enabled = true
+trail_lifetime = 0.1
+process_material = SubResource("ParticleProcessMaterial_liqqh")
 
 [connection signal="body_entered" from="Arena/walls/right/Zone_Right" to="." method="_on_zone_right_body_entered"]
 [connection signal="body_exited" from="Arena/walls/right/Zone_Right" to="." method="_on_zone_right_body_exited"]

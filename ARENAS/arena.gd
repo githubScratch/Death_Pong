@@ -64,6 +64,9 @@ func _process(_delta: float) -> void:
 			unpause_game()
 			print("UI accept pressed while paused")
 
+	if Input.is_action_just_pressed("ui_back") and is_paused and not is_victory:
+		unpause_game()
+
 func apply_game_settings() -> void:
 	if GameSettings.game_mode == "random":
 		pass

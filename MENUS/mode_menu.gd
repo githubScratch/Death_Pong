@@ -29,6 +29,8 @@ func _process(_delta: float) -> void:
 	if Input.is_action_just_pressed("ui_select"):
 		select.pitch_scale = randf_range(0.9, 1.1)
 		select.play()
+	if Input.is_action_just_pressed("ui_back"):
+		_on_back_pressed()
 
 
 func _on_back_pressed() -> void:
