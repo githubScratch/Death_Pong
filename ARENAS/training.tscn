@@ -1,14 +1,15 @@
-[gd_scene load_steps=48 format=3 uid="uid://cfs8q111iyhd7"]
+[gd_scene load_steps=50 format=3 uid="uid://cfs8q111iyhd7"]
 
 [ext_resource type="Script" uid="uid://3qh880skgy66" path="res://ARENAS/training.gd" id="1_dyoqr"]
 [ext_resource type="PackedScene" uid="uid://y5oxfkoo8240" path="res://ARENAS/ball.tscn" id="2_idtaw"]
-[ext_resource type="PackedScene" uid="uid://il58hnsuqbax" path="res://PLAYERS/wizard_2.tscn" id="3_idtaw"]
-[ext_resource type="PackedScene" uid="uid://cqlx4xf16e1yb" path="res://PLAYERS/wizard_3.tscn" id="4_aulle"]
+[ext_resource type="PackedScene" path="res://PLAYERS/wizard_seat2.tscn" id="3_idtaw"]
+[ext_resource type="PackedScene" path="res://PLAYERS/wizard_seat3.tscn" id="4_aulle"]
 [ext_resource type="Texture2D" uid="uid://digthh0it584s" path="res://SPRITES/88.png" id="4_q3utb"]
 [ext_resource type="Material" uid="uid://brqgt7jbrx5hb" path="res://ARENAS/green_particles.tres" id="5_aulle"]
 [ext_resource type="PackedScene" uid="uid://5enwj83o6uc4" path="res://PLAYERS/paddle.tscn" id="5_g3b2f"]
-[ext_resource type="PackedScene" uid="uid://cpf3m3dqeamqt" path="res://PLAYERS/wizard_4.tscn" id="5_woq6c"]
-[ext_resource type="PackedScene" uid="uid://6pxseqnx1718" path="res://PLAYERS/wizard_1.tscn" id="6_woq6c"]
+[ext_resource type="PackedScene" path="res://PLAYERS/wizard_seat4.tscn" id="5_woq6c"]
+[ext_resource type="PackedScene" uid="uid://c7wd648uhhby4" path="res://PLAYERS/wizard.tscn" id="6_chassis"]
+[ext_resource type="Resource" path="res://PLAYERS/classes/class_1.tres" id="6_class1"]
 [ext_resource type="PackedScene" uid="uid://btp3sgc0jgi68" path="res://MENUS/Training_HUD.tscn" id="7_g3b2f"]
 [ext_resource type="Shader" uid="uid://c3fmb76te1444" path="res://ARENAS/VHS.gdshader" id="9_albp4"]
 [ext_resource type="Theme" uid="uid://dka4pq4oxkc3b" path="res://MENUS/Menu_Theme.tres" id="10_vtlgo"]
@@ -17,6 +18,7 @@
 [ext_resource type="AudioStream" uid="uid://d3rmk854uqt17" path="res://SFX/ui select.wav" id="13_5ftta"]
 [ext_resource type="AudioStream" uid="uid://dtnhs6dommt08" path="res://SFX/thump.wav" id="14_g3b2f"]
 [ext_resource type="AudioStream" uid="uid://du6i7igev8i55" path="res://SFX/Menu_Select2.wav" id="14_rblsg"]
+[ext_resource type="Script" path="res://PLAYERS/pause_overlay.gd" id="99_pause_overlay"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_444vf"]
 size = Vector2(1146, 67.25)
@@ -951,8 +953,9 @@ color = Color(0, 0, 0, 1)
 position = Vector2(96, 20)
 shape = SubResource("RectangleShape2D_uo83q")
 
-[node name="player1" parent="." instance=ExtResource("6_woq6c")]
+[node name="player1" parent="." instance=ExtResource("6_chassis")]
 position = Vector2(192, 568)
+wizard_class = ExtResource("6_class1")
 
 [node name="Training_HUD" parent="." instance=ExtResource("7_g3b2f")]
 
@@ -1061,6 +1064,7 @@ layout_mode = 3
 anchors_preset = 0
 offset_right = 1152.0
 offset_bottom = 648.0
+script = ExtResource("99_pause_overlay")
 
 [node name="ColorRect" type="ColorRect" parent="Pause"]
 layout_mode = 0

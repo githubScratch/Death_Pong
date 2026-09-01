@@ -29,40 +29,34 @@ var p4_playing = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	apply_game_settings() 
+	apply_game_settings()
 	Engine.time_scale = 1.0
 	is_victory = false
 	ball_instances.clear()
-	
+
 	GameSettings.settings_changed.connect(_on_settings_changed)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta: float) -> void:
+	# Pause/unpause itself is owned by pause_overlay.gd on the Pause node -
+	# that node is the one thing that stays ALWAYS-processing, so it's the
+	# only safe place to detect the toggle without a same-frame race. This
+	# _process() only needs to run while the tree ISN'T paused, so it only
+	# has to cover victory-state SFX and the P3/P4 summon checks.
 	if Input.is_action_just_pressed("ui_left") or Input.is_action_just_pressed("ui_right"):
-		if is_paused or is_victory:
+		if is_victory:
 			move.pitch_scale = randf_range(0.9, 1.1)
 			move.play()
 	if Input.is_action_just_pressed("ui_select"):
-		if is_paused or is_victory:
+		if is_victory:
 			select.pitch_scale = randf_range(0.9, 1.1)
 			select.play()
-	if Input.is_action_just_pressed("ui_select"):
-		if not is_paused and not is_victory:
-			pause()
-			screen_player.play("pause")
-			is_paused = true
-			continue_1.grab_focus()
-		elif is_paused and not is_victory:
-			unpause_game()
-			print("UI accept pressed while paused")
-	if Input.is_action_just_pressed("ui_back") and is_paused and not is_victory:
-		unpause_game()
 	if Input.is_action_just_pressed("p3_down"):
 		summon_p3()
 	if Input.is_action_just_pressed("p4_down"):
 		summon_p4()
-		
+
 func apply_game_settings() -> void:
 	if GameSettings.game_mode == "random":
 		pass
@@ -215,6 +209,9 @@ func _on_menu_3_pressed() -> void:
 
 func pause():
 	get_tree().paused = true
+	screen_player.play("pause")
+	is_paused = true
+	continue_1.grab_focus()
 func unpause_game():
 	is_paused = false
 	continue_1.release_focus()

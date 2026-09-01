@@ -8,7 +8,14 @@ var game_magic = "on" # "stock" or "time"
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	pass # Replace with function body.
+	# This autoload forwards p1-p4 input into ui_up/down/left/right/select
+	# every frame (see _process below), and that forwarding is now the ONLY
+	# way those actions get driven - the arena pause screens set
+	# get_tree().paused = true, which by default halts _process on every
+	# node, including this one. Without PROCESS_MODE_ALWAYS, pausing the
+	# game would silently cut off menu navigation for all four players the
+	# moment the pause screen appears - the one time it's needed most.
+	process_mode = Node.PROCESS_MODE_ALWAYS
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.

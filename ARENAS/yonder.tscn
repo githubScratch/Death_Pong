@@ -1,16 +1,17 @@
-[gd_scene load_steps=99 format=4 uid="uid://dgwvptvanlrmw"]
+[gd_scene load_steps=101 format=4 uid="uid://dgwvptvanlrmw"]
 
 [ext_resource type="Script" uid="uid://bgrjsmb0uowwo" path="res://ARENAS/yonder.gd" id="1_2qecu"]
 [ext_resource type="PackedScene" uid="uid://bce3ta6nq22gc" path="res://ARENAS/ball_big.tscn" id="2_2qecu"]
-[ext_resource type="PackedScene" uid="uid://cqlx4xf16e1yb" path="res://PLAYERS/wizard_3.tscn" id="3_0dqhp"]
+[ext_resource type="PackedScene" path="res://PLAYERS/wizard_seat3.tscn" id="3_0dqhp"]
 [ext_resource type="Texture2D" uid="uid://digthh0it584s" path="res://SPRITES/88.png" id="4_evosj"]
-[ext_resource type="PackedScene" uid="uid://cpf3m3dqeamqt" path="res://PLAYERS/wizard_4.tscn" id="4_hhauf"]
+[ext_resource type="PackedScene" path="res://PLAYERS/wizard_seat4.tscn" id="4_hhauf"]
 [ext_resource type="Material" uid="uid://brqgt7jbrx5hb" path="res://ARENAS/green_particles.tres" id="5_e055s"]
-[ext_resource type="PackedScene" uid="uid://6pxseqnx1718" path="res://PLAYERS/wizard_1.tscn" id="6_6yia0"]
+[ext_resource type="PackedScene" uid="uid://c7wd648uhhby4" path="res://PLAYERS/wizard.tscn" id="6_chassis"]
+[ext_resource type="Resource" path="res://PLAYERS/classes/class_1.tres" id="6_class1"]
 [ext_resource type="Texture2D" uid="uid://cwy1sx0vkkrx3" path="res://SPRITES/twirl_01.png" id="6_pmepg"]
+[ext_resource type="Resource" path="res://PLAYERS/classes/class_2.tres" id="7_class2"]
 [ext_resource type="Texture2D" uid="uid://dlodwdaaexmf4" path="res://TILESETS/background.png" id="7_hhauf"]
 [ext_resource type="Texture2D" uid="uid://dv8sdb7yh65h5" path="res://SPRITES/magic_02.png" id="7_k7eei"]
-[ext_resource type="PackedScene" uid="uid://il58hnsuqbax" path="res://PLAYERS/wizard_2.tscn" id="7_pmepg"]
 [ext_resource type="Texture2D" uid="uid://cor3iehmup225" path="res://TILESETS/mountains.png" id="8_e055s"]
 [ext_resource type="PackedScene" uid="uid://cjh86iplxrtmc" path="res://MENUS/HUD.tscn" id="8_k7eei"]
 [ext_resource type="Texture2D" uid="uid://cu1fbhg4drtcm" path="res://SPRITES/light_01.png" id="9_4whtw"]
@@ -27,6 +28,7 @@
 [ext_resource type="Texture2D" uid="uid://duq20f6s4u56d" path="res://SPRITES/Cloud 17.png" id="18_fpm8b"]
 [ext_resource type="Texture2D" uid="uid://cykl1kylednjg" path="res://TILESETS/env_ground.png" id="23_sq5bc"]
 [ext_resource type="Texture2D" uid="uid://d17upxey2ydk0" path="res://TILESETS/castle_env.png" id="24_fp02a"]
+[ext_resource type="Script" path="res://PLAYERS/pause_overlay.gd" id="99_pause_overlay"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_55po1"]
 shader = ExtResource("9_tcwve")
@@ -2969,7 +2971,7 @@ gradient = SubResource("Gradient_ji56j")
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_knbf3"]
 size = Vector2(16.5, 1088)
 
-[node name="Node2D" type="Node2D" node_paths=PackedStringArray("swap_area_top", "swap_area_bottom")]
+[node name="Node2D2" type="Node2D" node_paths=PackedStringArray("swap_area_top", "swap_area_bottom")]
 script = ExtResource("1_2qecu")
 instance_scene = ExtResource("2_2qecu")
 swap_area_top = NodePath("Yonder/portals/portal_bottom_exit")
@@ -3448,11 +3450,14 @@ position = Vector2(-13.2, 94.8)
 scale = Vector2(3, 3)
 texture = ExtResource("16_fp02a")
 
-[node name="player1" parent="." instance=ExtResource("6_6yia0")]
+[node name="player1" parent="." instance=ExtResource("6_chassis")]
 position = Vector2(192, 568)
+wizard_class = ExtResource("6_class1")
 
-[node name="player2" parent="." instance=ExtResource("7_pmepg")]
+[node name="player2" parent="." instance=ExtResource("6_chassis")]
 position = Vector2(960, 568)
+seat = 2
+wizard_class = ExtResource("7_class2")
 
 [node name="HUD" parent="." instance=ExtResource("8_k7eei")]
 
@@ -3555,6 +3560,7 @@ layout_mode = 3
 anchors_preset = 0
 offset_right = 1152.0
 offset_bottom = 648.0
+script = ExtResource("99_pause_overlay")
 
 [node name="ColorRect" type="ColorRect" parent="Pause"]
 layout_mode = 1

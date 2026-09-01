@@ -1,0 +1,62 @@
+[gd_scene load_steps=10 format=3 uid="uid://c7wd648uhhby4"]
+
+[ext_resource type="Script" uid="uid://8yx72cyswfr6" path="res://PLAYERS/wizard_seat.gd" id="0_seat"]
+[ext_resource type="Script" uid="uid://dxf5ax3qcscse" path="res://PLAYERS/wizard.gd" id="1_chassis"]
+[ext_resource type="AudioStream" uid="uid://xjbbdv3j5s16" path="res://SFX/jump2.wav" id="2_jump"]
+[ext_resource type="AudioStream" uid="uid://jvl2bcuu7x06" path="res://SFX/Retro Jump Simple A 01.wav" id="3_spell"]
+[ext_resource type="AudioStream" uid="uid://di8jkfwxmijlv" path="res://SFX/whiff.wav" id="4_dash"]
+[ext_resource type="AudioStream" uid="uid://btq48sjqqgep0" path="res://SFX/dirtlanding.wav" id="5_land"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_chassis"]
+size = Vector2(32, 40)
+
+[sub_resource type="Gradient" id="Gradient_chassis"]
+offsets = PackedFloat32Array(0.012987, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_chassis"]
+gradient = SubResource("Gradient_chassis")
+fill = 1
+fill_from = Vector2(0.495413, 0.463303)
+fill_to = Vector2(0, 0.5)
+
+[node name="Node2D" type="Node2D" groups=["wizard"]]
+script = ExtResource("0_seat")
+
+[node name="CharacterBody2D" type="CharacterBody2D" parent="." groups=["wizard"]]
+z_index = 2
+position = Vector2(0, -20)
+collision_mask = 18
+script = ExtResource("1_chassis")
+
+[node name="shape" type="CollisionShape2D" parent="CharacterBody2D"]
+shape = SubResource("RectangleShape2D_chassis")
+
+[node name="sprite" type="AnimatedSprite2D" parent="CharacterBody2D"]
+position = Vector2(-1.90735e-06, -12)
+scale = Vector2(0.333, 0.333)
+
+[node name="PointLight2D" type="PointLight2D" parent="CharacterBody2D"]
+position = Vector2(-7.15256e-07, -12)
+scale = Vector2(1, 0.999999)
+energy = 0.5
+texture = SubResource("GradientTexture2D_chassis")
+
+[node name="jump" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("2_jump")
+volume_db = 8.0
+bus = &"SFX"
+
+[node name="spell" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("3_spell")
+volume_db = 1.0
+pitch_scale = 0.8
+bus = &"SFX"
+
+[node name="dash" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_dash")
+bus = &"SFX"
+
+[node name="land" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("5_land")
+bus = &"SFX"

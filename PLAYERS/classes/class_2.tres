@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="WizardClass" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://PLAYERS/wizard_class.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://detbkkx1jg0li" path="res://SPRITES/New Piskel (1) (4) (1).png" id="2_sheet"]
+[ext_resource type="PackedScene" uid="uid://ct4ajy6y060p0" path="res://PLAYERS/spell_2.tscn" id="3_shield"]
+
+[resource]
+script = ExtResource("1_script")
+display_name = "Class 2"
+sprite_sheet = ExtResource("2_sheet")
+shield_scene = ExtResource("3_shield")

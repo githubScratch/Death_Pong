@@ -1,13 +1,14 @@
-[gd_scene load_steps=66 format=4 uid="uid://cqdw4ave7lpj2"]
+[gd_scene load_steps=68 format=4 uid="uid://cqdw4ave7lpj2"]
 
 [ext_resource type="Script" uid="uid://bh1cqpcey1nhk" path="res://ARENAS/tower.gd" id="1_mwjt1"]
 [ext_resource type="Shader" uid="uid://c3fmb76te1444" path="res://ARENAS/VHS.gdshader" id="1_qj6pt"]
 [ext_resource type="PackedScene" uid="uid://y5oxfkoo8240" path="res://ARENAS/ball.tscn" id="3_0b2xv"]
-[ext_resource type="PackedScene" uid="uid://cqlx4xf16e1yb" path="res://PLAYERS/wizard_3.tscn" id="3_qnt44"]
+[ext_resource type="PackedScene" path="res://PLAYERS/wizard_seat3.tscn" id="3_qnt44"]
 [ext_resource type="PackedScene" uid="uid://cjh86iplxrtmc" path="res://MENUS/HUD.tscn" id="3_w6mld"]
-[ext_resource type="PackedScene" uid="uid://6pxseqnx1718" path="res://PLAYERS/wizard_1.tscn" id="4_nw050"]
-[ext_resource type="PackedScene" uid="uid://cpf3m3dqeamqt" path="res://PLAYERS/wizard_4.tscn" id="4_tyhyf"]
-[ext_resource type="PackedScene" uid="uid://il58hnsuqbax" path="res://PLAYERS/wizard_2.tscn" id="5_7omse"]
+[ext_resource type="PackedScene" uid="uid://c7wd648uhhby4" path="res://PLAYERS/wizard.tscn" id="4_chassis"]
+[ext_resource type="Resource" path="res://PLAYERS/classes/class_1.tres" id="4_class1"]
+[ext_resource type="PackedScene" path="res://PLAYERS/wizard_seat4.tscn" id="4_tyhyf"]
+[ext_resource type="Resource" path="res://PLAYERS/classes/class_2.tres" id="5_class2"]
 [ext_resource type="PackedScene" uid="uid://logifil3ltlk" path="res://ARENAS/brick.tscn" id="6_7omse"]
 [ext_resource type="Texture2D" uid="uid://cn2njurkxp3iq" path="res://SPRITES/2d_lights_and_shadows_neutral_point_light.webp" id="8_2t7hb"]
 [ext_resource type="AudioStream" uid="uid://bfh2mp44mk037" path="res://SFX/goal.wav" id="9_x5lnl"]
@@ -18,6 +19,7 @@
 [ext_resource type="Theme" uid="uid://dka4pq4oxkc3b" path="res://MENUS/Menu_Theme.tres" id="13_ed6xj"]
 [ext_resource type="Texture2D" uid="uid://chsq20yfrdqcu" path="res://TILESETS/s4m_ur4i-2D-gothic-soulslike_tileset_rosy_42.png" id="16_b7gts"]
 [ext_resource type="Texture2D" uid="uid://dn8iasrc31la6" path="res://TILESETS/s4m_ur4i-2D-gothic-soulslike_tileset.png" id="17_kksn1"]
+[ext_resource type="Script" path="res://PLAYERS/pause_overlay.gd" id="99_pause_overlay"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_2t7hb"]
 size = Vector2(64, 2688)
@@ -2217,7 +2219,7 @@ gradient = SubResource("Gradient_tgyg7")
 fill_from = Vector2(0, 1)
 fill_to = Vector2(0, 0)
 
-[node name="Node2D" type="Node2D"]
+[node name="Node2D2" type="Node2D"]
 script = ExtResource("1_mwjt1")
 instance_scene = ExtResource("3_0b2xv")
 p3_scene = ExtResource("3_qnt44")
@@ -2910,11 +2912,14 @@ position = Vector2(64, 2112)
 [node name="RigidBody2D95" parent="Bricks/BottomBricks" instance=ExtResource("6_7omse")]
 position = Vector2(1024, 2112)
 
-[node name="player1" parent="." instance=ExtResource("4_nw050")]
+[node name="player1" parent="." instance=ExtResource("4_chassis")]
 position = Vector2(128, 128)
+wizard_class = ExtResource("4_class1")
 
-[node name="player2" parent="." instance=ExtResource("5_7omse")]
+[node name="player2" parent="." instance=ExtResource("4_chassis")]
 position = Vector2(1024, 128)
+seat = 2
+wizard_class = ExtResource("5_class2")
 
 [node name="CameraPackage" type="Camera2D" parent="."]
 position = Vector2(576, 320)
@@ -3104,6 +3109,7 @@ layout_mode = 3
 anchors_preset = 0
 offset_right = 1152.0
 offset_bottom = 648.0
+script = ExtResource("99_pause_overlay")
 
 [node name="ColorRect" type="ColorRect" parent="CameraPackage/Screens/Pause"]
 layout_mode = 0

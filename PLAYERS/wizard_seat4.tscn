@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://PLAYERS/wizard.tscn" id="1_chassis"]
+[ext_resource type="Resource" path="res://PLAYERS/classes/class_4.tres" id="2_class"]
+
+[node name="Node2D" instance=ExtResource("1_chassis")]
+seat = 4
+wizard_class = ExtResource("2_class")
