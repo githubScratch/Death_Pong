@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="WizardAbility" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://PLAYERS/wizard_ability.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://cu44w8oxj786" path="res://PLAYERS/spell_3.tscn" id="2_shield"]
+
+[resource]
+script = ExtResource("1_script")
+display_name = "Shield"
+shield_scene = ExtResource("2_shield")

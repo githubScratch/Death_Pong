@@ -7,9 +7,9 @@
 [ext_resource type="PackedScene" path="res://PLAYERS/wizard_seat4.tscn" id="4_hhauf"]
 [ext_resource type="Material" uid="uid://brqgt7jbrx5hb" path="res://ARENAS/green_particles.tres" id="5_e055s"]
 [ext_resource type="PackedScene" uid="uid://c7wd648uhhby4" path="res://PLAYERS/wizard.tscn" id="6_chassis"]
-[ext_resource type="Resource" path="res://PLAYERS/classes/class_1.tres" id="6_class1"]
+[ext_resource type="Resource" uid="uid://c51kdulbv0nch" path="res://PLAYERS/classes/class_1.tres" id="6_class1"]
 [ext_resource type="Texture2D" uid="uid://cwy1sx0vkkrx3" path="res://SPRITES/twirl_01.png" id="6_pmepg"]
-[ext_resource type="Resource" path="res://PLAYERS/classes/class_2.tres" id="7_class2"]
+[ext_resource type="Resource" uid="uid://ciykjrg6wygtu" path="res://PLAYERS/classes/class_2.tres" id="7_class2"]
 [ext_resource type="Texture2D" uid="uid://dlodwdaaexmf4" path="res://TILESETS/background.png" id="7_hhauf"]
 [ext_resource type="Texture2D" uid="uid://dv8sdb7yh65h5" path="res://SPRITES/magic_02.png" id="7_k7eei"]
 [ext_resource type="Texture2D" uid="uid://cor3iehmup225" path="res://TILESETS/mountains.png" id="8_e055s"]
@@ -28,7 +28,7 @@
 [ext_resource type="Texture2D" uid="uid://duq20f6s4u56d" path="res://SPRITES/Cloud 17.png" id="18_fpm8b"]
 [ext_resource type="Texture2D" uid="uid://cykl1kylednjg" path="res://TILESETS/env_ground.png" id="23_sq5bc"]
 [ext_resource type="Texture2D" uid="uid://d17upxey2ydk0" path="res://TILESETS/castle_env.png" id="24_fp02a"]
-[ext_resource type="Script" path="res://PLAYERS/pause_overlay.gd" id="99_pause_overlay"]
+[ext_resource type="Script" uid="uid://dk1jeq4bfobk" path="res://PLAYERS/pause_overlay.gd" id="99_pause_overlay"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_55po1"]
 shader = ExtResource("9_tcwve")

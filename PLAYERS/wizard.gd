@@ -11,9 +11,9 @@ extends CharacterBody2D
 ##    set once per placed instance in each arena scene, same way `position`
 ##    already is. Once character select exists, whatever assigns seats will
 ##    set this the same way, just at runtime instead of in the editor.
-##  - wizard_class: a WizardClass resource - which color/sprite/shield this
-##    body is wearing. Also seat-independent: any class can go on any seat,
-##    which is the whole point of splitting this out.
+##  - wizard_class: a WizardClass resource - which color/sprite/ability kit
+##    this body is wearing. Also seat-independent: any class can go on any
+##    seat, which is the whole point of splitting this out.
 
 ## Set on the parent (wizard_seat.gd), not here - see that file for why.
 ## Copied into these plain vars in _ready() so the rest of this script can
@@ -48,9 +48,6 @@ var _action_down: String
 var _action_left: String
 var _action_right: String
 
-# Cached from wizard_class in _apply_class(), so create_new_instance()
-# doesn't need to know where its shield scene came from.
-var _shield_scene: PackedScene
 
 
 func _ready() -> void:
@@ -61,6 +58,16 @@ func _ready() -> void:
 	var class_value = seat_node.get("wizard_class")
 	if class_value != null:
 		wizard_class = class_value
+
+	# Character select (MENUS/character_select.gd) always keeps a chosen
+	# class for every seat in GameSettings, defaulting to the same per-seat
+	# class every arena scene already hardcoded before that screen existed -
+	# so preferring it here, when present, is safe even for a scene opened
+	# directly (e.g. in the editor) without ever visiting character select.
+	if seat >= 1 and seat <= GameSettings.selected_classes.size():
+		var chosen = GameSettings.selected_classes[seat - 1]
+		if chosen != null:
+			wizard_class = chosen
 
 	_action_up = InputRemap.action_for(seat, "up")
 	_action_down = InputRemap.action_for(seat, "down")
@@ -79,7 +86,20 @@ func _apply_class() -> void:
 	if wizard_class.sprite_sheet:
 		sprite.sprite_frames = _build_sprite_frames(wizard_class.sprite_sheet)
 		sprite.play("default")
-	_shield_scene = wizard_class.shield_scene
+	if wizard_class.abilities.is_empty():
+		push_warning("Wizard (seat %d)'s class '%s' has no abilities assigned." % [seat, wizard_class.display_name])
+
+
+## Returns the ability this wizard casts right now. Called fresh on every
+## cast rather than cached once, on purpose - that's the one seam a future
+## Wild Mage (reroll a random ability every cast) or a power-up-unlock mode
+## (grow the available pool at runtime) needs to hook. Neither would have
+## to touch anything else in this file: override/extend this method alone.
+## For every class today, that's just "the class's one ability".
+func _current_ability() -> WizardAbility:
+	if wizard_class == null or wizard_class.abilities.is_empty():
+		return null
+	return wizard_class.abilities[0]
 
 
 ## Every class's sprite sheet uses the same layout: a 2x2 grid of 192x192
@@ -196,8 +216,9 @@ func create_new_instance():
 	current_instance = null
 
 	# Immediately create new instance without delay
-	if is_instance_valid(_shield_scene):
-		var instance = _shield_scene.instantiate()
+	var ability := _current_ability()
+	if ability != null and is_instance_valid(ability.shield_scene):
+		var instance = ability.shield_scene.instantiate()
 		instance.global_position = global_position
 		get_tree().current_scene.add_child(instance)
 		current_instance = instance

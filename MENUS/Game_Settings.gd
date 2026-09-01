@@ -6,6 +6,31 @@ var game_mode = "pure" # "pure" or "random"
 var game_arena = "arena" # "arena", "tower", or "yonder"
 var game_magic = "on" # "stock" or "time"
 
+# Which class each seat is currently wearing - index 0..3 for seats 1..4.
+# Defaults match what every arena scene already hardcoded before character
+# select existed, so a scene opened directly (skipping the menus entirely,
+# e.g. for testing) still gets a sensible, distinct class per seat.
+# character_select.gd overwrites entries live as players cycle; wizard.gd's
+# _ready() prefers whatever's here over a scene's own baked-in default.
+var selected_classes: Array = [
+	preload("res://PLAYERS/classes/class_1.tres"),
+	preload("res://PLAYERS/classes/class_2.tres"),
+	preload("res://PLAYERS/classes/class_3.tres"),
+	preload("res://PLAYERS/classes/class_4.tres"),
+]
+
+# Which menu sent the player to character select, so its Back button can
+# return them to wherever they actually came from.
+var character_select_origin: String = "res://MENUS/Menu.tscn"
+
+# Whether each seat joined on the character select screen - index 0..3 for
+# seats 1..4. P1/P2 are always true (they're always active there); P3/P4
+# start false and flip to true only once that seat's own controls are
+# touched. Each arena's _spawn_selected_extras() reads seats 2/3 (P3/P4)
+# from this at match start instead of waiting for an in-match summon press -
+# see character_select.gd's _refresh_box() for where this gets written.
+var seat_active: Array = [true, true, false, false]
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	# This autoload forwards p1-p4 input into ui_up/down/left/right/select
@@ -63,5 +88,22 @@ func set_game_magic(on: String) -> void:
 	game_magic = on
 	emit_signal("settings_changed")
 	print("magic change signal emitted")
-	
-	
+
+func set_selected_class(seat: int, wizard_class: WizardClass) -> void:
+	if seat < 1 or seat > selected_classes.size():
+		return
+	selected_classes[seat - 1] = wizard_class
+
+func set_seat_active(seat: int, active: bool) -> void:
+	if seat < 1 or seat > seat_active.size():
+		return
+	seat_active[seat - 1] = active
+
+## Both "Start" buttons (Main Menu and the Mode/Settings menu) call this
+## instead of switching scenes directly, so Character_Select.tscn's Back
+## button always knows which one to return to.
+func go_to_character_select(origin_scene: String) -> void:
+	character_select_origin = origin_scene
+	get_tree().change_scene_to_file("res://MENUS/Character_Select.tscn")
+
+

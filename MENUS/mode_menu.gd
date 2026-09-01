@@ -37,13 +37,8 @@ func _on_back_pressed() -> void:
 	get_tree().change_scene_to_file("res://MENUS/Menu.tscn")
 
 
-func _on_begin_pressed() -> void:
-	if GameSettings.game_arena == "arena":
-		get_tree().change_scene_to_file("res://ARENAS/arena.tscn")
-	if GameSettings.game_arena == "tower":
-		get_tree().change_scene_to_file("res://ARENAS/tower.tscn")
-	if GameSettings.game_arena == "yonder":
-		get_tree().change_scene_to_file("res://ARENAS/yonder.tscn")
+func _on_start_pressed() -> void:
+	GameSettings.go_to_character_select("res://MENUS/Mode_Menu.tscn")
 
 func _on_pure_pressed() -> void:
 	pure.set_pressed_no_signal(true)

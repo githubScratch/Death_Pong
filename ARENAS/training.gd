@@ -25,9 +25,7 @@ var ball_instances = []
 @export var p2_scene: PackedScene
 var p2_playing = false
 @export var p3_scene: PackedScene
-var p3_playing = false
 @export var p4_scene: PackedScene
-var p4_playing = false
 
 func _ready() -> void:
 	apply_game_settings()
@@ -36,13 +34,15 @@ func _ready() -> void:
 	ball_instances.clear()
 
 	GameSettings.settings_changed.connect(_on_settings_changed)
+	_spawn_selected_extras()
 
 func _process(_delta: float) -> void:
 	# Pause/unpause itself is owned by pause_overlay.gd on the Pause node -
 	# that node is the one thing that stays ALWAYS-processing, so it's the
 	# only safe place to detect the toggle without a same-frame race. This
 	# _process() only needs to run while the tree ISN'T paused, so it only
-	# has to cover victory-state SFX and the P2/P3/P4 summon checks.
+	# has to cover victory-state SFX and the P2 summon check - P3/P4 now
+	# spawn at match start instead (see _spawn_selected_extras()).
 	if Input.is_action_just_pressed("ui_left") or Input.is_action_just_pressed("ui_right"):
 		if is_victory:
 			move.pitch_scale = randf_range(0.9, 1.1)
@@ -52,12 +52,8 @@ func _process(_delta: float) -> void:
 			select.pitch_scale = randf_range(0.9, 1.1)
 			select.play()
 
-	if Input.is_action_just_pressed("p2_down") or Input.is_action_just_pressed("p2_left") or Input.is_action_just_pressed("p2_right") or Input.is_action_just_pressed("p2_up"):
-		summon_p2()
-	if Input.is_action_just_pressed("p3_down"):
-		summon_p3()
-	if Input.is_action_just_pressed("p4_down"):
-		summon_p4()
+	#if Input.is_action_just_pressed("p2_down") or Input.is_action_just_pressed("p2_left") or Input.is_action_just_pressed("p2_right") or Input.is_action_just_pressed("p2_up"):
+		#summon_p2()
 
 func apply_game_settings() -> void:
 		create_new_instance()
@@ -76,20 +72,19 @@ func summon_p2():
 		spawn_ball.pitch_scale = randf_range(1.4, 1.6)
 		spawn_ball.play()
 
-func summon_p3():
-	if is_instance_valid(p3_scene) and not p3_playing:
-		p3_playing = true
-		#await get_tree().create_timer(0.5).timeout
+## Instantiates P3/P4 immediately if that seat was activated on the
+## character select screen (see MENUS/character_select.gd) - replaces the
+## old "press your own down button mid-match to summon" mechanic. P2 is
+## untouched - it keeps its own press-to-join summon above. Position/SFX
+## here are exactly what summon_p3()/summon_p4() used to use.
+func _spawn_selected_extras() -> void:
+	if GameSettings.seat_active.size() > 2 and GameSettings.seat_active[2] and is_instance_valid(p3_scene):
 		var p3_instance = p3_scene.instantiate()
 		p3_instance.global_position = Vector2(576, 70)
 		get_tree().current_scene.add_child(p3_instance)
 		spawn_ball.pitch_scale = randf_range(1.4, 1.6)
 		spawn_ball.play()
-
-func summon_p4():
-	if is_instance_valid(p4_scene) and not p4_playing:
-		p4_playing = true
-		#await get_tree().create_timer(0.5).timeout
+	if GameSettings.seat_active.size() > 3 and GameSettings.seat_active[3] and is_instance_valid(p4_scene):
 		var p4_instance = p4_scene.instantiate()
 		p4_instance.global_position = Vector2(576, 70)
 		get_tree().current_scene.add_child(p4_instance)

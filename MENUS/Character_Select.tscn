@@ -1,0 +1,270 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://MENUS/character_select.gd" id="1_script"]
+[ext_resource type="Theme" uid="uid://dka4pq4oxkc3b" path="res://MENUS/Menu_Theme.tres" id="2_theme"]
+[ext_resource type="Shader" uid="uid://c3fmb76te1444" path="res://ARENAS/VHS.gdshader" id="3_shader"]
+[ext_resource type="AudioStream" uid="uid://d3rmk854uqt17" path="res://SFX/ui select.wav" id="4_select"]
+[ext_resource type="AudioStream" uid="uid://du6i7igev8i55" path="res://SFX/Menu_Select2.wav" id="5_move"]
+[ext_resource type="FontFile" uid="uid://dg8i0skfgpb02" path="res://SPRITES/Vermin Vibes 1989.ttf" id="6_font"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_cs1"]
+shader = ExtResource("3_shader")
+shader_parameter/overlay = false
+shader_parameter/scanlines_opacity = 0.1
+shader_parameter/scanlines_width = 0.25
+shader_parameter/grille_opacity = 0.3
+shader_parameter/resolution = Vector2(640, 480)
+shader_parameter/pixelate = true
+shader_parameter/roll = true
+shader_parameter/roll_speed = 2.0
+shader_parameter/roll_size = 5.0
+shader_parameter/roll_variation = 1.8
+shader_parameter/distort_intensity = 0.01
+shader_parameter/noise_opacity = 0.05
+shader_parameter/noise_speed = 5.0
+shader_parameter/static_noise_intensity = 0.06
+shader_parameter/aberration = 0.00300005
+shader_parameter/brightness = 1.5
+shader_parameter/discolor = false
+shader_parameter/warp_amount = 1.0
+shader_parameter/clip_warp = false
+shader_parameter/vignette_intensity = 0.4
+shader_parameter/vignette_opacity = 0.5
+
+[node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = -376.0
+offset_top = -208.0
+offset_right = 1440.0
+offset_bottom = 888.0
+color = Color(0, 0, 0, 1)
+
+[node name="Layout" type="VBoxContainer" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+
+[node name="Title" type="Label" parent="Layout"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("6_font")
+theme_override_font_sizes/font_size = 56
+theme_override_colors/font_color = Color(0.639216, 0.00392157, 1, 1)
+text = "SELECT YOUR WIZARD"
+horizontal_alignment = 1
+
+[node name="TopRow" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="P1" type="CenterContainer" parent="Layout/TopRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Box" type="VBoxContainer" parent="Layout/TopRow/P1"]
+layout_mode = 2
+alignment = 1
+
+[node name="NameLabel" type="Label" parent="Layout/TopRow/P1/Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 7
+theme_override_font_sizes/font_size = 28
+text = "PLAYER 1"
+horizontal_alignment = 1
+
+[node name="Sprite" type="TextureRect" parent="Layout/TopRow/P1/Box"]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+size_flags_horizontal = 4
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ClassLabel" type="Label" parent="Layout/TopRow/P1/Box"]
+layout_mode = 2
+horizontal_alignment = 1
+text = "Class 1"
+
+[node name="Prompt" type="Label" parent="Layout/TopRow/P1/Box"]
+visible = false
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+text = "PRESS ANY
+BUTTON
+TO JOIN"
+
+[node name="P2" type="CenterContainer" parent="Layout/TopRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Box" type="VBoxContainer" parent="Layout/TopRow/P2"]
+layout_mode = 2
+alignment = 1
+
+[node name="NameLabel" type="Label" parent="Layout/TopRow/P2/Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 7
+theme_override_font_sizes/font_size = 28
+text = "PLAYER 2"
+horizontal_alignment = 1
+
+[node name="Sprite" type="TextureRect" parent="Layout/TopRow/P2/Box"]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+size_flags_horizontal = 4
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ClassLabel" type="Label" parent="Layout/TopRow/P2/Box"]
+layout_mode = 2
+horizontal_alignment = 1
+text = "Class 2"
+
+[node name="Prompt" type="Label" parent="Layout/TopRow/P2/Box"]
+visible = false
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+text = "PRESS ANY
+BUTTON
+TO JOIN"
+
+[node name="P3" type="CenterContainer" parent="Layout/TopRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Box" type="VBoxContainer" parent="Layout/TopRow/P3"]
+layout_mode = 2
+alignment = 1
+
+[node name="NameLabel" type="Label" parent="Layout/TopRow/P3/Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 7
+theme_override_font_sizes/font_size = 28
+text = "PLAYER 3"
+horizontal_alignment = 1
+
+[node name="Sprite" type="TextureRect" parent="Layout/TopRow/P3/Box"]
+visible = false
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+size_flags_horizontal = 4
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ClassLabel" type="Label" parent="Layout/TopRow/P3/Box"]
+visible = false
+layout_mode = 2
+horizontal_alignment = 1
+text = "Class 3"
+
+[node name="Prompt" type="Label" parent="Layout/TopRow/P3/Box"]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+text = "PRESS ANY
+BUTTON
+TO JOIN"
+
+[node name="P4" type="CenterContainer" parent="Layout/TopRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Box" type="VBoxContainer" parent="Layout/TopRow/P4"]
+layout_mode = 2
+alignment = 1
+
+[node name="NameLabel" type="Label" parent="Layout/TopRow/P4/Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 7
+theme_override_font_sizes/font_size = 28
+text = "PLAYER 4"
+horizontal_alignment = 1
+
+[node name="Sprite" type="TextureRect" parent="Layout/TopRow/P4/Box"]
+visible = false
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+size_flags_horizontal = 4
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ClassLabel" type="Label" parent="Layout/TopRow/P4/Box"]
+visible = false
+layout_mode = 2
+horizontal_alignment = 1
+text = "Class 4"
+
+[node name="Prompt" type="Label" parent="Layout/TopRow/P4/Box"]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+text = "PRESS ANY
+BUTTON
+TO JOIN"
+
+[node name="Bottom" type="CenterContainer" parent="Layout"]
+layout_mode = 2
+
+[node name="Buttons" type="VBoxContainer" parent="Layout/Bottom"]
+layout_mode = 2
+
+[node name="Ready" type="Button" parent="Layout/Bottom/Buttons"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "READY"
+
+[node name="Back" type="Button" parent="Layout/Bottom/Buttons"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "BACK"
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer"]
+material = SubResource("ShaderMaterial_cs1")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="select" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_select")
+volume_db = -10.0
+bus = &"SFX"
+
+[node name="move" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("5_move")
+bus = &"SFX"
+
+[connection signal="pressed" from="Layout/Bottom/Buttons/Ready" to="." method="_on_ready_pressed"]
+[connection signal="pressed" from="Layout/Bottom/Buttons/Back" to="." method="_on_back_pressed"]

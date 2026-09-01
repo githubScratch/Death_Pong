@@ -16,10 +16,7 @@ func _physics_process(_delta: float) -> void:
 	
 
 func _on_begin_pressed() -> void:
-	if GameSettings.game_arena == "arena":
-		get_tree().change_scene_to_file("res://ARENAS/arena.tscn")
-	else:
-		get_tree().change_scene_to_file("res://ARENAS/tower.tscn")
+	GameSettings.go_to_character_select("res://MENUS/Menu.tscn")
 
 func _on_options_pressed() -> void:
 	get_tree().change_scene_to_file("res://MENUS/Mode_Menu.tscn")

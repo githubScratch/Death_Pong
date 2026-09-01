@@ -184,9 +184,9 @@ layout_mode = 2
 [node name="Label3" type="Label" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer5"]
 layout_mode = 2
 
-[node name="Begin" type="Button" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer5"]
+[node name="Start" type="Button" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer5"]
 layout_mode = 2
-text = "Begin"
+text = "START"
 
 [node name="Label2" type="Label" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
@@ -232,6 +232,6 @@ bus = &"SFX"
 [connection signal="pressed" from="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer3/Hot_Potatoe" to="." method="_on_hot_potatoe_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer2/On" to="." method="_on_on_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer2/Off" to="." method="_on_off_pressed"]
-[connection signal="pressed" from="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer5/Begin" to="." method="_on_begin_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer5/Start" to="." method="_on_start_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/Settings" to="." method="_on_settings_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/Training" to="." method="_on_training_pressed"]
