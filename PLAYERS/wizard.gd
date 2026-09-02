@@ -75,6 +75,21 @@ var _channel_stutter_remaining: float = 0.0
 var _channel_growth_exhausted: bool = false
 var _channel_grace_remaining: float = 0.0
 
+## Double-tap-to-blink state (see _update_blink()) - only meaningful for a
+## class whose ability is a BlinkAbility. Each counts down from
+## ability.double_tap_window after the first tap of its direction; a second
+## tap of the same direction while its window is still > 0 triggers a
+## blink. Left and right are tracked independently of each other.
+var _left_tap_window_remaining: float = 0.0
+var _right_tap_window_remaining: float = 0.0
+
+## True while a blink is queued - strikes already spent, direction already
+## locked in - and counting down ability.blink_delay before it actually
+## fires. See _update_blink()/_execute_blink().
+var _blink_pending: bool = false
+var _blink_pending_direction: float = 0.0
+var _blink_delay_remaining: float = 0.0
+
 # Cached per-seat action names, so the hot path in _physics_process isn't
 # rebuilding strings ("p%d_up" % seat) every frame.
 var _action_up: String
@@ -164,6 +179,7 @@ func _build_sprite_frames(sheet: Texture2D) -> SpriteFrames:
 
 func _physics_process(delta: float) -> void:
 	_update_growth_channel(delta)
+	_update_blink(delta)
 
 	# Add the gravity and stretch.
 	if not is_on_floor():
@@ -194,17 +210,7 @@ func _physics_process(delta: float) -> void:
 	# span a plain tap occupies, so a tap always jumps normally and only a
 	# hold that survives the confirm window goes on to hover instead.
 	if Input.is_action_just_pressed(_action_up):
-		create_new_instance()
-		if not is_on_floor():
-			velocity.y = DBL_JUMP_VELOCITY
-			spell.pitch_scale = randf_range(0.9, 1.1)
-			spell.play()
-		if is_on_floor():
-			velocity.y = JUMP_VELOCITY
-			spell.pitch_scale = randf_range(0.9, 1.1)
-			spell.play()
-			jump.pitch_scale = randf_range(0.9, 1.1)
-			jump.play()
+		_cast_and_jump()
 
 	# Handle dive.
 	if Input.is_action_just_pressed(_action_down) and not _is_channeling:
@@ -246,6 +252,25 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 
 
+## Casts a fresh shield and applies a jump impulse - exactly what pressing Up
+## normally does (see _physics_process()). Pulled out into its own function
+## so BlinkAbility's cast_on_blink can reuse the identical behavior from
+## _execute_blink() instead of duplicating it - same cast, same jump impulse,
+## same sounds, whether it's triggered by an Up press or a landed blink.
+func _cast_and_jump() -> void:
+	create_new_instance()
+	if not is_on_floor():
+		velocity.y = DBL_JUMP_VELOCITY
+		spell.pitch_scale = randf_range(0.9, 1.1)
+		spell.play()
+	if is_on_floor():
+		velocity.y = JUMP_VELOCITY
+		spell.pitch_scale = randf_range(0.9, 1.1)
+		spell.play()
+		jump.pitch_scale = randf_range(0.9, 1.1)
+		jump.play()
+
+
 func create_new_instance():
 	# If there's a current instance, start its fade animation
 	if is_instance_valid(current_instance):
@@ -272,6 +297,9 @@ func create_new_instance():
 		get_tree().current_scene.add_child(instance)
 		current_instance = instance
 		_connect_shield_deflected(instance)
+		# Sync the fresh shield's gauge to whatever's already banked, rather
+		# than letting it start empty until the next strike/spend event.
+		_update_strike_gauge()
 
 	# Clean up any stale instances in the fading list (run occasionally)
 	if fading_instances.size() > 10 or randf() < 0.1:
@@ -302,8 +330,36 @@ func _on_shield_deflected() -> void:
 	var cap := _max_banked_strikes(_current_ability())
 	if cap >= 0 and strikes > cap:
 		strikes = cap
+	_update_strike_gauge()
 	# TEMP DEBUG - remove once strikes are confirmed working.
 	print("[DEBUG seat %d] strike banked - strikes now %d" % [seat, strikes])
+
+
+## Reflects currently banked TIERS (not raw strikes) onto the active
+## shield's StrikeGauge, if it has one (see strike_gauge.gd) - a no-op for
+## any shield that doesn't, same opt-in shape as the rest of this file's
+## per-class hooks (GrowthAbility/BlinkAbility casts). Deliberately floors to
+## whole tiers rather than showing a smooth per-strike ratio: a partial
+## tier's worth of strikes isn't spendable yet, so it shouldn't visually
+## read as partial progress on the gauge either - only a completed tier
+## moves the fill. This matters once an ability's strikes_per_tier is ever
+## greater than 1 (today it's 1 for both classes, so the two ratios happen
+## to coincide, but this stays correct as that changes). Call this any time
+## `strikes` actually changes, or a fresh shield is spawned. An ability
+## that isn't a StrikeScaledAbility (no tiers to speak of) reports the gauge
+## empty rather than showing a meaningless ratio.
+func _update_strike_gauge() -> void:
+	if not is_instance_valid(current_instance):
+		return
+	var gauge := current_instance.get_node_or_null("StrikeGauge") as StrikeGauge
+	if gauge == null:
+		return
+	var scaled_ability := _current_ability() as StrikeScaledAbility
+	if scaled_ability == null or scaled_ability.max_tiers <= 0 or scaled_ability.strikes_per_tier <= 0:
+		gauge.set_fill_ratio(0.0)
+		return
+	var tiers_banked := strikes / scaled_ability.strikes_per_tier  # int division - floors
+	gauge.set_fill_ratio(float(tiers_banked) / float(scaled_ability.max_tiers))
 
 
 ## The most strikes it's ever useful to have banked at once for the given
@@ -394,6 +450,7 @@ func _update_growth_channel(delta: float) -> void:
 		# Pay for the very first step (base -> tier 1) right now, before any
 		# of it is shown - same rule every later step follows below.
 		strikes -= ability.strikes_per_tier
+		_update_strike_gauge()
 		# TEMP DEBUG - remove once tier costs are confirmed working.
 		print("[DEBUG seat %d] channel committed - paid %d strikes for tier 1, %d remain" % [seat, ability.strikes_per_tier, strikes])
 	elif _channel_growth_exhausted:
@@ -409,29 +466,37 @@ func _update_growth_channel(delta: float) -> void:
 			_channel_locked_out = true
 			return
 	elif _channel_stutter_remaining > 0.0:
-		# Briefly freeze visual progress right after a tier lands, so each
-		# strikes_per_tier chunk spent reads as its own distinct "tick"
-		# instead of blurring into one continuous grow.
+		# Purely cosmetic pause - payment for the NEXT step already happened
+		# the instant this one landed (see the else branch below), so this
+		# never gates anything. It just holds the visual still for a beat
+		# so each strikes_per_tier chunk spent reads as its own distinct
+		# "tick" instead of blurring into one continuous grow. Setting
+		# tier_stutter_time to 0 only removes that beat - it can never skip
+		# a payment, because payment was never behind it in the first place.
 		_channel_stutter_remaining = maxf(_channel_stutter_remaining - delta, 0.0)
-		if _channel_stutter_remaining <= 0.0 and not _try_pay_next_growth_step(ability):
-			# Nothing left to buy (or couldn't afford it) - don't end
-			# outright, hand off to the grace period above instead.
-			_channel_growth_exhausted = true
-			_channel_grace_remaining = ability.post_channel_hold_time
-			if _channel_grace_remaining <= 0.0:
-				_end_growth_channel()
-				_channel_locked_out = true
-				return
 	else:
 		_channel_hold_time += delta
 		if _channel_hold_time >= ability.growth_duration_per_tier:
 			# This step is fully grown into and already paid for - land on
-			# it, then pause briefly before trying to pay for the next one.
+			# it, then IMMEDIATELY try to pay for the next one, before
+			# anything is shown of it. This must happen right here, not
+			# deferred behind the stutter countdown above - a stutter of 0
+			# would otherwise skip straight past that check every time.
 			_channel_tier += 1
 			_channel_hold_time = 0.0
-			_channel_stutter_remaining = ability.tier_stutter_time
 			# TEMP DEBUG - remove once tier costs are confirmed working.
 			print("[DEBUG seat %d] tier -> %d (scale %.2f) reached" % [seat, _channel_tier, ability.growth_tier_scales()[_channel_tier]])
+			if _try_pay_next_growth_step(ability):
+				_channel_stutter_remaining = ability.tier_stutter_time
+			else:
+				# Nothing left to buy (maxed out, or can't afford it) - hand
+				# off to the grace period instead of ending outright.
+				_channel_growth_exhausted = true
+				_channel_grace_remaining = ability.post_channel_hold_time
+				if _channel_grace_remaining <= 0.0:
+					_end_growth_channel()
+					_channel_locked_out = true
+					return
 
 	var tier_scales := ability.growth_tier_scales()
 	var base_scale: float = tier_scales[_channel_tier]
@@ -460,6 +525,7 @@ func _try_pay_next_growth_step(ability: GrowthAbility) -> bool:
 		print("[DEBUG seat %d] can't afford tier %d - only %d strikes banked, need %d" % [seat, _channel_tier + 1, strikes, ability.strikes_per_tier])
 		return false
 	strikes -= ability.strikes_per_tier
+	_update_strike_gauge()
 	# TEMP DEBUG - remove once tier costs are confirmed working.
 	print("[DEBUG seat %d] paid %d strikes for tier %d, %d remain" % [seat, ability.strikes_per_tier, _channel_tier + 1, strikes])
 	return true
@@ -483,3 +549,141 @@ func _end_growth_channel() -> void:
 			_shield_scale_tween.kill()
 		_shield_scale_tween = create_tween()
 		_shield_scale_tween.tween_property(current_instance, "scale", Vector2.ONE, shrink_time)
+
+
+## Double-tap-to-blink: double-tapping Left or Right within
+## ability.double_tap_window queues a blink (see _try_blink()) that actually
+## fires ability.blink_delay seconds later (see _execute_blink()). No-op
+## unless the current ability is a BlinkAbility - same shape as
+## _update_growth_channel() being a no-op for classes that aren't a
+## GrowthAbility, and costs nothing for classes that aren't a BlinkAbility
+## either. Runs every physics frame regardless of class.
+func _update_blink(delta: float) -> void:
+	var ability := _current_ability() as BlinkAbility
+	if ability == null:
+		# Not this class's ability - nothing to track, and nothing should
+		# be left armed if the class ever changed mid-game.
+		_left_tap_window_remaining = 0.0
+		_right_tap_window_remaining = 0.0
+		_blink_pending = false
+		return
+
+	if _blink_pending:
+		# A blink is already queued (strikes already spent, direction
+		# already locked in) - just count down to it firing. Ignore any
+		# taps that happen in the meantime rather than trying to queue,
+		# overwrite, or stack a second one.
+		_blink_delay_remaining -= delta
+		if _blink_delay_remaining <= 0.0:
+			_execute_blink(ability, _blink_pending_direction)
+			_blink_pending = false
+		return
+
+	if _left_tap_window_remaining > 0.0:
+		_left_tap_window_remaining = maxf(_left_tap_window_remaining - delta, 0.0)
+	if _right_tap_window_remaining > 0.0:
+		_right_tap_window_remaining = maxf(_right_tap_window_remaining - delta, 0.0)
+
+	if Input.is_action_just_pressed(_action_left):
+		if _left_tap_window_remaining > 0.0:
+			_left_tap_window_remaining = 0.0
+			_try_blink(ability, -1.0)
+		else:
+			_left_tap_window_remaining = ability.double_tap_window
+	if Input.is_action_just_pressed(_action_right):
+		if _right_tap_window_remaining > 0.0:
+			_right_tap_window_remaining = 0.0
+			_try_blink(ability, 1.0)
+		else:
+			_right_tap_window_remaining = ability.double_tap_window
+
+
+## Spends one tier's worth of strikes (ability.strikes_per_tier) - but only
+## if that much is currently banked - and queues the actual teleport to
+## fire ability.blink_delay seconds from now (instantly, if blink_delay is
+## 0). Strikes are spent right here, the instant the double-tap registers,
+## not when the teleport actually fires - same "pay at commit, not after"
+## rule growth uses. Strikes banked beyond one tier are left untouched, so
+## a maxed-out player can queue up to ability.max_tiers blinks back to
+## back if they want, or save them for later.
+func _try_blink(ability: BlinkAbility, direction: float) -> void:
+	if strikes < ability.strikes_per_tier:
+		# TEMP DEBUG - remove once blink charges are confirmed working.
+		print("[DEBUG seat %d] blink denied - only %d strikes banked, need %d" % [seat, strikes, ability.strikes_per_tier])
+		return
+	strikes -= ability.strikes_per_tier
+	_update_strike_gauge()
+	_spawn_blink_vfx(ability, direction)
+	if ability.blink_delay <= 0.0:
+		_execute_blink(ability, direction)
+		return
+	_blink_pending = true
+	_blink_pending_direction = direction
+	_blink_delay_remaining = ability.blink_delay
+	# TEMP DEBUG - remove once blink charges are confirmed working.
+	print("[DEBUG seat %d] blink queued %s - spent %d strikes, %d remain, firing in %.2fs" % [seat, ("left" if direction < 0.0 else "right"), ability.strikes_per_tier, strikes, ability.blink_delay])
+
+
+## Drops ability.vfx_scene (if assigned) at the wizard's CURRENT position -
+## the cast point, not the landing point - the instant a blink commits here
+## in _try_blink(), before blink_delay's wind-up even starts. Purely
+## cosmetic and entirely opt-in, same shape as _update_strike_gauge(): an
+## ability with no vfx_scene assigned skips this silently. Plays the
+## instanced scene's AnimatedSprite2D once (flipped to face the blink
+## direction) and frees the instance itself the moment that animation ends
+## - or after a fallback timeout if the scene doesn't have one - so
+## drop-and-forget VFX never pile up as clutter.
+func _spawn_blink_vfx(ability: BlinkAbility, direction: float) -> void:
+	if not is_instance_valid(ability.vfx_scene):
+		return
+	var vfx: Node2D = ability.vfx_scene.instantiate()
+	vfx.global_position = global_position
+	get_tree().current_scene.add_child(vfx)
+	var anim := vfx.get_node_or_null("AnimatedSprite2D") as AnimatedSprite2D
+	if anim != null:
+		anim.flip_h = direction < 0.0
+		anim.play()
+		await anim.animation_finished
+	else:
+		await get_tree().create_timer(1.0).timeout
+	if is_instance_valid(vfx):
+		vfx.queue_free()
+
+
+## Actually performs the teleport - immediately from _try_blink() if
+## blink_delay is 0, otherwise once _update_blink()'s countdown reaches 0.
+## Uses test_move() rather than blindly offsetting position, so a blink can
+## never tunnel the wizard partway (or fully) into a wall or the arena edge
+## - it sweeps the wizard's own collision shape along the blink, using the
+## same collision_mask that already governs normal movement, and if
+## anything solid is in the way, only the clear portion of the motion is
+## taken instead of the full blink_distance. A raycast alone would miss
+## this: it's a single infinitely-thin line, but the wizard's actual body
+## has width, so a ray down the center could clear a wall's edge that the
+## wizard's shoulders would still clip - test_move() checks the real shape,
+## not a point, so no separate collision geometry is needed for this.
+## Also handles landing feel: if ability.cast_on_blink is true, lands exactly
+## like an Up press - a fresh shield plus the normal jump impulse, via
+## _cast_and_jump() - letting a blink double as a re-cast/repositioning move
+## in one motion. Otherwise (the default) just zeroes vertical velocity, so
+## the wizard doesn't land in the new spot still carrying whatever fall speed
+## it had built up right before blinking - a clean reset instead of
+## instantly resuming a fast fall that visually has nothing to do with the
+## teleport that just happened.
+func _execute_blink(ability: BlinkAbility, direction: float) -> void:
+	var motion := Vector2(direction * ability.blink_distance, 0.0)
+	var collision := KinematicCollision2D.new()
+	if test_move(global_transform, motion, collision):
+		# Blocked partway through (or right at the start) - only take the
+		# portion of the motion that's actually clear, so the wizard stops
+		# flush against whatever it hit instead of ending up inside it.
+		motion = collision.get_travel()
+		# TEMP DEBUG - remove once blink charges are confirmed working.
+		print("[DEBUG seat %d] blink %s blocked - only %.1f of %.1f px clear" % [seat, ("left" if direction < 0.0 else "right"), motion.length(), ability.blink_distance])
+	global_position += motion
+	if ability.cast_on_blink:
+		_cast_and_jump()
+	else:
+		velocity.y = 0.0
+	# TEMP DEBUG - remove once blink charges are confirmed working.
+	print("[DEBUG seat %d] blinked %s" % [seat, ("left" if direction < 0.0 else "right")])

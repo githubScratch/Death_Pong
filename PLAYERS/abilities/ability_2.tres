@@ -5,14 +5,14 @@
 
 [resource]
 script = ExtResource("1_script")
-tier_scale_step = 1.0
-growth_duration_per_tier = 0.25
+tier_scale_step = 0.25
+growth_duration_per_tier = 0.05
 shrink_duration = 5.0
-hold_confirm_time = 0.15
-tier_stutter_time = 0.05
+hold_confirm_time = 0.25
+tier_stutter_time = 0.0
 post_channel_hold_time = 0.3
-strikes_per_tier = 3
-max_tiers = 4
+strikes_per_tier = 1
+max_tiers = 12
 max_strikes = 12
 display_name = "Growth"
 shield_scene = ExtResource("2_shield")

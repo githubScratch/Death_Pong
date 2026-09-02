@@ -26,15 +26,24 @@ inspector:
 
 - `StrikeScaledAbility` (`PLAYERS/strike_scaled_ability.gd`) - shared shape
   for any ability that scales with banked strikes: `strikes_per_tier`,
-  `max_tiers`, `max_strikes`. Likely relevant to more than one class
-  eventually (Blink's clone duration was designed to scale with strikes
-  past 5, for instance) - extend this, don't re-declare these fields per
-  ability.
+  `max_tiers`, `max_strikes`. Extend this, don't re-declare these fields per
+  ability, whenever a new class's ability spends banked strikes in chunks.
 - `GrowthAbility` (`PLAYERS/growth_ability.gd`) extends `StrikeScaledAbility`
-  - Nature's hold-to-grow barrier specifically (`tier_scale_step`,
+  - Nature's hold-to-grow barrier (`tier_scale_step`,
     `growth_duration_per_tier`, `shrink_duration`, `hold_confirm_time`,
     `tier_stutter_time`, `post_channel_hold_time`, plus a computed
-    `growth_tier_scales()`).
+    `growth_tier_scales()`). Continuous hold-and-spend: pays for each tier
+    the instant its growth window starts, one tier at a time, while Up is
+    held.
+- `BlinkAbility` (`PLAYERS/blink_ability.gd`) extends `StrikeScaledAbility`
+  - class 1's double-tap-to-teleport (`blink_distance`,
+    `double_tap_window`). Instant and discrete instead of continuous: each
+    activation spends exactly one tier's worth of strikes all at once, and
+    unspent tiers just stay banked as charges rather than being forced out
+    the way growth's are - see `wizard.gd`'s `_update_blink()` /
+    `_try_blink()`. Groundwork note left in `blink_ability.gd`'s doc
+    comment: using a blink while maxed out is meant to eventually also
+    spawn a temporary input-mirroring clone - not implemented yet.
 
 `wizard.gd` checks ability type with `is`/`as` (e.g. `ability is
 GrowthAbility`), never a boolean flag on the shared base - that's the
@@ -43,6 +52,51 @@ resource. When a new ability needs its own scaling mechanic, follow this
 same pattern: a focused subclass (of `StrikeScaledAbility` if it scales with
 strikes, of `WizardAbility` directly if not) rather than adding fields to a
 shared base.
+
+## Strike gauge (banked-strikes visual)
+
+`StrikeGauge` (`PLAYERS/strike_gauge.gd`, extends `Sprite2D`) is a small
+opt-in cosmetic node: drop it as a child named exactly `StrikeGauge` into
+any shield scene and `wizard.gd`'s `_update_strike_gauge()` will drive it
+automatically, scaling it from `min_scale` (empty, a small bead) to
+`max_scale` (full) - same opt-in shape as the ability composition pattern
+above: a shield with no `StrikeGauge` child is simply skipped, no bloat
+forced onto it. `min_scale`/`max_scale`/`fill_tween_time` are exported
+per-instance so each class's shield can size and pace its own gauge to
+taste without touching the script.
+
+Fill ratio is banked TIERS, not raw strikes: `floor(strikes /
+strikes_per_tier) / max_tiers`, deliberately floored so a partial tier's
+worth of strikes (not yet spendable) doesn't read as partial visual
+progress - only a completed, spendable tier moves the gauge. With
+strikes_per_tier = 1 on both classes today this happens to look identical
+to a raw strikes/max_strikes ratio, but stays correct once any ability's
+strikes_per_tier goes above 1. Currently wired into both `spell_1.tscn`
+(Blink) and `spell_2.tscn` (Growth), each with its own tuned min/max scale
+and its own small radial "bead" gradient texture
+(`Gradient_sgauge`/`GradientTexture2D_sgauge` sub-resources) rather than
+reusing the shield's existing Core/Outer sprites, so it doesn't fight with
+the deflect/fade/light animations already keyframing those.
+
+## Per-ability cast VFX (opt-in, self-cleaning)
+
+Same opt-in shape again: `BlinkAbility.vfx_scene` (a `PackedScene`, unset by
+default) is instantiated by `wizard.gd`'s `_spawn_blink_vfx()` the instant a
+blink commits in `_try_blink()` - at the CAST point, before `blink_delay`'s
+wind-up, so it marks where the wizard left rather than trailing the
+teleport. It plays the instanced scene's `AnimatedSprite2D` once (flipped
+to face the blink direction) and `queue_free()`s the instance itself the
+moment that animation ends, so nothing needs a timer or manual cleanup
+elsewhere - a scene just needs a child literally named `AnimatedSprite2D`
+with a non-looping animation and this handles the rest (falls back to a
+1s timer if a future VFX scene doesn't have one). `ability_1.tres` currently
+points this at `VFX/Blink_VFX.tscn`. This is the first instance of the
+"class-signature body effects → a small optional per-ability VFX child
+scene" bucket from the earlier VFX-architecture discussion; if another
+class wants the same treatment, give its own ability subclass its own
+`vfx_scene` field and its own spawn function, rather than generalizing this
+one prematurely - same reasoning as `StrikeScaledAbility` only getting
+pulled out once two abilities actually needed it.
 
 ## Godot .tres corruption risk
 

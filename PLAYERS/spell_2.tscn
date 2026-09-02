@@ -1,11 +1,12 @@
-[gd_scene load_steps=33 format=3 uid="uid://ct4ajy6y060p0"]
+[gd_scene load_steps=36 format=3 uid="uid://ct4ajy6y060p0"]
 
 [ext_resource type="Texture2D" uid="uid://digthh0it584s" path="res://SPRITES/88.png" id="1_jhama"]
 [ext_resource type="Texture2D" uid="uid://y358y2w6rnmf" path="res://SPRITES/475.png" id="1_rbx67"]
 [ext_resource type="Texture2D" uid="uid://lovia63fg07t" path="res://SPRITES/75.png" id="2_yargl"]
 [ext_resource type="AudioStream" uid="uid://dtnhs6dommt08" path="res://SFX/thump.wav" id="3_wuwwc"]
-[ext_resource type="Script" path="res://PLAYERS/deflection_shield.gd" id="4_jhama"]
+[ext_resource type="Script" uid="uid://vm2kbqxepj87" path="res://PLAYERS/deflection_shield.gd" id="4_jhama"]
 [ext_resource type="Texture2D" uid="uid://dlodwdaaexmf4" path="res://TILESETS/background.png" id="8_pkfns"]
+[ext_resource type="Script" path="res://PLAYERS/strike_gauge.gd" id="9_sgauge"]
 
 [sub_resource type="Gradient" id="Gradient_bip18"]
 offsets = PackedFloat32Array(0.428571, 0.532468)
@@ -25,6 +26,16 @@ colors = PackedColorArray(0.94, 0.94, 0.94, 0, 0.5628, 0.84, 0.60438, 0.113725, 
 gradient = SubResource("Gradient_vo6dj")
 fill = 1
 fill_from = Vector2(0.5, 0.5)
+
+[sub_resource type="Gradient" id="Gradient_sgauge"]
+offsets = PackedFloat32Array(0, 0.85, 1)
+colors = PackedColorArray(0.3105, 0.69, 0.32315, 1, 0.385067, 0.76, 0.1976, 1, 1, 0.85, 0.3, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_sgauge"]
+gradient = SubResource("Gradient_sgauge")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0, 0.5)
 
 [sub_resource type="Gradient" id="Gradient_uw7x3"]
 offsets = PackedFloat32Array(0, 0.533333, 1)
@@ -135,6 +146,18 @@ tracks/8/path = NodePath("../OuterSprite:modulate")
 tracks/8/interp = 1
 tracks/8/loop_wrap = true
 tracks/8/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+tracks/9/type = "value"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("../StrikeGauge:modulate")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
@@ -341,6 +364,18 @@ tracks/7/keys = {
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
 "values": [Vector2(2.3, 2.3), Vector2(0, 0)]
+}
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("../StrikeGauge:modulate")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0, 0.266667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
 }
 
 [sub_resource type="Animation" id="Animation_gpwpy"]
@@ -801,6 +836,12 @@ texture = SubResource("GradientTexture2D_ihxnt")
 [node name="OuterSprite" type="Sprite2D" parent="."]
 scale = Vector2(2.3, 2.3)
 texture = SubResource("GradientTexture2D_p1lg4")
+
+[node name="StrikeGauge" type="Sprite2D" parent="."]
+scale = Vector2(0.1, 0.1)
+texture = SubResource("GradientTexture2D_sgauge")
+script = ExtResource("9_sgauge")
+min_scale = 0.0
 
 [node name="passivebubbles" type="CPUParticles2D" parent="."]
 position = Vector2(4.2, -0.6)

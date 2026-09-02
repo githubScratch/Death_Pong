@@ -1,4 +1,4 @@
-[gd_scene load_steps=59 format=4 uid="uid://dgpeqxyiiriwx"]
+[gd_scene load_steps=61 format=4 uid="uid://dgpeqxyiiriwx"]
 
 [ext_resource type="Script" uid="uid://dg4utk7dcltn2" path="res://ARENAS/arena.gd" id="1_3ujay"]
 [ext_resource type="PackedScene" uid="uid://c7wd648uhhby4" path="res://PLAYERS/wizard.tscn" id="1_chassis"]
@@ -25,7 +25,7 @@
 [ext_resource type="Script" uid="uid://dk1jeq4bfobk" path="res://PLAYERS/pause_overlay.gd" id="99_pause_overlay"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_444vf"]
-size = Vector2(1146, 67.25)
+size = Vector2(2344, 480)
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_y3sxm"]
 texture = ExtResource("9_0prk1")
@@ -347,8 +347,14 @@ color_ramp = SubResource("GradientTexture1D_0yefq")
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0fd2y"]
 size = Vector2(24, 192)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_y3sxm"]
+size = Vector2(2344, 392)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_qslgg"]
+size = Vector2(192, 32)
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_uo83q"]
-size = Vector2(192, 36)
+size = Vector2(192, 28)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_55po1"]
 shader = ExtResource("6_2udws")
@@ -1008,7 +1014,7 @@ collision_layer = 2
 collision_mask = 7
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Arena/walls/top"]
-position = Vector2(576, 31.75)
+position = Vector2(596, -176)
 shape = SubResource("RectangleShape2D_444vf")
 
 [node name="TileMapLayer3" type="TileMapLayer" parent="Arena/walls/top"]
@@ -1023,7 +1029,7 @@ collision_mask = 7
 
 [node name="CollisionPolygon2D2" type="CollisionPolygon2D" parent="Arena/walls/right"]
 position = Vector2(1088, 0)
-polygon = PackedVector2Array(0, -448, 64, -448, 64, 1088, 0, 1088, 0, 416, 32, 416, 32, 224, 0, 224)
+polygon = PackedVector2Array(0, -448, 696, -456, 704, 1088, 0, 1088, 0, 416, 32, 416, 32, 224, 0, 224)
 
 [node name="ColorRect6" type="ColorRect" parent="Arena/walls/right"]
 offset_left = 1088.0
@@ -1092,7 +1098,7 @@ color = Color(0, 0, 0, 1)
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Arena/walls/left"]
 z_index = -1
-polygon = PackedVector2Array(0, -448, 64, -448, 64, 224, 32, 224, 32, 416, 64, 416, 64, 1088, 0, 1088)
+polygon = PackedVector2Array(-584, -448, 64, -448, 64, 224, 32, 224, 32, 416, 64, 416, 64, 1088, -592, 1088)
 
 [node name="Zone_Left" type="Area2D" parent="Arena/walls/left"]
 collision_layer = 4
@@ -1147,7 +1153,8 @@ collision_layer = 2
 collision_mask = 7
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Arena/walls/bottom"]
-shape = SubResource("RectangleShape2D_444vf")
+position = Vector2(0, 162.375)
+shape = SubResource("RectangleShape2D_y3sxm")
 
 [node name="TileMapLayer4" type="TileMapLayer" parent="Arena/walls/bottom"]
 z_index = 1
@@ -1203,7 +1210,7 @@ color = Color(0, 0, 0, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Arena/Right_Plat"]
 position = Vector2(96, 16)
-shape = SubResource("RectangleShape2D_uo83q")
+shape = SubResource("RectangleShape2D_qslgg")
 
 [node name="TileMapLayer7" type="TileMapLayer" parent="Arena/Right_Plat"]
 z_index = 2
@@ -1225,7 +1232,7 @@ offset_bottom = 32.0
 color = Color(0, 0, 0, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Arena/Left_Plat"]
-position = Vector2(96, 22)
+position = Vector2(96, 18)
 shape = SubResource("RectangleShape2D_uo83q")
 
 [node name="TileMapLayer7" type="TileMapLayer" parent="Arena/Left_Plat"]

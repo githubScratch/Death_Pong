@@ -1,4 +1,4 @@
-[gd_scene load_steps=101 format=4 uid="uid://dgwvptvanlrmw"]
+[gd_scene load_steps=102 format=4 uid="uid://dgwvptvanlrmw"]
 
 [ext_resource type="Script" uid="uid://bgrjsmb0uowwo" path="res://ARENAS/yonder.gd" id="1_2qecu"]
 [ext_resource type="PackedScene" uid="uid://bce3ta6nq22gc" path="res://ARENAS/ball_big.tscn" id="2_2qecu"]
@@ -54,8 +54,8 @@ shader_parameter/clip_warp = false
 shader_parameter/vignette_intensity = 0.4
 shader_parameter/vignette_opacity = 0.5
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_444vf"]
-size = Vector2(824, 64)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hgsl5"]
+size = Vector2(824, 504)
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_sufn2"]
 texture = ExtResource("23_sq5bc")
@@ -1806,11 +1806,14 @@ texture = ExtResource("24_fp02a")
 sources/0 = SubResource("TileSetAtlasSource_sufn2")
 sources/1 = SubResource("TileSetAtlasSource_7w3lq")
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_0dqhp"]
-size = Vector2(824, 64)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_grp3s"]
+size = Vector2(824, 504)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_hhauf"]
-size = Vector2(826, 64)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xt84k"]
+size = Vector2(824, 664)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_vnor2"]
+size = Vector2(826, 648)
 
 [sub_resource type="Gradient" id="Gradient_2qecu"]
 offsets = PackedFloat32Array(0.182, 0.24, 0.357, 0.63)
@@ -2999,8 +3002,8 @@ collision_layer = 2
 collision_mask = 7
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Yonder/walls/top_left"]
-position = Vector2(412, 32)
-shape = SubResource("RectangleShape2D_444vf")
+position = Vector2(412, -188)
+shape = SubResource("RectangleShape2D_hgsl5")
 
 [node name="ColorRect7" type="ColorRect" parent="Yonder/walls/top_left"]
 visible = false
@@ -3022,8 +3025,8 @@ collision_layer = 2
 collision_mask = 7
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Yonder/walls/top_right"]
-position = Vector2(412, 32)
-shape = SubResource("RectangleShape2D_0dqhp")
+position = Vector2(412, -188)
+shape = SubResource("RectangleShape2D_grp3s")
 
 [node name="ColorRect" type="ColorRect" parent="Yonder/walls/top_right"]
 visible = false
@@ -3048,8 +3051,8 @@ offset_bottom = 64.0
 color = Color(0, 0, 0, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Yonder/walls/bottom_left"]
-position = Vector2(412, 32)
-shape = SubResource("RectangleShape2D_444vf")
+position = Vector2(412, 332)
+shape = SubResource("RectangleShape2D_xt84k")
 
 [node name="TileMapLayer" type="TileMapLayer" parent="Yonder/walls/bottom_left"]
 position = Vector2(248, 128)
@@ -3069,8 +3072,8 @@ offset_bottom = 64.0
 color = Color(0, 0, 0, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Yonder/walls/bottom_right"]
-position = Vector2(412, 32)
-shape = SubResource("RectangleShape2D_hhauf")
+position = Vector2(412, 324)
+shape = SubResource("RectangleShape2D_vnor2")
 
 [node name="TileMapLayer" type="TileMapLayer" parent="Yonder/walls/bottom_right"]
 position = Vector2(248, 128)
@@ -3085,7 +3088,7 @@ collision_mask = 7
 
 [node name="CollisionPolygon2D2" type="CollisionPolygon2D" parent="Yonder/walls/right_wall"]
 position = Vector2(1088, 0)
-polygon = PackedVector2Array(0, -448, 64, -448, 64, 1088, 0, 1088, 0, 416, 0, 224)
+polygon = PackedVector2Array(0, -448, 776, -434, 776, 1086, 0, 1088, 0, 416, 0, 224)
 
 [node name="ColorRect6" type="ColorRect" parent="Yonder/walls/right_wall"]
 offset_left = 1088.0
@@ -3116,7 +3119,7 @@ color = Color(0, 0, 0, 1)
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Yonder/walls/left_wall"]
 z_index = -1
-polygon = PackedVector2Array(0, -448, 64, -448, 64, 224, 64, 416, 64, 1088, 0, 1088)
+polygon = PackedVector2Array(-688, -440, 64, -448, 64, 224, 64, 416, 64, 1088, -696, 1080)
 
 [node name="TileMapLayer" type="TileMapLayer" parent="Yonder/walls/left_wall"]
 position = Vector2(256, 120)
