@@ -41,6 +41,40 @@ var hit_the_ground = false
 var fading_instances = []
 var max_fall_speed = 6000
 
+## How many successful shield deflections this wizard has banked so far -
+## core, shared per-wizard state every class's shield reports into (see
+## _on_shield_deflected() and DeflectionShield.deflected in
+## PLAYERS/deflection_shield.gd), even though only some classes' abilities
+## currently spend it (see GrowthAbility). Accumulates for the whole match -
+## nothing resets it today.
+var strikes: int = 0
+
+## Hold-to-grow state (see _update_growth_channel()) - only meaningful for a
+## class whose ability is a GrowthAbility, but lives here rather than on the
+## ability resource since it's about *this wizard's* current hold, not the
+## shared/cached ability data itself.
+var _is_channeling: bool = false
+var _channel_locked_out: bool = false
+var _channel_tier: int = 0
+var _channel_hold_time: float = 0.0
+var _shield_scale_tween: Tween
+
+## Seconds Up has been continuously held while otherwise eligible to grow,
+## but not yet committed to an actual channel - see _update_growth_channel().
+## Reset to 0 the moment Up is released or eligibility is lost.
+var _candidate_hold_time: float = 0.0
+
+## Seconds left in the visual "stutter" pause right after a tier lands - see
+## _update_growth_channel().
+var _channel_stutter_remaining: float = 0.0
+
+## True once a channel has hit ability.post_channel_hold_time's grace period
+## because it can no longer grow (maxed out, or out of strikes) - see
+## _update_growth_channel(). _channel_grace_remaining counts that grace
+## period down to 0, at which point the channel is forced to end.
+var _channel_growth_exhausted: bool = false
+var _channel_grace_remaining: float = 0.0
+
 # Cached per-seat action names, so the hot path in _physics_process isn't
 # rebuilding strings ("p%d_up" % seat) every frame.
 var _action_up: String
@@ -129,6 +163,7 @@ func _build_sprite_frames(sheet: Texture2D) -> SpriteFrames:
 ### wizard_N.gd scripts with p{N}_* swapped for the cached _action_* names.
 
 func _physics_process(delta: float) -> void:
+	_update_growth_channel(delta)
 
 	# Add the gravity and stretch.
 	if not is_on_floor():
@@ -152,7 +187,12 @@ func _physics_process(delta: float) -> void:
 	shape.scale.x = lerpf(sprite.scale.x, 1, 1 - pow(0.01, delta))
 	shape.scale.y = lerpf(sprite.scale.y, 1, 1 - pow(0.01, delta))
 
-	# Handle jump.
+	# Handle jump. The cast always happens on press. The jump impulse always
+	# fires too, even for a class whose ability grows on hold - a channel
+	# never touches velocity until it's held past ability.hold_confirm_time
+	# (see _update_growth_channel()), which is well past the one-or-two-frame
+	# span a plain tap occupies, so a tap always jumps normally and only a
+	# hold that survives the confirm window goes on to hover instead.
 	if Input.is_action_just_pressed(_action_up):
 		create_new_instance()
 		if not is_on_floor():
@@ -167,7 +207,7 @@ func _physics_process(delta: float) -> void:
 			jump.play()
 
 	# Handle dive.
-	if Input.is_action_just_pressed(_action_down):
+	if Input.is_action_just_pressed(_action_down) and not _is_channeling:
 		if not is_on_floor():
 			velocity.y = DIVE_VELOCITY
 			dash.pitch_scale = randf_range(0.9, 1.1)
@@ -193,6 +233,15 @@ func _physics_process(delta: float) -> void:
 			sprite.flip_h = true   # Face left
 	else:
 		velocity.x = move_toward(velocity.x, 0, SPEED)
+
+	# Hold-to-grow hovers in place - whatever gravity/jump/dive/movement
+	# code above just computed for this frame gets overridden here, every
+	# frame, for as long as the channel is active. Gravity still technically
+	# accumulates into velocity.y above while this is true, but since it's
+	# zeroed again right here before move_and_slide(), it never actually
+	# moves the wizard - each frame effectively starts fresh.
+	if _is_channeling:
+		velocity = Vector2.ZERO
 
 	move_and_slide()
 
@@ -222,9 +271,215 @@ func create_new_instance():
 		instance.global_position = global_position
 		get_tree().current_scene.add_child(instance)
 		current_instance = instance
+		_connect_shield_deflected(instance)
 
 	# Clean up any stale instances in the fading list (run occasionally)
 	if fading_instances.size() > 10 or randf() < 0.1:
 		for old_instance in fading_instances.duplicate():
 			if !is_instance_valid(old_instance):
 				fading_instances.erase(old_instance)
+
+
+## Every class's shield reports its own successful deflections back here via
+## a `deflected` signal on DeflectionShield (PLAYERS/deflection_shield.gd) -
+## strikes are core wizard/shield infrastructure now, not something specific
+## to whichever class currently knows what to do with them. The signal
+## lives on the shield's Area2D child, not the scene root instantiate()
+## hands back, so it has to be looked up first.
+func _connect_shield_deflected(instance: Node) -> void:
+	var shield := instance.get_node_or_null("Area2D")
+	if shield != null and shield.has_signal("deflected"):
+		shield.deflected.connect(_on_shield_deflected)
+	else:
+		# TEMP DEBUG - remove once strikes are confirmed working. If this
+		# ever prints, the shield's Area2D child either wasn't found or
+		# doesn't have the `deflected` signal, so strikes for this cast
+		# can't be counted at all.
+		print("[DEBUG seat %d] could not find a deflectable Area2D on this shield instance - strikes will not count this cast" % seat)
+
+func _on_shield_deflected() -> void:
+	strikes += 1
+	var cap := _max_banked_strikes(_current_ability())
+	if cap >= 0 and strikes > cap:
+		strikes = cap
+	# TEMP DEBUG - remove once strikes are confirmed working.
+	print("[DEBUG seat %d] strike banked - strikes now %d" % [seat, strikes])
+
+
+## The most strikes it's ever useful to have banked at once for the given
+## ability, or -1 if that ability doesn't define a ceiling (i.e. isn't a
+## StrikeScaledAbility) - past ability.max_strikes, banking further strikes
+## couldn't buy anything more for THIS ability, so there's no reason to let
+## the count climb indefinitely. Non-scaled classes are uncapped for now
+## since nothing they have yet spends strikes at all.
+func _max_banked_strikes(ability: WizardAbility) -> int:
+	var scaled_ability := ability as StrikeScaledAbility
+	if scaled_ability == null:
+		return -1
+	return scaled_ability.max_strikes
+
+
+## Hold-to-grow: gates in once strikes >= ability.strikes_per_tier, then
+## grows current_instance's scale one step through ability.growth_tier_scales()
+## at a time, one step per growth_duration_per_tier seconds Up stays
+## continuously held. Every step is PAID FOR THE INSTANT IT STARTS, not when
+## it finishes - see _try_pay_next_growth_step() - so the player never gets
+## to see (even briefly) growth they can't actually afford; if a step can't
+## be paid for, the channel ends right there instead of previewing it. Runs
+## every physics frame regardless of class - it's a no-op unless the current
+## ability is a GrowthAbility, so it costs nothing for classes that don't
+## use it (and their WizardAbility resources don't carry any of these fields
+## at all - see GrowthAbility for why that split exists).
+func _update_growth_channel(delta: float) -> void:
+	var up_held := Input.is_action_pressed(_action_up)
+
+	# TEMP DEBUG - remove once strikes/growth are confirmed working. Prints
+	# once per press (not every held frame) so it's readable: which class
+	# you're actually wearing, whether that class's ability has growth
+	# turned on at all, how many strikes are currently banked, and whether
+	# there's a valid shield instance to grow.
+	if Input.is_action_just_pressed(_action_up):
+		var dbg_ability := _current_ability()
+		print("[DEBUG seat %d] Up pressed - class=%s ability=%s is_growth_ability=%s strikes=%d current_instance_valid=%s" % [
+			seat,
+			wizard_class.display_name if wizard_class else "null",
+			dbg_ability.display_name if dbg_ability else "null",
+			dbg_ability is GrowthAbility,
+			strikes,
+			is_instance_valid(current_instance),
+		])
+
+	if not up_held:
+		_channel_locked_out = false
+		_candidate_hold_time = 0.0
+		if _is_channeling:
+			_end_growth_channel()
+		return
+
+	var ability := _current_ability() as GrowthAbility
+	var can_grow := ability != null and is_instance_valid(current_instance)
+	if not can_grow or _channel_locked_out:
+		_candidate_hold_time = 0.0
+		if _is_channeling:
+			_end_growth_channel()
+		return
+
+	if not _is_channeling:
+		# Not gated in yet - holding Up just stays the normal cast/jump
+		# handled elsewhere in _physics_process(), nothing more happens.
+		if strikes < ability.strikes_per_tier:
+			_candidate_hold_time = 0.0
+			return
+
+		# Don't commit to a channel - and don't touch velocity - until Up
+		# has been held for hold_confirm_time. A plain jump tap only ever
+		# lasts a frame or two of _physics_process, well short of this, so
+		# waiting reliably tells a real hold apart from a tap. This window
+		# is a pure safety buffer and isn't counted toward growth - the
+		# first tier's own growth_duration_per_tier starts fresh below, the
+		# instant the channel actually commits.
+		_candidate_hold_time += delta
+		if _candidate_hold_time < ability.hold_confirm_time:
+			return
+
+		_is_channeling = true
+		_channel_tier = 0
+		_channel_hold_time = 0.0
+		_channel_stutter_remaining = 0.0
+		_channel_growth_exhausted = false
+		_channel_grace_remaining = 0.0
+		_candidate_hold_time = 0.0
+		if _shield_scale_tween:
+			_shield_scale_tween.kill()
+		# Pay for the very first step (base -> tier 1) right now, before any
+		# of it is shown - same rule every later step follows below.
+		strikes -= ability.strikes_per_tier
+		# TEMP DEBUG - remove once tier costs are confirmed working.
+		print("[DEBUG seat %d] channel committed - paid %d strikes for tier 1, %d remain" % [seat, ability.strikes_per_tier, strikes])
+	elif _channel_growth_exhausted:
+		# Can't grow any further (maxed out, or out of strikes for the next
+		# tier) - keep hovering at whatever scale was last reached for
+		# ability.post_channel_hold_time as a grace period, then force out.
+		# 0 means no grace at all: forced out the very next frame.
+		_channel_grace_remaining -= delta
+		if _channel_grace_remaining <= 0.0:
+			# TEMP DEBUG - remove once tier costs are confirmed working.
+			print("[DEBUG seat %d] post-channel grace expired - snapping back" % seat)
+			_end_growth_channel()
+			_channel_locked_out = true
+			return
+	elif _channel_stutter_remaining > 0.0:
+		# Briefly freeze visual progress right after a tier lands, so each
+		# strikes_per_tier chunk spent reads as its own distinct "tick"
+		# instead of blurring into one continuous grow.
+		_channel_stutter_remaining = maxf(_channel_stutter_remaining - delta, 0.0)
+		if _channel_stutter_remaining <= 0.0 and not _try_pay_next_growth_step(ability):
+			# Nothing left to buy (or couldn't afford it) - don't end
+			# outright, hand off to the grace period above instead.
+			_channel_growth_exhausted = true
+			_channel_grace_remaining = ability.post_channel_hold_time
+			if _channel_grace_remaining <= 0.0:
+				_end_growth_channel()
+				_channel_locked_out = true
+				return
+	else:
+		_channel_hold_time += delta
+		if _channel_hold_time >= ability.growth_duration_per_tier:
+			# This step is fully grown into and already paid for - land on
+			# it, then pause briefly before trying to pay for the next one.
+			_channel_tier += 1
+			_channel_hold_time = 0.0
+			_channel_stutter_remaining = ability.tier_stutter_time
+			# TEMP DEBUG - remove once tier costs are confirmed working.
+			print("[DEBUG seat %d] tier -> %d (scale %.2f) reached" % [seat, _channel_tier, ability.growth_tier_scales()[_channel_tier]])
+
+	var tier_scales := ability.growth_tier_scales()
+	var base_scale: float = tier_scales[_channel_tier]
+	var next_scale: float = tier_scales[min(_channel_tier + 1, tier_scales.size() - 1)]
+	var t := clampf(_channel_hold_time / ability.growth_duration_per_tier, 0.0, 1.0)
+	if _channel_stutter_remaining > 0.0:
+		t = 0.0  # hold right at the tier we just reached during the stutter
+	current_instance.scale = Vector2.ONE * lerpf(base_scale, next_scale, t)
+
+
+## Tries to pay for growing from the current tier to the next one, right as
+## that growth is about to start (never after the fact). Returns true and
+## deducts the cost if there's a next tier and strikes to afford it. Returns
+## false - leaving the caller to start the post-channel grace period, see
+## _update_growth_channel() - if this was the final tier (nothing left to
+## buy) or the bank can't cover it. Either way, the caller must never show
+## growth this rejected: no visual preview of a step that wasn't paid for.
+func _try_pay_next_growth_step(ability: GrowthAbility) -> bool:
+	var at_final_tier := _channel_tier >= ability.max_tiers
+	if at_final_tier:
+		# TEMP DEBUG - remove once tier costs are confirmed working.
+		print("[DEBUG seat %d] maxed out at tier %d" % [seat, _channel_tier])
+		return false
+	if strikes < ability.strikes_per_tier:
+		# TEMP DEBUG - remove once tier costs are confirmed working.
+		print("[DEBUG seat %d] can't afford tier %d - only %d strikes banked, need %d" % [seat, _channel_tier + 1, strikes, ability.strikes_per_tier])
+		return false
+	strikes -= ability.strikes_per_tier
+	# TEMP DEBUG - remove once tier costs are confirmed working.
+	print("[DEBUG seat %d] paid %d strikes for tier %d, %d remain" % [seat, ability.strikes_per_tier, _channel_tier + 1, strikes])
+	return true
+
+
+## Ends the current channel and snaps the shield back to its base scale -
+## called on release, and also when strikes run out mid-hold. Whatever
+## scale was reached is never kept; only the strikes already spent on fully
+## completed steps stay spent.
+func _end_growth_channel() -> void:
+	_is_channeling = false
+	_channel_tier = 0
+	_channel_hold_time = 0.0
+	_channel_stutter_remaining = 0.0
+	_channel_growth_exhausted = false
+	_channel_grace_remaining = 0.0
+	if is_instance_valid(current_instance):
+		var ability := _current_ability() as GrowthAbility
+		var shrink_time: float = ability.shrink_duration if ability != null else 0.1
+		if _shield_scale_tween:
+			_shield_scale_tween.kill()
+		_shield_scale_tween = create_tween()
+		_shield_scale_tween.tween_property(current_instance, "scale", Vector2.ONE, shrink_time)

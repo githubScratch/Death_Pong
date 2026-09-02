@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://y358y2w6rnmf" path="res://SPRITES/475.png" id="1_rbx67"]
 [ext_resource type="Texture2D" uid="uid://lovia63fg07t" path="res://SPRITES/75.png" id="2_yargl"]
 [ext_resource type="AudioStream" uid="uid://dtnhs6dommt08" path="res://SFX/thump.wav" id="3_wuwwc"]
-[ext_resource type="Script" uid="uid://dqfu3jnydr7g5" path="res://PLAYERS/spell_2.gd" id="4_jhama"]
+[ext_resource type="Script" path="res://PLAYERS/deflection_shield.gd" id="4_jhama"]
 [ext_resource type="Texture2D" uid="uid://dlodwdaaexmf4" path="res://TILESETS/background.png" id="8_pkfns"]
 
 [sub_resource type="Gradient" id="Gradient_bip18"]

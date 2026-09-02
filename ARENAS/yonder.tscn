@@ -9,7 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://c7wd648uhhby4" path="res://PLAYERS/wizard.tscn" id="6_chassis"]
 [ext_resource type="Resource" uid="uid://c51kdulbv0nch" path="res://PLAYERS/classes/class_1.tres" id="6_class1"]
 [ext_resource type="Texture2D" uid="uid://cwy1sx0vkkrx3" path="res://SPRITES/twirl_01.png" id="6_pmepg"]
-[ext_resource type="Resource" uid="uid://ciykjrg6wygtu" path="res://PLAYERS/classes/class_2.tres" id="7_class2"]
+[ext_resource type="Resource" uid="uid://djofs4a0pxb01" path="res://PLAYERS/classes/class_2.tres" id="7_class2"]
 [ext_resource type="Texture2D" uid="uid://dlodwdaaexmf4" path="res://TILESETS/background.png" id="7_hhauf"]
 [ext_resource type="Texture2D" uid="uid://dv8sdb7yh65h5" path="res://SPRITES/magic_02.png" id="7_k7eei"]
 [ext_resource type="Texture2D" uid="uid://cor3iehmup225" path="res://TILESETS/mountains.png" id="8_e055s"]

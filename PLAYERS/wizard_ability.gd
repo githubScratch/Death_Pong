@@ -14,8 +14,12 @@ class_name WizardAbility
 ## faithful, working port of what WizardClass.shield_scene used to be,
 ## just renamed and pluralized. If a future ability needs to *do* more than
 ## spawn a scene (a cooldown, a resource cost, a non-shield effect), that's
-## new fields here plus new handling in wizard.gd's create_new_instance() -
-## this file is the seam, not the ceiling.
+## a new subclass of this one (see GrowthAbility for the pattern) plus new
+## handling in wizard.gd - this file is the seam, not the ceiling, and it
+## stays this bare on purpose: fields specific to one kind of ability (like
+## GrowthAbility's hold-to-grow tuning) belong on that subclass, not here,
+## so every other class's ability resource doesn't carry fields it never
+## uses.
 
 ## Shown to players (character select, a future ability tooltip, etc).
 @export var display_name: String = "Ability"

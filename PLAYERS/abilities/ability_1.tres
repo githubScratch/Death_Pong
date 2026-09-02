@@ -1,9 +1,16 @@
-[gd_resource type="Resource" script_class="WizardAbility" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="WizardAbility" load_steps=3 format=3 uid="uid://bwr6n0i8gyqc5"]
 
-[ext_resource type="Script" path="res://PLAYERS/wizard_ability.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://bcgkim38ay6n4" path="res://PLAYERS/wizard_ability.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://b8nh7yxds3rl1" path="res://PLAYERS/spell_1.tscn" id="2_shield"]
 
 [resource]
 script = ExtResource("1_script")
 display_name = "Shield"
 shield_scene = ExtResource("2_shield")
+grows_on_hold = false
+growth_tier_scales = Array[float]([1.0, 1.5, 2.0, 2.5, 3.0])
+strikes_per_tier = 3
+growth_duration_per_tier = 0.2
+shrink_duration = 0.1
+hold_confirm_time = 0.1
+tier_stutter_time = 0.1

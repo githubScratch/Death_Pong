@@ -29,7 +29,6 @@ func _ready():
 		player.stream = wall_impact
 		add_child(player)
 		audio_pool.append(player)
-		print("Created ", audio_pool.size(), " audio players")
 	_original_scale = scale
 	_previous_position = global_position
 	
@@ -80,8 +79,7 @@ func _physics_process(_delta):
 func apply_deflection(force_vector):
 	# Store for debugging
 	last_applied_force = force_vector
-	print("Ball received force: ", force_vector.length())
-	
+
 	# Stop current movement
 	linear_velocity = Vector2.ZERO
 	
@@ -104,8 +102,6 @@ func create_impact_effect():
 	tween.tween_property(self, "modulate", original_color, 0.4)
 
 func _on_sfx_area_body_entered(body):  # Changed function name to match signal
-	print("Collision detected with: ", body.name)
-	print("Body type: ", body.get_class())
 	sparks_player.stop()
 	sparks_player.play("sparks")
 	if body is StaticBody2D and linear_velocity.length() > min_velocity_for_sound:
@@ -120,16 +116,13 @@ func _on_sfx_area_body_entered(body):  # Changed function name to match signal
 			body.hit()
 		
 func play_collision_sound(volume_scale = 1.0):
-	print("Bwomp!")
 	wall_impact.pitch_scale = randf_range(0.9, 1.1)
 	wall_impact.play()
-	print("Audio pool size: ", audio_pool.size())  # Should be > 0
 	for player in audio_pool:
 		if not player.playing:
 			player.pitch_scale = randf_range(0.9, 1.1)
 			player.volume_db = linear_to_db(volume_scale)
 			player.play()
-			print("Bwomp!2")
 			wall_impact.pitch_scale = randf_range(0.9, 1.1)
 			wall_impact.play()
 			return

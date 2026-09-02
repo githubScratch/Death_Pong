@@ -1,6 +1,6 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=8 format=3 uid="uid://b8m02rc6u4cg"]
 
-[ext_resource type="Script" path="res://MENUS/character_select.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://cp0djvqxn5ldw" path="res://MENUS/character_select.gd" id="1_script"]
 [ext_resource type="Theme" uid="uid://dka4pq4oxkc3b" path="res://MENUS/Menu_Theme.tres" id="2_theme"]
 [ext_resource type="Shader" uid="uid://c3fmb76te1444" path="res://ARENAS/VHS.gdshader" id="3_shader"]
 [ext_resource type="AudioStream" uid="uid://d3rmk854uqt17" path="res://SFX/ui select.wav" id="4_select"]
@@ -49,7 +49,7 @@ offset_bottom = 888.0
 color = Color(0, 0, 0, 1)
 
 [node name="Layout" type="VBoxContainer" parent="."]
-layout_mode = 3
+layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -59,10 +59,11 @@ theme = ExtResource("2_theme")
 
 [node name="Title" type="Label" parent="Layout"]
 layout_mode = 2
+size_flags_vertical = 6
+theme_override_colors/font_color = Color(0.639216, 0.00392157, 1, 1)
 theme_override_fonts/font = ExtResource("6_font")
 theme_override_font_sizes/font_size = 56
-theme_override_colors/font_color = Color(0.639216, 0.00392157, 1, 1)
-text = "SELECT YOUR WIZARD"
+text = " WHO ART THOU?"
 horizontal_alignment = 1
 
 [node name="TopRow" type="HBoxContainer" parent="Layout"]
@@ -95,19 +96,19 @@ stretch_mode = 5
 
 [node name="ClassLabel" type="Label" parent="Layout/TopRow/P1/Box"]
 layout_mode = 2
-horizontal_alignment = 1
 text = "Class 1"
+horizontal_alignment = 1
 
 [node name="Prompt" type="Label" parent="Layout/TopRow/P1/Box"]
 visible = false
 custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
-horizontal_alignment = 1
-vertical_alignment = 1
-autowrap_mode = 2
 text = "PRESS ANY
 BUTTON
 TO JOIN"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
 
 [node name="P2" type="CenterContainer" parent="Layout/TopRow"]
 layout_mode = 2
@@ -135,19 +136,19 @@ stretch_mode = 5
 
 [node name="ClassLabel" type="Label" parent="Layout/TopRow/P2/Box"]
 layout_mode = 2
-horizontal_alignment = 1
 text = "Class 2"
+horizontal_alignment = 1
 
 [node name="Prompt" type="Label" parent="Layout/TopRow/P2/Box"]
 visible = false
 custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
-horizontal_alignment = 1
-vertical_alignment = 1
-autowrap_mode = 2
 text = "PRESS ANY
 BUTTON
 TO JOIN"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
 
 [node name="P3" type="CenterContainer" parent="Layout/TopRow"]
 layout_mode = 2
@@ -177,18 +178,18 @@ stretch_mode = 5
 [node name="ClassLabel" type="Label" parent="Layout/TopRow/P3/Box"]
 visible = false
 layout_mode = 2
-horizontal_alignment = 1
 text = "Class 3"
+horizontal_alignment = 1
 
 [node name="Prompt" type="Label" parent="Layout/TopRow/P3/Box"]
 custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
+text = "PRESS ANY
+BUTTON
+"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
-text = "PRESS ANY
-BUTTON
-TO JOIN"
 
 [node name="P4" type="CenterContainer" parent="Layout/TopRow"]
 layout_mode = 2
@@ -218,21 +219,22 @@ stretch_mode = 5
 [node name="ClassLabel" type="Label" parent="Layout/TopRow/P4/Box"]
 visible = false
 layout_mode = 2
-horizontal_alignment = 1
 text = "Class 4"
+horizontal_alignment = 1
 
 [node name="Prompt" type="Label" parent="Layout/TopRow/P4/Box"]
 custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
+text = "PRESS ANY
+BUTTON
+"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
-text = "PRESS ANY
-BUTTON
-TO JOIN"
 
 [node name="Bottom" type="CenterContainer" parent="Layout"]
 layout_mode = 2
+size_flags_vertical = 3
 
 [node name="Buttons" type="VBoxContainer" parent="Layout/Bottom"]
 layout_mode = 2

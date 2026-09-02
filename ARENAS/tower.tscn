@@ -8,7 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://c7wd648uhhby4" path="res://PLAYERS/wizard.tscn" id="4_chassis"]
 [ext_resource type="Resource" uid="uid://c51kdulbv0nch" path="res://PLAYERS/classes/class_1.tres" id="4_class1"]
 [ext_resource type="PackedScene" path="res://PLAYERS/wizard_seat4.tscn" id="4_tyhyf"]
-[ext_resource type="Resource" uid="uid://ciykjrg6wygtu" path="res://PLAYERS/classes/class_2.tres" id="5_class2"]
+[ext_resource type="Resource" uid="uid://djofs4a0pxb01" path="res://PLAYERS/classes/class_2.tres" id="5_class2"]
 [ext_resource type="PackedScene" uid="uid://logifil3ltlk" path="res://ARENAS/brick.tscn" id="6_7omse"]
 [ext_resource type="Texture2D" uid="uid://cn2njurkxp3iq" path="res://SPRITES/2d_lights_and_shadows_neutral_point_light.webp" id="8_2t7hb"]
 [ext_resource type="AudioStream" uid="uid://bfh2mp44mk037" path="res://SFX/goal.wav" id="9_x5lnl"]
