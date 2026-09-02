@@ -81,22 +81,74 @@ the deflect/fade/light animations already keyframing those.
 ## Per-ability cast VFX (opt-in, self-cleaning)
 
 Same opt-in shape again: `BlinkAbility.vfx_scene` (a `PackedScene`, unset by
-default) is instantiated by `wizard.gd`'s `_spawn_blink_vfx()` the instant a
-blink commits in `_try_blink()` - at the CAST point, before `blink_delay`'s
-wind-up, so it marks where the wizard left rather than trailing the
-teleport. It plays the instanced scene's `AnimatedSprite2D` once (flipped
-to face the blink direction) and `queue_free()`s the instance itself the
-moment that animation ends, so nothing needs a timer or manual cleanup
-elsewhere - a scene just needs a child literally named `AnimatedSprite2D`
-with a non-looping animation and this handles the rest (falls back to a
-1s timer if a future VFX scene doesn't have one). `ability_1.tres` currently
-points this at `VFX/Blink_VFX.tscn`. This is the first instance of the
+default) is instantiated by `wizard.gd`'s `_spawn_blink_vfx()`, which drops
+it at whatever `global_position` is at the moment it's called - so every
+blink now spawns one at EACH end, consistently: `_try_blink()` calls it at
+the CAST point (before `blink_delay`'s wind-up), and `_execute_blink()`
+calls it again once `global_position` is fully settled (the landing point,
+wall-wrapped or not). `_try_slam_wrap()` does the same pairing for its own
+vertical teleport (ground strike point, then the ceiling). It plays the
+instanced scene's `AnimatedSprite2D` once (flipped to face the blink
+direction, or unflipped when called with `direction = 0.0`) and
+`queue_free()`s the instance itself the moment that animation ends, so
+nothing needs a timer or manual cleanup elsewhere - a scene just needs a
+child literally named `AnimatedSprite2D` with a non-looping animation and
+this handles the rest (falls back to a 1s timer if a future VFX scene
+doesn't have one). `ability_1.tres` currently points this at
+`VFX/Blink_VFX.tscn`. This is the first instance of the
 "class-signature body effects → a small optional per-ability VFX child
 scene" bucket from the earlier VFX-architecture discussion; if another
 class wants the same treatment, give its own ability subclass its own
 `vfx_scene` field and its own spawn function, rather than generalizing this
 one prematurely - same reasoning as `StrikeScaledAbility` only getting
 pulled out once two abilities actually needed it.
+
+## Blink wall wrap (Arena only so far)
+
+`_execute_blink()`'s `test_move()` collision check now branches on what it
+hit, via a new `_wrap_destination()` lookup: if the collider is in the
+`map_wall_left` or `map_wall_right` group, the wizard reappears at that
+wall's own `WrapDestination` `Marker2D` child (X only - Y is untouched)
+instead of stopping short. Anything not tagged into one of those groups
+(another wizard, an untagged wall, a mid-arena platform) keeps the old
+stop-at-the-clear-portion behavior unchanged. Currently only `arena.tscn`'s
+`left`/`right` walls are tagged - `Tower` and `Yonder` use the same
+collision layer for ALL their solid geometry (many scattered wall/platform
+segments, not one clean boundary box), so neither has a well-defined single
+"map wall" to wrap off of yet. Extending this to another arena means only a
+scene change (tag the wall(s), add their own `WrapDestination` marker) - no
+`wizard.gd` change needed, since the lookup is group-based, not a hardcoded
+node path. Deliberately left/right only here - the bottom-to-top
+counterpart is its own separate mechanic, see below.
+
+## Blink slam wrap (floor -> ceiling)
+
+`BlinkAbility.wrap_on_slam` (bool, default false) is the vertical
+counterpart to the wall wrap above, but triggered completely differently:
+not a blocked blink, but the airborne -> grounded landing transition in
+`_physics_process()` (the same `if not hit_the_ground and is_on_floor():`
+block that already plays the landing sound/squish), via
+`wizard.gd`'s `_try_slam_wrap()`. Landing while holding Down, with
+`wrap_on_slam` on and a full tier's worth of strikes banked, spends one
+tier (same `strikes_per_tier` cost and "pay at commit" timing as a normal
+blink) and moves the wizard's Y straight to the ceiling's own
+`WrapDestination` marker (X untouched) instead of landing normally -
+looked up via the `map_wall_top` group the same way the left/right wrap
+looks up its walls, so it's equally scene-only to extend to another arena.
+"Only while airborne" isn't a separate check - it falls out for free, since
+this only ever runs from the landing-transition block, which by
+construction never fires while already on the floor. Also spawns `ability.vfx_scene` TWICE via `_spawn_blink_vfx()` - once
+before moving `global_position` (drops at the ground strike point) and
+once after (drops at the landing point, the ceiling) - each call passed
+`direction = 0.0` for no flip, since the left/right flip has no vertical
+equivalent. `_spawn_blink_vfx()` is now shared across three call sites
+total (`_try_blink()` at the cast point, `_try_slam_wrap()` twice) - it
+always drops the VFX at wherever `global_position` is when it's called, so
+where each one ends up is entirely about caller ordering, not anything the
+function itself decides. Needs `wrap_on_slam = true` set explicitly on an
+ability's `.tres` to do anything at all - it defaults off like every new
+BlinkAbility toggle has so far, which was the cause of it silently doing
+nothing the first time it was tested.
 
 ## Godot .tres corruption risk
 

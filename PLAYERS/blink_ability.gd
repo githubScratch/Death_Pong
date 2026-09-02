@@ -54,3 +54,13 @@ class_name BlinkAbility
 ## shield_scene on WizardAbility, no class is forced to carry a VFX it
 ## doesn't have yet.
 @export var vfx_scene: PackedScene
+
+## If true, holding Down through a fall and landing on the floor spends one
+## tier (the same strikes_per_tier cost as a normal blink) and teleports
+## the wizard straight up to the arena's ceiling instead of landing
+## normally - a vertical counterpart to the left/right wall wrap. Only
+## triggers off an actual airborne -> grounded landing transition (see
+## wizard.gd's _try_slam_wrap()), so it can never fire from pressing Down
+## while already standing on the floor - that stays the existing
+## horizontal dash untouched.
+@export var wrap_on_slam: bool = false

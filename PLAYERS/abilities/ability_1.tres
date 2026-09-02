@@ -8,11 +8,12 @@
 script = ExtResource("1_script")
 blink_distance = 250.0
 double_tap_window = 0.25
-blink_delay = 0.1
+blink_delay = 0.01
 cast_on_blink = true
 vfx_scene = ExtResource("3_vfx")
-strikes_per_tier = 3
-max_tiers = 2
+wrap_on_slam = true
+strikes_per_tier = 2
+max_tiers = 3
 max_strikes = 6
 display_name = "Blink"
 shield_scene = ExtResource("2_shield")

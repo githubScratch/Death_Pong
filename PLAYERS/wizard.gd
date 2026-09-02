@@ -196,6 +196,7 @@ func _physics_process(delta: float) -> void:
 		land.play()
 		sprite.scale.y = 0.15
 		sprite.scale.x = 0.6
+		_try_slam_wrap()
 
 	#Reset Stretch over time
 	sprite.scale.x = lerpf(sprite.scale.x, 0.333, 1 - pow(0.01, delta))
@@ -625,14 +626,20 @@ func _try_blink(ability: BlinkAbility, direction: float) -> void:
 
 
 ## Drops ability.vfx_scene (if assigned) at the wizard's CURRENT position -
-## the cast point, not the landing point - the instant a blink commits here
-## in _try_blink(), before blink_delay's wind-up even starts. Purely
-## cosmetic and entirely opt-in, same shape as _update_strike_gauge(): an
-## ability with no vfx_scene assigned skips this silently. Plays the
-## instanced scene's AnimatedSprite2D once (flipped to face the blink
-## direction) and frees the instance itself the moment that animation ends
-## - or after a fallback timeout if the scene doesn't have one - so
-## drop-and-forget VFX never pile up as clutter.
+## whatever that is at the moment this is called, so where it ends up
+## depends entirely on the caller and when in its flow it calls this.
+## Every blink now spawns one at each end of the teleport: _try_blink()
+## calls it at the CAST point (before blink_delay's wind-up even starts),
+## _execute_blink() calls it again once global_position is fully settled
+## (the landing point, wrapped or not), and _try_slam_wrap() calls it twice
+## the same way for its own vertical teleport (ground strike point, then
+## the ceiling). Purely cosmetic and entirely opt-in, same shape as
+## _update_strike_gauge(): an ability with no vfx_scene assigned skips this
+## silently. Plays the instanced scene's AnimatedSprite2D once (flipped to
+## face `direction` - pass 0.0 for no flip, e.g. a vertical teleport with no
+## left/right equivalent) and frees the instance itself the moment that
+## animation ends - or after a fallback timeout if the scene doesn't have
+## one - so drop-and-forget VFX never pile up as clutter.
 func _spawn_blink_vfx(ability: BlinkAbility, direction: float) -> void:
 	if not is_instance_valid(ability.vfx_scene):
 		return
@@ -674,16 +681,101 @@ func _execute_blink(ability: BlinkAbility, direction: float) -> void:
 	var motion := Vector2(direction * ability.blink_distance, 0.0)
 	var collision := KinematicCollision2D.new()
 	if test_move(global_transform, motion, collision):
-		# Blocked partway through (or right at the start) - only take the
-		# portion of the motion that's actually clear, so the wizard stops
-		# flush against whatever it hit instead of ending up inside it.
-		motion = collision.get_travel()
-		# TEMP DEBUG - remove once blink charges are confirmed working.
-		print("[DEBUG seat %d] blink %s blocked - only %.1f of %.1f px clear" % [seat, ("left" if direction < 0.0 else "right"), motion.length(), ability.blink_distance])
-	global_position += motion
+		var wrap_target := _wrap_destination(collision.get_collider())
+		if wrap_target != null:
+			# Hit a wall tagged as a wrap boundary (see arena.tscn's
+			# map_wall_left/map_wall_right groups) - reappear at that wall's
+			# own WrapDestination marker instead of stopping short. Only X
+			# moves; Y is left untouched - this is a left/right wrap only,
+			# vertical wrap is a separate planned mechanic (the down-dash
+			# landing one), not this one.
+			global_position.x = wrap_target.global_position.x
+			# TEMP DEBUG - remove once blink charges are confirmed working.
+			print("[DEBUG seat %d] blink %s wrapped to the opposite side" % [seat, ("left" if direction < 0.0 else "right")])
+		else:
+			# Blocked by something that isn't a wrap boundary (another
+			# wizard, an untagged wall, a mid-arena platform) - only take
+			# the portion of the motion that's actually clear, so the
+			# wizard stops flush against whatever it hit instead of ending
+			# up inside it.
+			motion = collision.get_travel()
+			global_position += motion
+			# TEMP DEBUG - remove once blink charges are confirmed working.
+			print("[DEBUG seat %d] blink %s blocked - only %.1f of %.1f px clear" % [seat, ("left" if direction < 0.0 else "right"), motion.length(), ability.blink_distance])
+	else:
+		global_position += motion
+	# global_position is fully settled by this point in every branch above
+	# (wrapped, blocked-and-clipped, or the full unblocked distance) -
+	# _spawn_blink_vfx() reads it live, so calling it here drops a second
+	# VFX at wherever the wizard actually ended up (the landing point),
+	# matching _try_blink()'s existing spawn at the cast point - same
+	# "one at each end" treatment _try_slam_wrap() uses.
+	_spawn_blink_vfx(ability, direction)
 	if ability.cast_on_blink:
 		_cast_and_jump()
 	else:
 		velocity.y = 0.0
 	# TEMP DEBUG - remove once blink charges are confirmed working.
 	print("[DEBUG seat %d] blinked %s" % [seat, ("left" if direction < 0.0 else "right")])
+
+
+## Returns the WrapDestination marker for a blocked blink's collider, or
+## null if that collider isn't tagged as a wrap boundary. Only
+## map_wall_left/map_wall_right (currently just Arena's left/right walls -
+## see arena.tscn) opt in; anything else - another wizard, a mid-arena
+## platform, an arena with no wrap walls tagged at all - returns null and
+## _execute_blink() falls back to its normal stop-short behavior. Keeping
+## this as a group lookup rather than a hardcoded node path means adding
+## wrap walls to another arena later is a scene-only change, no script
+## change needed here.
+func _wrap_destination(collider: Node) -> Node2D:
+	if collider == null:
+		return null
+	if not (collider.is_in_group("map_wall_left") or collider.is_in_group("map_wall_right")):
+		return null
+	return collider.get_node_or_null("WrapDestination") as Node2D
+
+
+## Blink's floor-to-ceiling counterpart to the left/right wall wrap above -
+## called only from the airborne -> grounded landing transition in
+## _physics_process(), so "only while airborne" falls out for free: this is
+## never reached from pressing Down while already standing on the floor,
+## since hit_the_ground is already true by then and that block never runs.
+## Requires the current ability to be a BlinkAbility with wrap_on_slam
+## enabled, Down still held at the moment of landing, and a full tier's
+## worth of strikes banked (same strikes_per_tier cost as a normal blink,
+## paid the same "pay at commit" way) - any of those failing just leaves
+## the landing as a normal landing. The destination is looked up by group
+## (map_wall_top's WrapDestination child - see arena.tscn) rather than a
+## hardcoded node, same reasoning as _wrap_destination(): an arena with no
+## ceiling tagged simply doesn't support this yet, no crash.
+func _try_slam_wrap() -> void:
+	var ability := _current_ability() as BlinkAbility
+	if ability == null or not ability.wrap_on_slam:
+		return
+	if not Input.is_action_pressed(_action_down):
+		return
+	if strikes < ability.strikes_per_tier:
+		# TEMP DEBUG - remove once slam wrap is confirmed working.
+		print("[DEBUG seat %d] slam wrap denied - only %d strikes banked, need %d" % [seat, strikes, ability.strikes_per_tier])
+		return
+	var ceiling_wall := get_tree().get_first_node_in_group("map_wall_top")
+	var wrap_target: Node2D = null
+	if ceiling_wall != null:
+		wrap_target = ceiling_wall.get_node_or_null("WrapDestination") as Node2D
+	if wrap_target == null:
+		return
+	strikes -= ability.strikes_per_tier
+	_update_strike_gauge()
+	# _spawn_blink_vfx() reads global_position at call time, so calling it
+	# once here (before moving global_position) drops a VFX at the ground
+	# strike point, and once more below (after the teleport) drops a
+	# second one at the landing point - the ceiling. direction is passed
+	# as 0.0 (no flip) both times: the flip is a left/right thing and
+	# doesn't have an equivalent for a vertical teleport.
+	_spawn_blink_vfx(ability, 0.0)
+	global_position.y = wrap_target.global_position.y
+	velocity.y = 0.0
+	_spawn_blink_vfx(ability, 0.0)
+	# TEMP DEBUG - remove once slam wrap is confirmed working.
+	print("[DEBUG seat %d] slam-wrapped floor to ceiling - spent %d strikes, %d remain" % [seat, ability.strikes_per_tier, strikes])

@@ -6,7 +6,7 @@
 [ext_resource type="AudioStream" uid="uid://dtnhs6dommt08" path="res://SFX/thump.wav" id="3_wuwwc"]
 [ext_resource type="Script" uid="uid://vm2kbqxepj87" path="res://PLAYERS/deflection_shield.gd" id="4_jhama"]
 [ext_resource type="Texture2D" uid="uid://dlodwdaaexmf4" path="res://TILESETS/background.png" id="8_pkfns"]
-[ext_resource type="Script" path="res://PLAYERS/strike_gauge.gd" id="9_sgauge"]
+[ext_resource type="Script" uid="uid://cru5gp264h38p" path="res://PLAYERS/strike_gauge.gd" id="9_sgauge"]
 
 [sub_resource type="Gradient" id="Gradient_bip18"]
 offsets = PackedFloat32Array(0.428571, 0.532468)
