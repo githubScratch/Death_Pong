@@ -1,9 +1,14 @@
 extends Sprite2D
 class_name StrikeGauge
 
-## Visualizes a wizard's banked strikes as a fill level on its shield -
-## starts as a small bead at min_scale (empty) and grows toward max_scale
-## (full) as strikes climb toward whatever cap is active. See wizard.gd's
+## Visualizes a wizard's banked strikes as a liquid level rising inside the
+## SAME circular footprint the old scaling bead used to occupy, drawn
+## entirely by strike_gauge_vial.gdshader - the disc shape and the rising
+## fill are all computed per-pixel from the shader's fill_level uniform, so
+## this node's own sprite texture is only ever used for sizing/UV and never
+## actually shown. Not a literal glass vial - just the old bead, still the
+## same size and shape, filling by rising liquid level instead of by
+## scaling up from a point. See wizard.gd's
 ## _update_strike_gauge()/_max_banked_strikes() for how the ratio is
 ## computed. Purely cosmetic - carries no gameplay data itself, just
 ## reflects whatever ratio it's told to show.
@@ -12,41 +17,115 @@ class_name StrikeGauge
 ## uses: wizard.gd looks for a child node named "StrikeGauge" on whatever
 ## shield is currently spawned and does nothing if it isn't there, so adding
 ## this to one class's shield never affects any other class, and no shield
-## is forced to carry a gauge it doesn't want. min_scale/max_scale are
-## exported so each shield scene can size and tune its own gauge to fit its
-## own art without touching this script - the "small bead expanding to the
-## confines of the shield" feel is entirely a min/max scale choice per
-## scene, not something baked in here.
+## is forced to carry a gauge it doesn't want. A fresh ShaderMaterial is
+## built per-instance in _ready() rather than authored on the node in the
+## .tscn, so every wizard's gauge gets its own independent fill/slosh state
+## instead of accidentally sharing one material resource across every
+## instance of the shield scene.
 
-## Scale at 0 strikes banked - the "small bead" starting point.
-@export var min_scale: float = 0.1
+## Tint of the liquid itself.
+@export var liquid_color: Color = Color(1.0, 0.85, 0.3, 1.0)
 
-## Scale once banked strikes hit the cap - how far the bead grows to reach
-## the "full" look. Tune this per shield scene to taste (e.g. to just
-## barely fill the existing core sprite's footprint, or to overflow past it).
-@export var max_scale: float = 1.8
+## Radius (in the sprite's own 0..0.5-from-center UV units) of the disc the
+## liquid fills - matches the old bead texture's own solid zone by default,
+## so the fill occupies the same footprint the old scaling bead did. Tune
+## per shield scene to fit its own art, same spirit as the old
+## min_scale/max_scale knobs.
+@export var radius: float = 0.425
+
+## Width of the soft fade at the disc's edge (in the same UV units as
+## radius) - matches the old bead texture's own fade band by default.
+@export var edge_softness: float = 0.075
+
+## A fixed rest-state curve on the liquid's surface, separate from the
+## transient slosh wave above - a real meniscus, for a little extra depth
+## even when the gauge is sitting still. Positive curves it concave (the
+## center dips slightly below the edges, like liquid climbing a glass
+## wall); negative curves it convex (the center domes slightly above the
+## edges, like mercury). 0 is perfectly flat.
+@export var meniscus_amount: float = 0.05
 
 ## Seconds for the gauge to visually catch up to a new fill ratio, rather
-## than snapping instantly - reads more like a potion settling than a bar
+## than snapping instantly - reads more like a liquid pouring in than a bar
 ## jumping. 0 snaps instantly.
 @export var fill_tween_time: float = 0.25
 
+## How hard a single deflect kicks the liquid's surface - see slosh(). Tuned
+## to read clearly against `radius` above; if it ever looks too violent or
+## too subtle, scale this rather than slosh_stiffness/slosh_damping.
+@export var slosh_kick: float = 1.6
+
+## Spring constant pulling the sloshing surface back toward flat - controls
+## how FAST each individual wobble is, not how long they last. Higher =
+## quicker, tighter oscillation; lower = a slower, lazier wave.
+@export var slosh_stiffness: float = 60.0
+
+## Velocity damping on the slosh spring per second - controls how LONG the
+## slosh takes to settle, not its speed. Higher = dies out in a wobble or
+## two; lower = keeps visibly rocking back and forth for longer before
+## coming to rest. This is the knob for "more/less gradual."
+@export var slosh_damping: float = 2.2
+
+var _material: ShaderMaterial
 var _fill_tween: Tween
+var _fill_ratio: float = 0.0
+
+var _slosh_offset: float = 0.0
+var _slosh_velocity: float = 0.0
 
 
 func _ready() -> void:
-	scale = Vector2.ONE * min_scale
+	_material = ShaderMaterial.new()
+	_material.shader = preload("res://PLAYERS/strike_gauge_vial.gdshader")
+	material = _material
+	_material.set_shader_parameter("liquid_color", liquid_color)
+	_material.set_shader_parameter("meniscus_amount", meniscus_amount)
+	_material.set_shader_parameter("radius", radius)
+	_material.set_shader_parameter("edge_softness", edge_softness)
+	_material.set_shader_parameter("fill_level", 0.0)
+	_material.set_shader_parameter("wobble_amount", 0.0)
 
 
-## Sets how full the gauge should look, 0.0 (empty, min_scale) to 1.0 (full,
-## max_scale). Safe to call every time strikes change - out-of-range ratios
-## are clamped rather than trusted.
+func _process(delta: float) -> void:
+	# Cheap damped spring, not an actual fluid sim: slosh_kick nudges the
+	# velocity, this pulls the offset back toward 0 and bleeds the velocity
+	# off, so a strike reads as a sharp jolt that rings down to still liquid
+	# on its own rather than needing to be reset anywhere.
+	if _slosh_offset == 0.0 and _slosh_velocity == 0.0:
+		return
+	_slosh_velocity -= _slosh_offset * slosh_stiffness * delta
+	_slosh_velocity *= clampf(1.0 - slosh_damping * delta, 0.0, 1.0)
+	_slosh_offset += _slosh_velocity * delta
+	if absf(_slosh_offset) < 0.001 and absf(_slosh_velocity) < 0.001:
+		_slosh_offset = 0.0
+		_slosh_velocity = 0.0
+	_material.set_shader_parameter("wobble_amount", _slosh_offset)
+
+
+## Sets how full the gauge should look, 0.0 (empty) to 1.0 (full). Safe to
+## call every time strikes change - out-of-range ratios are clamped rather
+## than trusted.
 func set_fill_ratio(ratio: float) -> void:
-	var target_scale := lerpf(min_scale, max_scale, clampf(ratio, 0.0, 1.0))
+	var target := clampf(ratio, 0.0, 1.0)
 	if _fill_tween:
 		_fill_tween.kill()
 	if fill_tween_time <= 0.0:
-		scale = Vector2.ONE * target_scale
+		_fill_ratio = target
+		_material.set_shader_parameter("fill_level", _fill_ratio)
 		return
 	_fill_tween = create_tween()
-	_fill_tween.tween_property(self, "scale", Vector2.ONE * target_scale, fill_tween_time)
+	_fill_tween.tween_method(_apply_fill_level, _fill_ratio, target, fill_tween_time)
+
+
+func _apply_fill_level(value: float) -> void:
+	_fill_ratio = value
+	_material.set_shader_parameter("fill_level", value)
+
+
+## Kicks the liquid's surface, as if it just got struck - call this whenever
+## the shield actually deflects something (see wizard.gd's
+## _on_shield_deflected()). Purely additive so back-to-back strikes pile the
+## impulse on rather than resetting it, and it decays on its own in
+## _process() - no matching "stop" call needed anywhere.
+func slosh(strength: float = 1.0) -> void:
+	_slosh_velocity += slosh_kick * strength
