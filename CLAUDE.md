@@ -150,6 +150,45 @@ ability's `.tres` to do anything at all - it defaults off like every new
 BlinkAbility toggle has so far, which was the cause of it silently doing
 nothing the first time it was tested.
 
+## Growth VFX (attached to the shield, continuous - contrast with Blink's one-shot drops)
+
+`GrowthAbility.vfx_scene` (a `PackedScene`, unset by default - same opt-in
+shape as `BlinkAbility.vfx_scene`) is a different pattern from the Blink
+family's VFX above: instead of a one-shot world-space drop that plays once
+and frees itself, `wizard.gd`'s `_start_growth_vfx()` instances it as an
+actual CHILD of `current_instance` - the growing shield itself, not the
+wizard node and not the top-level scene - via `current_instance.add_child(vfx)`.
+Being a shield child means it both follows the shield's position for free
+AND scales up/down right along with it as `_shield_scale_tween` and the
+per-tier `growth_tier_scales()` steps run the shield's own `scale` - no
+extra bookkeeping needed to keep the VFX's size in sync with the growth.
+Called once, right when a growth channel commits (same moment strikes are
+first spent - the existing `_update_strike_gauge()` call site in
+`_update_growth_channel()`), it plays the scene's `AnimationPlayer`
+animation literally named `"grow"` if present, and is skipped entirely if
+there's no live `current_instance` to attach to.
+
+Deliberately tied to the BARRIER's lifetime, not the channel's:
+`_end_growth_channel()` (release, exhaustion + grace expiry, lockout) does
+NOT stop or free the VFX - it just snaps the shield's scale back to 1.0 via
+`_shield_scale_tween` same as always, and the VFX keeps riding along,
+playing right through that shrink, since the shield itself is still up.
+The VFX only actually goes away when the shield itself does, in
+`create_new_instance()` (a fresh Up-press casting a brand new shield) -
+since the VFX is a child of `current_instance`, it's carried along
+automatically by whatever that shield's own retirement already does
+(fades out with it if it has a `"fade"` animation, or is freed instantly
+with it via `queue_free()` if not), so no separate stop call is needed
+there either - `create_new_instance()` just forgets the `_growth_vfx`
+reference once the old shield is retired. `_stop_growth_vfx()` still
+exists for one narrower case: a fresh channel committing again on a shield
+that already has a VFX running (back-to-back holds without a new cast in
+between) - `_start_growth_vfx()` calls it first to explicitly stop the
+previous `AnimationPlayer` and `queue_free()` the previous instance before
+attaching a new one. `ability_2.tres` currently points this at
+`VFX/Growth_VFX.tscn` (particles + a looping heartbeat SFX via its own
+`AnimationPlayer`/`"grow"` animation).
+
 ## Godot .tres corruption risk
 
 Adding a new `@export` field to a script and then having Godot's editor

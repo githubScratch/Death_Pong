@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://c63dxlutpr1fh"
+path="res://.godot/imported/dark jump.mp3-a013565b5ab47941219654da9e9f92e7.mp3str"
+
+[deps]
+
+source_file="res://SFX/dark jump.mp3"
+dest_files=["res://.godot/imported/dark jump.mp3-a013565b5ab47941219654da9e9f92e7.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -1,0 +1,137 @@
+[gd_scene load_steps=9 format=3 uid="uid://c0gadpe3ctdnd"]
+
+[ext_resource type="Texture2D" uid="uid://bqymyl0du2lt1" path="res://SPRITES/sprite_0089.png" id="1_ulhue"]
+[ext_resource type="AudioStream" uid="uid://c8h5wf6cw7vyi" path="res://SFX/magic heartbeat.mp3" id="2_sin78"]
+
+[sub_resource type="Gradient" id="Gradient_pesqj"]
+offsets = PackedFloat32Array(0, 0.218182, 0.818182, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_6n6wl"]
+gradient = SubResource("Gradient_pesqj")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_oipe6"]
+particle_flag_disable_z = true
+emission_shape = 1
+emission_sphere_radius = 60.0
+velocity_pivot = Vector3(0, 90, 0)
+direction = Vector3(1, 90, 0)
+angular_velocity_min = -49.65
+angular_velocity_max = 66.21
+radial_velocity_min = 11.49
+radial_velocity_max = 172.41
+gravity = Vector3(0, 240, 0)
+linear_accel_min = -12.64
+linear_accel_max = 6.9
+tangential_accel_min = -21.84
+tangential_accel_max = 22.99
+scale_min = 0.01
+scale_max = 0.03
+color_ramp = SubResource("GradientTexture1D_6n6wl")
+hue_variation_min = -0.02
+hue_variation_max = 0.02
+
+[sub_resource type="Animation" id="Animation_1xuk4"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("AudioStreamPlayer2D:playing")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("GPUParticles2D:emitting")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("AudioStreamPlayer2D:volume_db")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [5.0]
+}
+
+[sub_resource type="Animation" id="Animation_s4f6f"]
+resource_name = "grow"
+length = 20.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("GPUParticles2D:emitting")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.0333333),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("AudioStreamPlayer2D:playing")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(-0.0333333),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("AudioStreamPlayer2D:volume_db")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.933333),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [-10.0, 5.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_oc1d3"]
+_data = {
+&"RESET": SubResource("Animation_1xuk4"),
+&"grow": SubResource("Animation_s4f6f")
+}
+
+[node name="GrowthVfx" type="Node2D"]
+
+[node name="GPUParticles2D" type="GPUParticles2D" parent="."]
+modulate = Color(0.298934, 0.679778, 0.355319, 1)
+amount = 10
+texture = ExtResource("1_ulhue")
+explosiveness = 0.24
+process_material = SubResource("ParticleProcessMaterial_oipe6")
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("2_sin78")
+volume_db = 5.0
+pitch_scale = 0.9
+autoplay = true
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_oc1d3")
+}

@@ -57,6 +57,14 @@ class_name GrowthAbility
 ## without ever letting it hover for free indefinitely.
 @export var post_channel_hold_time: float = 0.3
 
+## Optional VFX scene attached directly to the wizard as a child (not a
+## one-shot world-space drop like BlinkAbility.vfx_scene) the instant a
+## growth channel commits, and explicitly stopped and queue_free()'d the
+## instant the channel ends for any reason - see wizard.gd's
+## _start_growth_vfx()/_stop_growth_vfx(). Null/unset skips this entirely,
+## same opt-in shape as BlinkAbility.vfx_scene.
+@export var vfx_scene: PackedScene
+
 
 ## The full list of scales a hold steps through: 1.0 (base), then one entry
 ## per tier_scale_step for each of max_tiers steps. Computed from the

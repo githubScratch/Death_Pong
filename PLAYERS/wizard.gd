@@ -75,6 +75,15 @@ var _channel_stutter_remaining: float = 0.0
 var _channel_growth_exhausted: bool = false
 var _channel_grace_remaining: float = 0.0
 
+## The currently-attached GrowthAbility.vfx_scene instance, if any - see
+## _start_growth_vfx()/_stop_growth_vfx(). Attached to current_instance (the
+## growing shield itself), not the wizard, so it both follows the shield's
+## position for free AND grows/shrinks along with it as _shield_scale_tween
+## and the per-tier scale steps run - instead of a one-shot burst like
+## Blink's VFX this stays alive for as long as the channel does and is
+## queue_free()'d the instant it ends, rather than living for the whole match.
+var _growth_vfx: Node2D = null
+
 ## Double-tap-to-blink state (see _update_blink()) - only meaningful for a
 ## class whose ability is a BlinkAbility. Each counts down from
 ## ability.double_tap_window after the first tap of its direction; a second
@@ -289,6 +298,12 @@ func create_new_instance():
 
 	# Reset current instance reference before creating new one
 	current_instance = null
+	# Any growth VFX riding on the outgoing shield (see _start_growth_vfx())
+	# is a child of it, not of the wizard, so it keeps playing right through
+	# whatever fade/queue_free just happened above instead of being cut off
+	# here - just forget the reference so the next _start_growth_vfx() call
+	# doesn't try to stop/reuse a VFX that now belongs to a retired shield.
+	_growth_vfx = null
 
 	# Immediately create new instance without delay
 	var ability := _current_ability()
@@ -452,6 +467,7 @@ func _update_growth_channel(delta: float) -> void:
 		# of it is shown - same rule every later step follows below.
 		strikes -= ability.strikes_per_tier
 		_update_strike_gauge()
+		_start_growth_vfx(ability)
 		# TEMP DEBUG - remove once tier costs are confirmed working.
 		print("[DEBUG seat %d] channel committed - paid %d strikes for tier 1, %d remain" % [seat, ability.strikes_per_tier, strikes])
 	elif _channel_growth_exhausted:
@@ -535,7 +551,11 @@ func _try_pay_next_growth_step(ability: GrowthAbility) -> bool:
 ## Ends the current channel and snaps the shield back to its base scale -
 ## called on release, and also when strikes run out mid-hold. Whatever
 ## scale was reached is never kept; only the strikes already spent on fully
-## completed steps stay spent.
+## completed steps stay spent. Deliberately does NOT touch the growth VFX -
+## that's tied to the shield (the "barrier") persisting, not to the channel
+## itself, so it keeps riding current_instance right through the shrink
+## tween below and stays alive until the shield is actually replaced/faded
+## out in create_new_instance(). See _start_growth_vfx()'s doc comment.
 func _end_growth_channel() -> void:
 	_is_channeling = false
 	_channel_tier = 0
@@ -550,6 +570,48 @@ func _end_growth_channel() -> void:
 			_shield_scale_tween.kill()
 		_shield_scale_tween = create_tween()
 		_shield_scale_tween.tween_property(current_instance, "scale", Vector2.ONE, shrink_time)
+
+
+## Attaches ability.vfx_scene (if assigned) directly to current_instance
+## (the growing shield) the instant a growth channel commits - a continuous
+## ambient effect meant to last as long as channeling does, not a one-shot
+## burst like Blink's VFX, so it's parented to the shield itself (not the
+## wizard, not the top-level scene) to both follow its position for free AND
+## scale up/down along with it as it grows, rather than needing to be
+## repositioned or rescaled every frame. Plays the instanced scene's
+## AnimationPlayer "grow" animation if present. Purely cosmetic and entirely
+## opt-in, same shape as _spawn_blink_vfx(): an ability with no vfx_scene
+## assigned, or no live shield to attach to, does nothing. See
+## _stop_growth_vfx() for the other half of this.
+func _start_growth_vfx(ability: GrowthAbility) -> void:
+	if not is_instance_valid(ability.vfx_scene) or not is_instance_valid(current_instance):
+		return
+	_stop_growth_vfx()
+	var vfx: Node2D = ability.vfx_scene.instantiate()
+	current_instance.add_child(vfx)
+	var anim := vfx.get_node_or_null("AnimationPlayer") as AnimationPlayer
+	if anim != null and anim.has_animation("grow"):
+		anim.play("grow")
+	_growth_vfx = vfx
+
+
+## Stops and removes whatever _start_growth_vfx() previously attached to the
+## STILL-LIVE current_instance - only ever needed when a fresh channel
+## commits again on a shield that already has one running (belt and
+## suspenders against back-to-back channels), since a channel ending on its
+## own no longer calls this (see _end_growth_channel()) and a retired shield
+## just carries its VFX away with it as a child (see create_new_instance()).
+## Explicitly stops the AnimationPlayer first (cutting off its
+## particles/audio immediately) before queue_free()ing the instance itself.
+func _stop_growth_vfx() -> void:
+	if not is_instance_valid(_growth_vfx):
+		_growth_vfx = null
+		return
+	var anim := _growth_vfx.get_node_or_null("AnimationPlayer") as AnimationPlayer
+	if anim != null:
+		anim.stop()
+	_growth_vfx.queue_free()
+	_growth_vfx = null
 
 
 ## Double-tap-to-blink: double-tapping Left or Right within

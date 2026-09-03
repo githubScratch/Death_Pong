@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://c8h5wf6cw7vyi"
+path="res://.godot/imported/magic heartbeat.mp3-65a68b40eabffb9907353949ef322736.mp3str"
+
+[deps]
+
+source_file="res://SFX/magic heartbeat.mp3"
+dest_files=["res://.godot/imported/magic heartbeat.mp3-65a68b40eabffb9907353949ef322736.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

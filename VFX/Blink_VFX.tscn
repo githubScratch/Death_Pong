@@ -1,6 +1,7 @@
-[gd_scene load_steps=21 format=3 uid="uid://bxu8vuum73ohd"]
+[gd_scene load_steps=22 format=3 uid="uid://bxu8vuum73ohd"]
 
 [ext_resource type="Texture2D" uid="uid://dli55st7k7svx" path="res://SPRITES/612.png" id="1_63pff"]
+[ext_resource type="AudioStream" uid="uid://c63dxlutpr1fh" path="res://SFX/dark jump.mp3" id="2_er8ok"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_er8ok"]
 atlas = ExtResource("1_63pff")
@@ -109,6 +110,21 @@ animations = [{
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_hgpj3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hgpj3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hgpj3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hgpj3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hgpj3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hgpj3")
 }],
 "loop": false,
 "name": &"blinks",
@@ -146,9 +162,22 @@ tracks/1/keys = {
 "update": 1,
 "values": [&"default"]
 }
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("AudioStreamPlayer2D:playing")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
 
 [sub_resource type="Animation" id="Animation_hkt8c"]
 resource_name = "blink"
+length = 2.0
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -173,6 +202,18 @@ tracks/1/keys = {
 "update": 0,
 "values": [3.14159, 0.0]
 }
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("AudioStreamPlayer2D:playing")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(-0.0333333),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_hgpj3"]
 _data = {
@@ -193,3 +234,8 @@ libraries = {
 &"": SubResource("AnimationLibrary_hgpj3")
 }
 autoplay = "blink"
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("2_er8ok")
+volume_db = 4.0
+autoplay = true

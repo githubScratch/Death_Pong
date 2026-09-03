@@ -1,18 +1,20 @@
-[gd_resource type="Resource" script_class="GrowthAbility" load_steps=3 format=3 uid="uid://cxlfodaljq7g5"]
+[gd_resource type="Resource" script_class="GrowthAbility" load_steps=4 format=3 uid="uid://cxlfodaljq7g5"]
 
 [ext_resource type="Script" uid="uid://cleimqvbfc1lh" path="res://PLAYERS/growth_ability.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://ct4ajy6y060p0" path="res://PLAYERS/spell_2.tscn" id="2_shield"]
+[ext_resource type="PackedScene" uid="uid://c0gadpe3ctdnd" path="res://VFX/Growth_VFX.tscn" id="3_vfx"]
 
 [resource]
 script = ExtResource("1_script")
-tier_scale_step = 0.25
-growth_duration_per_tier = 0.05
-shrink_duration = 5.0
+tier_scale_step = 1.0
+growth_duration_per_tier = 0.25
+shrink_duration = 3.0
 hold_confirm_time = 0.25
 tier_stutter_time = 0.1
 post_channel_hold_time = 0.3
-strikes_per_tier = 1
-max_tiers = 6
+vfx_scene = ExtResource("3_vfx")
+strikes_per_tier = 2
+max_tiers = 3
 max_strikes = 6
 display_name = "Growth"
 shield_scene = ExtResource("2_shield")
