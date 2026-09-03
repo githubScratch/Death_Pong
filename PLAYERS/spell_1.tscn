@@ -948,7 +948,8 @@ scale = Vector2(1.6, 1.6)
 texture = SubResource("GradientTexture2D_sgauge")
 script = ExtResource("7_sgauge")
 liquid_color = Color(0.836666, 0.3, 1, 0.32549)
-slosh_kick = 1.3
+deflect_slosh_kick = 1.3
+slosh_stiffness = 30.0
 
 [node name="passivebubbles" type="CPUParticles2D" parent="."]
 position = Vector2(1, 1)

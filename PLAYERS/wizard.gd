@@ -316,14 +316,14 @@ func create_new_instance():
 		# Sync the fresh shield's gauge to whatever's already banked, rather
 		# than letting it start empty until the next strike/spend event.
 		_update_strike_gauge()
-		# Give the gauge a little "bloop" the instant the shield is summoned,
-		# same slosh a deflect gives it - only actually visible when strikes
-		# carried over into this cast, since an empty gauge has no liquid to
-		# slosh, but that's exactly when it's worth celebrating (nothing lost
-		# on a fresh cast).
+		# Give the gauge a little "bloop" the instant the shield is summoned -
+		# a gentler kick than a deflect gets (see StrikeGauge.summon_slosh_kick)
+		# - only actually visible when strikes carried over into this cast,
+		# since an empty gauge has no liquid to slosh, but that's exactly
+		# when it's worth celebrating (nothing lost on a fresh cast).
 		var new_gauge := instance.get_node_or_null("StrikeGauge") as StrikeGauge
 		if new_gauge != null:
-			new_gauge.slosh()
+			new_gauge.slosh_from_summon()
 
 	# Clean up any stale instances in the fading list (run occasionally)
 	if fading_instances.size() > 10 or randf() < 0.1:
@@ -358,7 +358,7 @@ func _on_shield_deflected() -> void:
 	if is_instance_valid(current_instance):
 		var gauge := current_instance.get_node_or_null("StrikeGauge") as StrikeGauge
 		if gauge != null:
-			gauge.slosh()
+			gauge.slosh_from_impact()
 	# TEMP DEBUG - remove once strikes are confirmed working.
 	print("[DEBUG seat %d] strike banked - strikes now %d" % [seat, strikes])
 

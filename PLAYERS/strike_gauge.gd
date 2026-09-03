@@ -50,10 +50,17 @@ class_name StrikeGauge
 ## jumping. 0 snaps instantly.
 @export var fill_tween_time: float = 0.25
 
-## How hard a single deflect kicks the liquid's surface - see slosh(). Tuned
-## to read clearly against `radius` above; if it ever looks too violent or
-## too subtle, scale this rather than slosh_stiffness/slosh_damping.
-@export var slosh_kick: float = 1.6
+## How hard a deflected ball kicks the liquid's surface - see
+## slosh_from_impact(). Tuned to read clearly against `radius` above; if it
+## ever looks too violent or too subtle, scale this rather than
+## slosh_stiffness/slosh_damping.
+@export var deflect_slosh_kick: float = 1.6
+
+## How hard summoning a fresh shield kicks the liquid's surface - see
+## slosh_from_summon(). Deliberately gentler than deflect_slosh_kick: a cast
+## is a quieter moment than getting struck by the ball, so its "bloop"
+## should read as a settling-in rather than a jolt.
+@export var summon_slosh_kick: float = 0.5
 
 ## Spring constant pulling the sloshing surface back toward flat - controls
 ## how FAST each individual wobble is, not how long they last. Higher =
@@ -87,10 +94,11 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	# Cheap damped spring, not an actual fluid sim: slosh_kick nudges the
-	# velocity, this pulls the offset back toward 0 and bleeds the velocity
-	# off, so a strike reads as a sharp jolt that rings down to still liquid
-	# on its own rather than needing to be reset anywhere.
+	# Cheap damped spring, not an actual fluid sim: slosh_from_impact()/
+	# slosh_from_summon() nudge the velocity, this pulls the offset back
+	# toward 0 and bleeds the velocity off, so a strike (or a cast) reads as
+	# a jolt that rings down to still liquid on its own rather than needing
+	# to be reset anywhere.
 	if _slosh_offset == 0.0 and _slosh_velocity == 0.0:
 		return
 	_slosh_velocity -= _slosh_offset * slosh_stiffness * delta
@@ -122,10 +130,18 @@ func _apply_fill_level(value: float) -> void:
 	_material.set_shader_parameter("fill_level", value)
 
 
-## Kicks the liquid's surface, as if it just got struck - call this whenever
-## the shield actually deflects something (see wizard.gd's
-## _on_shield_deflected()). Purely additive so back-to-back strikes pile the
-## impulse on rather than resetting it, and it decays on its own in
-## _process() - no matching "stop" call needed anywhere.
-func slosh(strength: float = 1.0) -> void:
-	_slosh_velocity += slosh_kick * strength
+## Kicks the liquid's surface with deflect_slosh_kick, as if it just got
+## struck - call this whenever the shield actually deflects something (see
+## wizard.gd's _on_shield_deflected()). Purely additive so back-to-back
+## strikes pile the impulse on rather than resetting it, and it decays on
+## its own in _process() - no matching "stop" call needed anywhere.
+func slosh_from_impact(strength: float = 1.0) -> void:
+	_slosh_velocity += deflect_slosh_kick * strength
+
+
+## Kicks the liquid's surface with the gentler summon_slosh_kick, as if it
+## just settled into place - call this whenever a fresh shield is cast (see
+## wizard.gd's create_new_instance()). Same additive/self-decaying shape as
+## slosh_from_impact(), just a softer kick.
+func slosh_from_summon(strength: float = 1.0) -> void:
+	_slosh_velocity += summon_slosh_kick * strength

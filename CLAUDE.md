@@ -86,29 +86,36 @@ strikes_per_tier) / max_tiers`, deliberately floored so a partial tier's
 worth of strikes (not yet spendable) doesn't read as partial visual
 progress - only a completed, spendable tier moves the gauge.
 
-Bonus: the liquid sloshes. `StrikeGauge.slosh()` is called both from
-`wizard.gd`'s `_on_shield_deflected()` (every successful deflect) and from
-`create_new_instance()` right after a fresh shield is cast and its gauge is
-synced to whatever's already banked - a little "bloop" on summon, only
-actually visible when strikes carried over into the new cast, since an
-empty gauge has no liquid to slosh. Each call just nudges a velocity
-(`slosh_kick`), and `_process()` integrates a tiny damped spring
-(`slosh_stiffness`/`slosh_damping`) each frame, feeding the result into the
-shader's `wobble_amount` uniform, which bends the flat fill line into a
-`sin()` wave. No "stop" call needed anywhere - a strike (or a cast) reads
-as a jolt that rings back down to still liquid on its own. This is a cheap
+Bonus: the liquid sloshes. `StrikeGauge.slosh_from_impact()` is called from
+`wizard.gd`'s `_on_shield_deflected()` (every successful deflect) and
+`StrikeGauge.slosh_from_summon()` from `create_new_instance()` right after
+a fresh shield is cast and its gauge is synced to whatever's already
+banked - a little "bloop" on summon, only actually visible when strikes
+carried over into the new cast, since an empty gauge has no liquid to
+slosh. Both are the same shape (purely additive, self-decaying, no "stop"
+call needed anywhere) and just nudge the same spring's velocity by their
+own kick amount - `deflect_slosh_kick` for the impact one,
+`summon_slosh_kick` for the summon one, deliberately gentler since a cast
+is a quieter moment than getting struck. `_process()` integrates a tiny
+damped spring (`slosh_stiffness`/`slosh_damping`) each frame off whichever
+kick landed, feeding the result into the shader's `wobble_amount` uniform,
+which bends the flat fill line into a `sin()` wave. This is a cheap
 spring-driven wobble, not an actual fluid sim - deliberately so, that would
 be overkill for a UI element this size.
 
-Three separate knobs, three separate jobs - don't reach for the wrong one:
-`slosh_kick` (default `1.6`) is how BIG the initial jolt is, tuned so the
-wobble's peak displacement is a clearly visible chunk of `radius` rather
-than a fraction of a percent of it. `slosh_stiffness` (default `60.0`) is
-how FAST each individual wobble cycles - higher is a tighter, quicker
-wave, lower is slower and lazier. `slosh_damping` (default `2.2`, lowered
-from an initial `5.0` once the kick itself was large enough to actually
-see) is how LONG it takes to settle - lower keeps it visibly rocking for
-longer before coming to rest, which is the knob for "more/less gradual."
+Four separate knobs, four separate jobs - don't reach for the wrong one:
+`deflect_slosh_kick` (default `1.6`) and `summon_slosh_kick` (default
+`0.5`) are how BIG each event's initial jolt is - tuned so the impact one's
+peak displacement is a clearly visible chunk of `radius` rather than a
+fraction of a percent of it, and the summon one noticeably softer than
+that. `slosh_stiffness` (default `60.0`) is how FAST each individual
+wobble cycles - higher is a tighter, quicker wave, lower is slower and
+lazier - and applies to both events equally, since it's a property of the
+spring, not of what kicked it. `slosh_damping` (default `2.2`, lowered
+from an initial `5.0` once the kicks were large enough to actually see) is
+how LONG it takes to settle - lower keeps it visibly rocking for longer
+before coming to rest, which is the knob for "more/less gradual" - also
+shared between both events.
 
 The surface also has a fixed rest-state curve, separate from the slosh
 wave: `meniscus_amount` (default `0.05`, exported on `StrikeGauge`) adds a
