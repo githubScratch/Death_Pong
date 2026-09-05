@@ -5,7 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://d32hp71pqn4o0" path="res://SPRITES/388.png" id="3_4aq6e"]
 [ext_resource type="Texture2D" uid="uid://bogvgise61ytb" path="res://SPRITES/323.png" id="4_i82np"]
 [ext_resource type="Texture2D" uid="uid://c2cw582f72opt" path="res://SPRITES/674.png" id="4_xgxa8"]
-[ext_resource type="AudioStream" uid="uid://d4bso0xxg5piq" path="res://SFX/iceshatter.wav" id="5_ggsmp"]
+[ext_resource type="AudioStream" uid="uid://dxub7qw420txl" path="res://SFX/runelock.mp3" id="6_i82np"]
 [ext_resource type="Texture2D" uid="uid://coe1dmn8hg3jg" path="res://SPRITES/magic_01.png" id="7_wiwdo"]
 [ext_resource type="AudioStream" uid="uid://cavbk1rrrdqvi" path="res://SFX/yodguard-iced-magic-5-378605.mp3" id="8_i82np"]
 
@@ -113,7 +113,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_nhylu")
 }],
-"loop": true,
+"loop": false,
 "name": &"default",
 "speed": 15.0
 }]
@@ -414,10 +414,10 @@ tracks/6/path = NodePath("runes:rotation")
 tracks/6/interp = 1
 tracks/6/loop_wrap = true
 tracks/6/keys = {
-"times": PackedFloat32Array(0, 0.433333, 3),
-"transitions": PackedFloat32Array(1, 1, 1),
+"times": PackedFloat32Array(0, 0.4, 0.566667, 3),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 0,
-"values": [0.0, 6.28319, 6.28319]
+"values": [0.0, 6.28319, 6.28319, 5.23599]
 }
 tracks/7/type = "value"
 tracks/7/imported = false
@@ -608,12 +608,12 @@ visible = false
 shape = SubResource("CircleShape2D_zone")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-visible = false
 modulate = Color(1, 1, 1, 0.52549)
 scale = Vector2(1.5, 1.5)
 sprite_frames = SubResource("SpriteFrames_4aq6e")
 autoplay = "default"
-frame_progress = 0.673117
+frame = 13
+frame_progress = 1.0
 
 [node name="AnimatedSprite2D2" type="AnimatedSprite2D" parent="."]
 visible = false
@@ -631,7 +631,6 @@ libraries = {
 autoplay = "hold"
 
 [node name="glyph" type="AnimatedSprite2D" parent="."]
-scale = Vector2(2, 2)
 sprite_frames = SubResource("SpriteFrames_wiwdo")
 autoplay = "default"
 frame = 12
@@ -642,8 +641,9 @@ scale = Vector2(1.5, 1.5)
 texture = SubResource("GradientTexture2D_u2upk")
 
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
-stream = ExtResource("5_ggsmp")
-volume_db = -9.0
+stream = ExtResource("6_i82np")
+pitch_scale = 0.64
+autoplay = true
 
 [node name="runes" type="Sprite2D" parent="."]
 scale = Vector2(0.3, 0.3)
@@ -651,4 +651,3 @@ texture = ExtResource("7_wiwdo")
 
 [node name="AudioStreamPlayer2D2" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("8_i82np")
-autoplay = true

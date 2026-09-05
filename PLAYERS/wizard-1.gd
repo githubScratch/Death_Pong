@@ -518,16 +518,11 @@ func _end_meteor_form_lingering() -> void:
 ## this ability's whole "hits harder" payoff now lives entirely on the real
 ## barrier instead of a separate invisible hitbox, so the barrier's own
 ## visible collision radius doubles as an honest cue for how far this
-## actually reaches. If there's no current_instance to attach - nothing
-## summoned yet, or a previous meteor already consumed the last one via
-## _end_meteor_barrier() - this summons a brand new one via the same
-## _spawn_shield_instance() a normal jump uses, rather than letting the fall
-## happen bare: this ability's whole redesign is built around always having
-## a visible barrier riding along, so every activation guarantees one rather
-## than depending on whatever happened to already be up.
+## actually reaches. A no-op if there's no current_instance to attach -
+## nothing summoned yet, or a previous meteor already consumed the last one
+## via _end_meteor_barrier() - the fall still happens, just without a
+## barrier riding along that time.
 func _attach_meteor_barrier(ability: MeteorAbility) -> void:
-	if not is_instance_valid(current_instance):
-		_spawn_shield_instance(ability)
 	if not is_instance_valid(current_instance):
 		return
 	# current_instance is declared as a bare `Node` (every class's shield
@@ -599,39 +594,6 @@ func _cast_and_jump() -> void:
 		jump.play()
 
 
-## Instantiates ability.shield_scene, drops it at this wizard's current
-## position, and wires it up as the new current_instance - connects its
-## deflected signal (see _connect_shield_deflected()) so strikes keep
-## banking from it, syncs the gauge to whatever's already banked, and gives
-## it the same summon "bloop" a normal cast gets. Pulled out of
-## create_new_instance() so _attach_meteor_barrier() can reuse the exact
-## same "make a barrier appear" step when meteor triggers with no barrier
-## already up, instead of duplicating it slightly differently there. Does
-## NOT touch any existing current_instance (no fade/queue_free) and doesn't
-## play any jump impulse/sfx - callers decide what, if anything, happens to
-## whatever was already up and whether this counts as a "cast." A no-op if
-## ability is null or has no shield_scene assigned.
-func _spawn_shield_instance(ability: WizardAbility) -> void:
-	if ability == null or not is_instance_valid(ability.shield_scene):
-		return
-	var instance = ability.shield_scene.instantiate()
-	instance.global_position = global_position
-	get_tree().current_scene.add_child(instance)
-	current_instance = instance
-	_connect_shield_deflected(instance)
-	# Sync the fresh shield's gauge to whatever's already banked, rather
-	# than letting it start empty until the next strike/spend event.
-	_update_strike_gauge()
-	# Give the gauge a little "bloop" the instant the shield is summoned -
-	# a gentler kick than a deflect gets (see StrikeGauge.summon_slosh_kick)
-	# - only actually visible when strikes carried over into this cast,
-	# since an empty gauge has no liquid to slosh, but that's exactly
-	# when it's worth celebrating (nothing lost on a fresh cast).
-	var new_gauge := instance.get_node_or_null("StrikeGauge") as StrikeGauge
-	if new_gauge != null:
-		new_gauge.slosh_from_summon()
-
-
 func create_new_instance():
 	# Tier-2 lingering meteor form (see _meteor_form_lock_remaining's own doc
 	# comment) can suppress a jump's usual shield summon entirely for its
@@ -673,7 +635,24 @@ func create_new_instance():
 	_growth_vfx = null
 
 	# Immediately create new instance without delay
-	_spawn_shield_instance(_current_ability())
+	var ability := _current_ability()
+	if ability != null and is_instance_valid(ability.shield_scene):
+		var instance = ability.shield_scene.instantiate()
+		instance.global_position = global_position
+		get_tree().current_scene.add_child(instance)
+		current_instance = instance
+		_connect_shield_deflected(instance)
+		# Sync the fresh shield's gauge to whatever's already banked, rather
+		# than letting it start empty until the next strike/spend event.
+		_update_strike_gauge()
+		# Give the gauge a little "bloop" the instant the shield is summoned -
+		# a gentler kick than a deflect gets (see StrikeGauge.summon_slosh_kick)
+		# - only actually visible when strikes carried over into this cast,
+		# since an empty gauge has no liquid to slosh, but that's exactly
+		# when it's worth celebrating (nothing lost on a fresh cast).
+		var new_gauge := instance.get_node_or_null("StrikeGauge") as StrikeGauge
+		if new_gauge != null:
+			new_gauge.slosh_from_summon()
 
 	# Clean up any stale instances in the fading list (run occasionally)
 	if fading_instances.size() > 10 or randf() < 0.1:

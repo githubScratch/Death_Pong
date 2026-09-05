@@ -1,10 +1,11 @@
-[gd_scene load_steps=30 format=3 uid="uid://dweqrqyfhjtdy"]
+[gd_scene load_steps=33 format=3 uid="uid://dweqrqyfhjtdy"]
 
 [ext_resource type="Texture2D" uid="uid://lovia63fg07t" path="res://SPRITES/75.png" id="2_alabh"]
 [ext_resource type="Texture2D" uid="uid://y358y2w6rnmf" path="res://SPRITES/475.png" id="3_u0u2f"]
 [ext_resource type="Script" uid="uid://vm2kbqxepj87" path="res://PLAYERS/deflection_shield.gd" id="4_mqdsd"]
 [ext_resource type="AudioStream" uid="uid://dtnhs6dommt08" path="res://SFX/thump.wav" id="5_lei3y"]
 [ext_resource type="Texture2D" uid="uid://dlodwdaaexmf4" path="res://TILESETS/background.png" id="5_mqdsd"]
+[ext_resource type="Script" uid="uid://cru5gp264h38p" path="res://PLAYERS/strike_gauge.gd" id="6_sgauge"]
 
 [sub_resource type="Gradient" id="Gradient_i151x"]
 offsets = PackedFloat32Array(0.5, 0.733766, 0.993506, 1)
@@ -25,6 +26,16 @@ gradient = SubResource("Gradient_i67ey")
 fill = 1
 fill_from = Vector2(0.518349, 0.513761)
 fill_to = Vector2(0.848624, 0.270642)
+
+[sub_resource type="Gradient" id="Gradient_sgauge"]
+offsets = PackedFloat32Array(0, 0.85, 1)
+colors = PackedColorArray(0.73, 0.11607, 0.0949, 1, 1, 0.3, 0.1, 1, 1, 0.85, 0.3, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_sgauge"]
+gradient = SubResource("Gradient_sgauge")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0, 0.5)
 
 [sub_resource type="Gradient" id="Gradient_uw7x3"]
 offsets = PackedFloat32Array(0, 0.533333, 1)
@@ -317,6 +328,18 @@ tracks/8/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 1,
 "values": [&"pop"]
+}
+tracks/9/type = "value"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("../StrikeGauge:modulate")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0.0333333, 0.2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
 }
 
 [sub_resource type="Animation" id="Animation_gpwpy"]
@@ -734,6 +757,12 @@ position = Vector2(0, -1)
 scale = Vector2(0.1, 0.1)
 color = Color(0.73, 0.11607, 0.0949, 1)
 texture = SubResource("GradientTexture2D_dk7g5")
+
+[node name="StrikeGauge" type="Sprite2D" parent="."]
+scale = Vector2(1.7, 1.7)
+texture = SubResource("GradientTexture2D_sgauge")
+script = ExtResource("6_sgauge")
+liquid_color = Color(1, 0.3, 0.1, 0.32549)
 
 [node name="passivebubbles" type="CPUParticles2D" parent="."]
 position = Vector2(4.2, -0.6)

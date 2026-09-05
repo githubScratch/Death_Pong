@@ -27,19 +27,21 @@ class_name IceZone
 ## lives on IceAbility instead and flows through wizard.gd's
 ## _cast_ice_zone().
 ##
-## The visual (vfx_scene, IceAbility.zone_vfx_scene - VFX/Ice_Trap.tscn) is
-## deliberately instantiated here IN CODE at _ready() time, the same way
-## every other VFX attachment in this project works (_start_growth_vfx(),
-## _spawn_blink_vfx(), _spawn_frozen_overlay(), ...), rather than being
-## baked into ice_zone.tscn as a static instanced-scene child the way an
-## earlier version of this file had it. That static version turned out to
-## just not show up at all - the Area2D/CollisionShape2D (authored
-## directly in ice_zone.tscn, not instanced) still worked fine, matching
-## "the slow effect is there" - so the instanced-child node itself likely
-## never actually got created the way it was hand-authored. Instantiating
-## it from a PackedScene reference at runtime is the proven pattern
-## everywhere else in this codebase; ice_zone.tscn itself is back to just
-## the bare Area2D + CollisionShape2D.
+## The visual (self_vfx_scene, IceAbility.self_vfx_scene) is instantiated
+## here IN CODE at _ready() time, the same way every other VFX attachment in
+## this project works (_start_growth_vfx(), _spawn_blink_vfx(),
+## _spawn_frozen_overlay(), ...), rather than being baked into ice_zone.tscn
+## as a static instanced-scene child the way an earlier version of this file
+## had it (that static version turned out to just not show up at all - the
+## Area2D/CollisionShape2D, authored directly in ice_zone.tscn rather than
+## instanced, kept working fine regardless). It's added as a child of THIS
+## zone (so it still scales with the zone's own tier-based size - see
+## configure()), but its POSITION is overridden to the caster's own
+## global_position at the moment of casting, not this zone's - "self," not
+## "zone": it reads as a burst on the wizard casting the spell, not a marker
+## for where the zone itself is. It does not follow the wizard afterward
+## (same drop-and-forget snapshot _spawn_blink_vfx() already uses elsewhere
+## in this project) - just positioned once, here, at _ready() time.
 
 ## The CollisionShape2D's authored CircleShape2D radius this scene was
 ## built at - IceAbility.zone_size/zone_size_per_tier are scale
@@ -63,7 +65,15 @@ var duration: float = 2.0
 var despawn_delay: float = 0.3
 var frozen_ball_overlay: PackedScene
 var frozen_wizard_overlay: PackedScene
-var vfx_scene: PackedScene
+var self_vfx_scene: PackedScene
+
+## The direction this zone was thrown in (-1.0 left, 1.0 right - same sign
+## wizard.gd's _cast_ice_zone() itself uses) - purely so self_vfx_scene can
+## be mirrored to actually face the cast direction instead of always
+## rendering however its art was originally authored (right-facing, here).
+## Doesn't affect this zone's own collision/slow behavior at all - a circle
+## looks the same either way - only _ready()'s vfx flip below reads this.
+var cast_direction: float = 1.0
 
 var _vfx: Node2D = null
 var _vfx_anim: AnimationPlayer = null
@@ -77,9 +87,9 @@ var _despawning: bool = false
 ## right after instantiate(), before add_child(). p_scale is a multiplier
 ## on BASE_RADIUS (see that const's doc comment), applied as this node's
 ## own Node2D scale so the collision shape and the (code-instantiated)
-## Ice_Trap visual both grow together for free, no separate sizing math
-## needed per child.
-func configure(p_scale: float, p_slow_amount: float, p_duration: float, p_despawn_delay: float, p_caster: Node, p_affects_caster: bool, p_frozen_ball_overlay: PackedScene, p_frozen_wizard_overlay: PackedScene, p_vfx_scene: PackedScene) -> void:
+## self_vfx_scene visual both grow together for free, no separate sizing
+## math needed per child.
+func configure(p_scale: float, p_slow_amount: float, p_duration: float, p_despawn_delay: float, p_caster: Node, p_affects_caster: bool, p_frozen_ball_overlay: PackedScene, p_frozen_wizard_overlay: PackedScene, p_self_vfx_scene: PackedScene, p_cast_direction: float) -> void:
 	scale = Vector2.ONE * p_scale
 	slow_amount = p_slow_amount
 	duration = p_duration
@@ -88,7 +98,8 @@ func configure(p_scale: float, p_slow_amount: float, p_duration: float, p_despaw
 	affects_caster = p_affects_caster
 	frozen_ball_overlay = p_frozen_ball_overlay
 	frozen_wizard_overlay = p_frozen_wizard_overlay
-	vfx_scene = p_vfx_scene
+	self_vfx_scene = p_self_vfx_scene
+	cast_direction = p_cast_direction
 
 
 func _ready() -> void:
@@ -96,9 +107,25 @@ func _ready() -> void:
 	_remaining = duration
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
-	if is_instance_valid(vfx_scene):
-		_vfx = vfx_scene.instantiate()
+	if is_instance_valid(self_vfx_scene):
+		_vfx = self_vfx_scene.instantiate()
 		add_child(_vfx)
+		# Positioned at the CASTER, not left at this zone's own origin - see
+		# this file's doc comment above for why. caster can in principle be
+		# gone already (freed) by the time this runs; if so the vfx just
+		# stays at this zone's own position instead, rather than erroring.
+		if is_instance_valid(caster):
+			_vfx.global_position = caster.global_position
+		# self_vfx_scene's art is authored facing right - mirror it on a
+		# left cast so it actually points the way the zone was thrown
+		# instead of always rendering right-facing regardless of
+		# cast_direction. Flips the WHOLE instanced vfx root (not a
+		# specific Sprite2D/AnimatedSprite2D's flip_h), since a vfx scene
+		# built from particles or multiple layered nodes has no single
+		# "the sprite" to flip - negating Node2D.scale.x mirrors everything
+		# under it at once regardless of what it's actually made of.
+		if cast_direction < 0.0:
+			_vfx.scale.x = -absf(_vfx.scale.x)
 		_vfx_anim = _vfx.get_node_or_null("AnimationPlayer") as AnimationPlayer
 	if _vfx_anim != null and _vfx_anim.has_animation("hold"):
 		_vfx_anim.play("hold")

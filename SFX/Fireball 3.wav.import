@@ -2,13 +2,13 @@
 
 importer="wav"
 type="AudioStreamWAV"
-uid="uid://djavlcb7yuy4c"
-path="res://.godot/imported/bubble.wav-86efabcfdebcf41b5670838b4351669a.sample"
+uid="uid://doenmlmabvpu8"
+path="res://.godot/imported/Fireball 3.wav-82a82f26441d524ab73fec2274c4b72b.sample"
 
 [deps]
 
-source_file="res://SFX/bubble.wav"
-dest_files=["res://.godot/imported/bubble.wav-86efabcfdebcf41b5670838b4351669a.sample"]
+source_file="res://SFX/Fireball 3.wav"
+dest_files=["res://.godot/imported/Fireball 3.wav-82a82f26441d524ab73fec2274c4b72b.sample"]
 
 [params]
 

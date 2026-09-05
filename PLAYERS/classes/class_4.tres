@@ -1,12 +1,12 @@
 [gd_resource type="Resource" script_class="WizardClass" load_steps=5 format=3 uid="uid://pi12ovpib6jm"]
 
-[ext_resource type="Script" path="res://PLAYERS/wizard_ability.gd" id="1_fu2na"]
+[ext_resource type="Script" uid="uid://bcgkim38ay6n4" path="res://PLAYERS/wizard_ability.gd" id="1_fu2na"]
 [ext_resource type="Script" uid="uid://btlir36dinbo3" path="res://PLAYERS/wizard_class.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://nfoexejpo7wi" path="res://SPRITES/New Piskel (1) (3) (1).png" id="2_sheet"]
 [ext_resource type="Resource" path="res://PLAYERS/abilities/ability_4.tres" id="3_ability"]
 
 [resource]
 script = ExtResource("1_script")
-display_name = "Class 4"
+display_name = "Tim"
 sprite_sheet = ExtResource("2_sheet")
 abilities = Array[ExtResource("1_fu2na")]([ExtResource("3_ability")])

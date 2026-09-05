@@ -26,6 +26,15 @@ const CLASSES: Array[WizardClass] = [
 	preload("res://PLAYERS/classes/class_4.tres"),
 ]
 
+## "Random" isn't a real WizardClass - it has no sprite_sheet/abilities of
+## its own, it just means "roll one of CLASSES for me" - so it can't be a
+## fifth entry IN the typed CLASSES array above. Instead _class_index simply
+## ranges 0..CLASSES.size() (one past the last real class), and
+## CLASSES.size() itself is treated as "Random" everywhere below - _cycle()
+## wraps against CLASSES.size() + 1 options, and it naturally lands last in
+## the rotation (right after class 4, wrapping back to class 1) without
+## needing its own ordering rule.
+
 ## Matches the 6.0 fps "default" animation every class's SpriteFrames uses
 ## in-game (see wizard.gd's _build_sprite_frames) and the same 2x2 grid of
 ## 192x192 regions every class's sprite sheet is cut into.
@@ -44,6 +53,13 @@ const REGIONS := [
 @onready var _sprites: Array = [
 	$Layout/TopRow/P1/Box/Sprite, $Layout/TopRow/P2/Box/Sprite,
 	$Layout/TopRow/P3/Box/Sprite, $Layout/TopRow/P4/Box/Sprite,
+]
+## Shown instead of _sprites when a seat has landed on "Random" - a plain
+## "?" with a faint glow (see Character_Select.tscn) rather than any actual
+## class's sprite, since Random isn't a real WizardClass to cut frames from.
+@onready var _random_marks: Array = [
+	$Layout/TopRow/P1/Box/RandomMark, $Layout/TopRow/P2/Box/RandomMark,
+	$Layout/TopRow/P3/Box/RandomMark, $Layout/TopRow/P4/Box/RandomMark,
 ]
 @onready var _class_labels: Array = [
 	$Layout/TopRow/P1/Box/ClassLabel, $Layout/TopRow/P2/Box/ClassLabel,
@@ -129,8 +145,20 @@ func _seat_pressed_any_direction(seat: int) -> bool:
 	return false
 
 
+## Total selectable options - every real class, plus "Random" last. See the
+## CLASSES doc comment above for why Random is a bare index rather than a
+## fifth CLASSES entry.
+func _option_count() -> int:
+	return CLASSES.size() + 1
+
+
+func _is_random(i: int) -> bool:
+	return _class_index[i] >= CLASSES.size()
+
+
 func _cycle(i: int, delta_index: int) -> void:
-	_class_index[i] = (_class_index[i] + delta_index + CLASSES.size()) % CLASSES.size()
+	var total := _option_count()
+	_class_index[i] = (_class_index[i] + delta_index + total) % total
 	_frame[i] = 0
 	_frame_time[i] = 0.0
 	_refresh_box(i)
@@ -139,6 +167,11 @@ func _cycle(i: int, delta_index: int) -> void:
 
 
 func _advance_frame(i: int, delta: float) -> void:
+	# Random has no sprite_sheet to cut frames from - its "?" mark is a
+	# static Label, not an animated AtlasTexture - so there's nothing here
+	# to advance while it's selected.
+	if _is_random(i):
+		return
 	_frame_time[i] += delta
 	var frame_duration := 1.0 / ANIMATION_SPEED
 	var changed := false
@@ -159,24 +192,37 @@ func _make_frame_texture(sheet: Texture2D, frame: int) -> AtlasTexture:
 
 ## Redraws box i to match current state (active/waiting, whichever class
 ## is selected) and, for an active seat, writes that class into
-## GameSettings so it's ready whenever the match needs it.
+## GameSettings so it's ready whenever the match needs it. Random is the one
+## exception to that last part - see the comment below.
 func _refresh_box(i: int) -> void:
 	var seat := i + 1
 	# _active is an untyped Array, so indexing it is a Variant as far as the
 	# static type checker is concerned - := can't infer a type from that, so
 	# this needs an explicit bool annotation instead.
 	var waiting: bool = seat >= 3 and not _active[i]
+	var random := _is_random(i)
 
 	_prompts[i].visible = waiting
-	_sprites[i].visible = not waiting
+	_sprites[i].visible = not waiting and not random
+	_random_marks[i].visible = not waiting and random
 	_class_labels[i].visible = not waiting
 
 	if not waiting:
-		var wclass := CLASSES[_class_index[i]]
 		_name_labels[i].text = "PLAYER %d" % seat
-		_class_labels[i].text = wclass.display_name
-		_sprites[i].texture = _make_frame_texture(wclass.sprite_sheet, _frame[i])
-		GameSettings.set_selected_class(seat, wclass)
+		if random:
+			# Deliberately does NOT call GameSettings.set_selected_class()
+			# here - Random has no real WizardClass of its own to hand it,
+			# and rolling one now (then re-rolling every time _refresh_box()
+			# happens to run again, e.g. re-cycling past it) would leak the
+			# result early and reroll it for no reason. _on_ready_pressed()
+			# below does the actual roll, once, right before the match
+			# starts, for every seat still sitting on Random at that point.
+			_class_labels[i].text = "Random"
+		else:
+			var wclass := CLASSES[_class_index[i]]
+			_class_labels[i].text = wclass.display_name
+			_sprites[i].texture = _make_frame_texture(wclass.sprite_sheet, _frame[i])
+			GameSettings.set_selected_class(seat, wclass)
 
 	# Drives each arena's match-start P3/P4 spawn (see arena.gd's
 	# _spawn_selected_extras()) - "not waiting" is exactly "this seat has
@@ -185,7 +231,21 @@ func _refresh_box(i: int) -> void:
 	GameSettings.set_seat_active(seat, not waiting)
 
 
+## Rolls an actual class for every joined seat still sitting on "Random" -
+## GameSettings.selected_classes has no representation for "Random" itself
+## (it's a WizardClass array - see Game_Settings.gd), so this is the one
+## place that pick has to actually happen, right before the scene most needs
+## it. Kept out of _refresh_box() entirely (see that function's comment) so
+## the roll happens exactly once per seat, the moment Ready is pressed, not
+## every time that seat's box happens to redraw.
+func _resolve_random_picks() -> void:
+	for i in range(4):
+		if _active[i] and _is_random(i):
+			GameSettings.set_selected_class(i + 1, CLASSES[randi() % CLASSES.size()])
+
+
 func _on_ready_pressed() -> void:
+	_resolve_random_picks()
 	match GameSettings.game_arena:
 		"tower":
 			get_tree().change_scene_to_file("res://ARENAS/tower.tscn")

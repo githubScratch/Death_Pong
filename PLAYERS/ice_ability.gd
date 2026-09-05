@@ -39,7 +39,7 @@ class_name IceAbility
 
 ## The zone's scale multiplier the instant it's spawned on a single spent
 ## tier - "size." Applied as IceZone's own Node2D scale, which scales its
-## collision radius and its Ice_Trap visual together for free - see
+## collision radius and self_vfx_scene's visual together for free - see
 ## IceZone.BASE_RADIUS for what 1.0 actually measures.
 @export var zone_size: float = 1.0
 
@@ -113,24 +113,29 @@ class_name IceAbility
 ## like anyone else.
 @export var self_affected: bool = false
 
-## The interactive zone spawned by a cast - PLAYERS/ice_zone.tscn (an
-## Area2D wrapping VFX/Ice_Trap.tscn's visuals with the slow-while-inside
-## logic described above). Not a purely cosmetic vfx_scene like
-## GrowthAbility/BlinkAbility use elsewhere in this project - this one IS
-## the ability's actual gameplay object, not an optional visual layer on
-## top of something else, so it's not null-able/opt-out the way those are.
+## The interactive zone spawned by a cast - PLAYERS/ice_zone.tscn (a bare
+## Area2D + CollisionShape2D with the slow-while-inside logic described
+## above; self_vfx_scene below is what actually gives it a visual). Not a
+## purely cosmetic vfx_scene like GrowthAbility/BlinkAbility use elsewhere
+## in this project - this one IS the ability's actual gameplay object, not
+## an optional visual layer on top of something else, so it's not
+## null-able/opt-out the way those are.
 @export var zone_scene: PackedScene
 
-## The purely cosmetic vfx (VFX/Ice_Trap.tscn) IceZone instantiates in code
-## at its own _ready() time and attaches as a child of itself - see
-## ice_zone.gd's doc comment for why it's instantiated in code rather than
-## baked into zone_scene's own .tscn as a static instanced child (that
-## approach turned out to just not show up at all). Separate field from
-## zone_scene above since zone_scene is the actual gameplay object
-## (Area2D + collision) while this is only ever the look of it - null skips
-## spawning any visual at all but the zone still slows normally, same
-## opt-in shape frozen_ball_overlay/frozen_wizard_overlay below use.
-@export var zone_vfx_scene: PackedScene
+## The purely cosmetic "self" vfx IceZone instantiates in code at its own
+## _ready() time and attaches as a child of itself for tier-based scaling,
+## but positions at the CASTING WIZARD's own position, not this zone's - see
+## ice_zone.gd's doc comment for the full reasoning. Renamed from
+## zone_vfx_scene: it's a burst on the caster, not a marker for the zone
+## itself, which is also why it's instantiated in code rather than baked
+## into zone_scene's own .tscn as a static instanced child (that approach
+## turned out to just not show up at all, before it was even about position).
+## Separate field from zone_scene above since zone_scene is the actual
+## gameplay object (Area2D + collision) while this is only ever the look of
+## it - null skips spawning any visual at all but the zone still slows
+## normally, same opt-in shape frozen_ball_overlay/frozen_wizard_overlay
+## below use.
+@export var self_vfx_scene: PackedScene
 
 ## Placeholder overlay spawned on a frozen ball for as long as it stays
 ## inside the zone - same PackedScene passed straight through to

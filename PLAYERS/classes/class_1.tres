@@ -7,6 +7,6 @@
 
 [resource]
 script = ExtResource("1_script")
-display_name = "Blink"
+display_name = "Nimblibimbli"
 sprite_sheet = ExtResource("2_sheet")
 abilities = Array[ExtResource("1_qtdmb")]([ExtResource("3_ability")])

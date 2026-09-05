@@ -39,6 +39,13 @@ var _frozen_slow_amount: float = 0.0
 var _frozen_base_gravity_scale: float = 0.0
 var _frozen_overlay: Node2D = null
 
+## The currently-attached "on fire" overlay, if any - see ignite()/
+## _clear_burning_overlay() below. Entirely independent of _frozen_overlay
+## above: a burning ball has no gameplay effect of its own (no slow, no
+## freeze-lockout) unlike a frozen one, it's purely cosmetic, so it gets its
+## own separate field rather than being folded into the freeze state.
+var _burning_overlay: Node2D = null
+
 @onready var wall_impact: AudioStreamPlayer2D = $"../wall_impact"
 var audio_pool = []
 @export var pool_size = 3
@@ -207,18 +214,28 @@ func freeze_in_place(duration: float, slow_amount: float, overlay_scene: PackedS
 
 
 ## Ends a freeze early - either from freeze_in_place()'s own countdown
-## reaching 0 in _physics_process() (a natural thaw) or from another
-## shield's deflect touching this ball while it's still frozen (see
-## deflection_shield.gd's deflect_ball(), which calls this on any ball it
-## hits before applying its own new velocity). Either way this always
-## "drops": velocity/spin are zeroed rather than resuming whatever they were
-## doing before the freeze - a thaw never launches the ball off with
-## pre-freeze momentum - and gravity_scale is restored so it falls normally
-## again. A deflect immediately overwrites the zeroed velocity with its own
-## anyway; a natural timeout leaves it at rest to fall/roll fresh under
-## gravity. No-op if this ball wasn't actually frozen (guards against
-## deflect_ball() calling this unconditionally on every ball it ever hits) -
-## gated on _is_frozen rather than _frozen_remaining, since the
+## reaching 0 in _physics_process() (a natural thaw, i.e. IceZone._despawn())
+## or from IceZone._on_body_exited() the moment this ball actually leaves the
+## zone, or from another shield's deflect touching this ball while it's
+## still frozen (see deflection_shield.gd's deflect_ball(), which calls this
+## on any ball it hits before applying its own new velocity). Does NOT zero
+## velocity/spin - whatever this ball was already doing the instant it
+## thaws (its slowed velocity/spin, still being acted on the whole time by
+## the reduced gravity_scale freeze_in_place() set below) just keeps going
+## once gravity_scale is restored to normal here: same direction, same spin,
+## now accelerating back toward full speed instead of restarting from
+## nothing. This is what makes the zone read as a localized, temporary time
+## slow rather than a hard catch-and-drop - exiting (or the zone despawning)
+## resumes normal time for this ball, it doesn't erase the momentum time was
+## already carrying while slowed. An earlier version zeroed both here
+## unconditionally, which read as the zone deleting the ball's momentum
+## outright rather than just slowing it - "a complete remover of external
+## forces" instead of "a temporary slowing magic zone." A deflect overwrites
+## this ball's velocity with its own immediately after calling thaw()
+## anyway, so what thaw() itself leaves velocity/spin at never actually
+## matters on that path. No-op if this ball wasn't actually frozen (guards
+## against deflect_ball() calling this unconditionally on every ball it ever
+## hits) - gated on _is_frozen rather than _frozen_remaining, since the
 ## natural-timeout call from _physics_process() happens the same frame
 ## _frozen_remaining already reads <= 0 (see _is_frozen's doc comment).
 func thaw() -> void:
@@ -228,9 +245,56 @@ func thaw() -> void:
 	_frozen_remaining = 0.0
 	_frozen_slow_amount = 0.0
 	gravity_scale = _frozen_base_gravity_scale
-	linear_velocity = Vector2.ZERO
-	angular_velocity = 0.0
 	_clear_frozen_overlay()
+
+
+## Called by whichever Meteor's attached barrier just touched this ball (see
+## wizard.gd's _on_meteor_barrier_touched_ball()) - "Burning_Ball," a purely
+## cosmetic
+## overlay with none of freeze_in_place()'s gameplay weight (no slow, no
+## lockout of anything). Restarts the timer and swaps in a fresh overlay
+## instance if this ball was already burning rather than stacking a second
+## one on top - same "clear whatever was there first" shape
+## _spawn_frozen_overlay() already uses. duration <= 0 skips the auto-clear
+## entirely, leaving the overlay attached until something else removes it
+## (nothing does today - see MeteorAbility.burn_duration's own doc comment).
+## Null overlay_scene is a safe no-op, same opt-in convention every vfx_scene
+## field in this project follows.
+func ignite(duration: float, overlay_scene: PackedScene) -> void:
+	_clear_burning_overlay()
+	if not is_instance_valid(overlay_scene):
+		return
+	var overlay: Node2D = overlay_scene.instantiate()
+	add_child(overlay)
+	_burning_overlay = overlay
+	if duration <= 0.0:
+		return
+	await get_tree().create_timer(duration).timeout
+	# Only clear if THIS call's overlay is still the live one - a second
+	# ignite() re-lighting the ball while this timer was still counting down
+	# already cleared and replaced it (see _clear_burning_overlay() below),
+	# so this stale timer firing later must not reach in and free the NEW
+	# overlay out from under it.
+	if _burning_overlay == overlay:
+		_clear_burning_overlay()
+
+
+## Ends this ball's current burning overlay (if any) - called both by a fresh
+## ignite() clearing out whatever was there before attaching a new instance,
+## and by ignite()'s own duration timer once burn_duration elapses. Plays the
+## overlay's one-shot "fade" clip first if it has one, same safe-before-the-
+## clip-exists shape _clear_frozen_overlay() already uses just above.
+func _clear_burning_overlay() -> void:
+	var overlay := _burning_overlay
+	_burning_overlay = null
+	if not is_instance_valid(overlay):
+		return
+	var anim := overlay.get_node_or_null("AnimationPlayer") as AnimationPlayer
+	if anim != null and anim.has_animation("fade"):
+		anim.play("fade")
+		await anim.animation_finished
+	if is_instance_valid(overlay):
+		overlay.queue_free()
 
 
 func _spawn_frozen_overlay(overlay_scene: PackedScene) -> void:
@@ -242,7 +306,27 @@ func _spawn_frozen_overlay(overlay_scene: PackedScene) -> void:
 	_frozen_overlay = overlay
 
 
+## Ends this ball's current frozen overlay (if any) - called both by thaw()
+## (this ball just exited the ice ability) and by _spawn_frozen_overlay()
+## clearing out whatever was there before attaching a fresh one. Plays the
+## overlay's own one-shot "fade" clip first, if it has one (VFX/Frozen_Ball.
+## tscn's own AnimationPlayer - guarded with has_animation(), same
+## safe-before-the-clip-exists shape deflection_shield.gd's start_fade()
+## already uses), so the overlay visibly fades out instead of popping off
+## instantly the moment this ball leaves the zone. Reads _frozen_overlay
+## into a local and clears the field immediately (rather than after the
+## fade finishes), so a fresh freeze that re-spawns a new overlay while this
+## one is still fading never clobbers or double-frees it - the old overlay
+## just finishes fading and frees itself independently, fire-and-forget,
+## same pattern IceZone._despawn()'s own await already uses in this project.
 func _clear_frozen_overlay() -> void:
-	if is_instance_valid(_frozen_overlay):
-		_frozen_overlay.queue_free()
+	var overlay := _frozen_overlay
 	_frozen_overlay = null
+	if not is_instance_valid(overlay):
+		return
+	var anim := overlay.get_node_or_null("AnimationPlayer") as AnimationPlayer
+	if anim != null and anim.has_animation("fade"):
+		anim.play("fade")
+		await anim.animation_finished
+	if is_instance_valid(overlay):
+		overlay.queue_free()

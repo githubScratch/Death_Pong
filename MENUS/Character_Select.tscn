@@ -94,8 +94,21 @@ size_flags_horizontal = 4
 expand_mode = 1
 stretch_mode = 5
 
+[node name="RandomMark" type="Label" parent="Layout/TopRow/P1/Box"]
+visible = false
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.95, 1, 1)
+theme_override_colors/font_outline_color = Color(0.6, 0.85, 1, 0.35)
+theme_override_constants/outline_size = 18
+theme_override_font_sizes/font_size = 72
+text = "?"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="ClassLabel" type="Label" parent="Layout/TopRow/P1/Box"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 40
 text = "Class 1"
 horizontal_alignment = 1
 
@@ -134,8 +147,21 @@ size_flags_horizontal = 4
 expand_mode = 1
 stretch_mode = 5
 
+[node name="RandomMark" type="Label" parent="Layout/TopRow/P2/Box"]
+visible = false
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.95, 1, 1)
+theme_override_colors/font_outline_color = Color(0.6, 0.85, 1, 0.35)
+theme_override_constants/outline_size = 18
+theme_override_font_sizes/font_size = 72
+text = "?"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="ClassLabel" type="Label" parent="Layout/TopRow/P2/Box"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 40
 text = "Class 2"
 horizontal_alignment = 1
 
@@ -176,9 +202,22 @@ size_flags_horizontal = 4
 expand_mode = 1
 stretch_mode = 5
 
+[node name="RandomMark" type="Label" parent="Layout/TopRow/P3/Box"]
+visible = false
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.95, 1, 1)
+theme_override_colors/font_outline_color = Color(0.6, 0.85, 1, 0.35)
+theme_override_constants/outline_size = 18
+theme_override_font_sizes/font_size = 72
+text = "?"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="ClassLabel" type="Label" parent="Layout/TopRow/P3/Box"]
 visible = false
 layout_mode = 2
+theme_override_font_sizes/font_size = 40
 text = "Class 3"
 horizontal_alignment = 1
 
@@ -218,9 +257,22 @@ size_flags_horizontal = 4
 expand_mode = 1
 stretch_mode = 5
 
+[node name="RandomMark" type="Label" parent="Layout/TopRow/P4/Box"]
+visible = false
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.95, 1, 1)
+theme_override_colors/font_outline_color = Color(0.6, 0.85, 1, 0.35)
+theme_override_constants/outline_size = 18
+theme_override_font_sizes/font_size = 72
+text = "?"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="ClassLabel" type="Label" parent="Layout/TopRow/P4/Box"]
 visible = false
 layout_mode = 2
+theme_override_font_sizes/font_size = 40
 text = "Class 4"
 horizontal_alignment = 1
 

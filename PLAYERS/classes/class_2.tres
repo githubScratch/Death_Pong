@@ -7,6 +7,6 @@
 
 [resource]
 script = ExtResource("1_script")
-display_name = "Nature"
+display_name = "Grothomo"
 sprite_sheet = ExtResource("2_sheet")
 abilities = Array[ExtResource("1_bfmu7")]([ExtResource("3_ability")])

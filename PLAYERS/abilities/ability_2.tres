@@ -6,11 +6,11 @@
 
 [resource]
 script = ExtResource("1_script")
-tier_scale_step = 0.75
+tier_scale_step = 1.0
 growth_duration_per_tier = 0.15
 shrink_duration = 3.0
 hold_confirm_time = 0.25
-tier_stutter_time = 0.1
+tier_stutter_time = 0.15
 post_channel_hold_time = 0.3
 vfx_scene = ExtResource("3_vfx")
 strikes_per_tier = 2

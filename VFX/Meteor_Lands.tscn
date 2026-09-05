@@ -1,0 +1,220 @@
+[gd_scene load_steps=30 format=3 uid="uid://i3bvuytjx3hs"]
+
+[ext_resource type="Texture2D" uid="uid://bogvgise61ytb" path="res://SPRITES/323.png" id="1_1jjip"]
+[ext_resource type="Texture2D" uid="uid://byu5lbal0oa8r" path="res://SPRITES/276.png" id="2_ythb1"]
+[ext_resource type="AudioStream" uid="uid://cthpejl3omq3t" path="res://SFX/yodguard-earth-magic-1-378599.mp3" id="3_ythb1"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_baled"]
+atlas = ExtResource("1_1jjip")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_itdp2"]
+atlas = ExtResource("1_1jjip")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2rvgb"]
+atlas = ExtResource("1_1jjip")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ufxap"]
+atlas = ExtResource("1_1jjip")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_x8rha"]
+atlas = ExtResource("1_1jjip")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ewcjw"]
+atlas = ExtResource("1_1jjip")
+region = Rect2(320, 0, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_5hwo2"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_baled")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_itdp2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2rvgb")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ufxap")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_x8rha")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ewcjw")
+}],
+"loop": false,
+"name": &"default",
+"speed": 15.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_764n2"]
+atlas = ExtResource("1_1jjip")
+region = Rect2(0, 448, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_npsbw"]
+atlas = ExtResource("1_1jjip")
+region = Rect2(64, 448, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_h25p2"]
+atlas = ExtResource("1_1jjip")
+region = Rect2(128, 448, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_sjy1s"]
+atlas = ExtResource("1_1jjip")
+region = Rect2(192, 448, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8sv4g"]
+atlas = ExtResource("1_1jjip")
+region = Rect2(256, 448, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t2yaa"]
+atlas = ExtResource("1_1jjip")
+region = Rect2(320, 448, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_xuh5r"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_764n2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_npsbw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_h25p2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_sjy1s")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8sv4g")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t2yaa")
+}],
+"loop": false,
+"name": &"default",
+"speed": 15.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_oraut"]
+atlas = ExtResource("2_ythb1")
+region = Rect2(0, 320, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ajesn"]
+atlas = ExtResource("2_ythb1")
+region = Rect2(64, 320, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q7lpl"]
+atlas = ExtResource("2_ythb1")
+region = Rect2(128, 320, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_djpqt"]
+atlas = ExtResource("2_ythb1")
+region = Rect2(192, 320, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6od48"]
+atlas = ExtResource("2_ythb1")
+region = Rect2(256, 320, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ormkk"]
+atlas = ExtResource("2_ythb1")
+region = Rect2(320, 320, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hv2so"]
+atlas = ExtResource("2_ythb1")
+region = Rect2(384, 320, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bxjar"]
+atlas = ExtResource("2_ythb1")
+region = Rect2(448, 320, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_wbw15"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_oraut")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ajesn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_q7lpl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_djpqt")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6od48")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ormkk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hv2so")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bxjar")
+}],
+"loop": false,
+"name": &"default",
+"speed": 15.0
+}]
+
+[sub_resource type="Animation" id="Animation_itdp2"]
+length = 0.001
+
+[sub_resource type="Animation" id="Animation_baled"]
+resource_name = "fade"
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_2rvgb"]
+_data = {
+&"RESET": SubResource("Animation_itdp2"),
+&"fade": SubResource("Animation_baled")
+}
+
+[node name="MeteorLands" type="Node2D"]
+z_index = 2
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, -24)
+scale = Vector2(4, 4)
+sprite_frames = SubResource("SpriteFrames_5hwo2")
+autoplay = "default"
+frame = 5
+frame_progress = 1.0
+
+[node name="AnimatedSprite2D2" type="AnimatedSprite2D" parent="."]
+modulate = Color(1, 1, 1, 0.521569)
+position = Vector2(0, -40)
+scale = Vector2(4.5, 4.5)
+sprite_frames = SubResource("SpriteFrames_xuh5r")
+autoplay = "default"
+frame = 5
+frame_progress = 1.0
+
+[node name="AnimatedSprite2D3" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, 16)
+scale = Vector2(3, 3)
+sprite_frames = SubResource("SpriteFrames_wbw15")
+autoplay = "default"
+frame = 7
+frame_progress = 1.0
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_2rvgb")
+}
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("3_ythb1")
+volume_db = 6.0
+pitch_scale = 0.8
+autoplay = true

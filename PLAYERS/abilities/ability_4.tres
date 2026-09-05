@@ -1,9 +1,28 @@
-[gd_resource type="Resource" script_class="WizardAbility" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="MeteorAbility" load_steps=6 format=3 uid="uid://1lvhq21a3pr0"]
 
-[ext_resource type="Script" path="res://PLAYERS/wizard_ability.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://n1d5enqknm4d" path="res://VFX/Meteor.tscn" id="1_ef1ka"]
+[ext_resource type="PackedScene" uid="uid://cv43lodum4ina" path="res://VFX/Burning_Ball.tscn" id="1_i35a4"]
+[ext_resource type="Script" uid="uid://l17y57b3vuhk" path="res://PLAYERS/class4_ability.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://dweqrqyfhjtdy" path="res://PLAYERS/spell_4.tscn" id="2_shield"]
+[ext_resource type="PackedScene" uid="uid://i3bvuytjx3hs" path="res://VFX/Meteor_Lands.tscn" id="4_i35a4"]
 
 [resource]
 script = ExtResource("1_script")
-display_name = "Shield"
+double_tap_window = 0.3
+fall_speed = 900.0
+meteor_barrier_deflection_bonus = 2000.0
+meteor_fall_vfx_scene = ExtResource("1_ef1ka")
+meteor_fall_vfx_despawn_delay = 1.0
+meteor_lands_vfx_scene = ExtResource("4_i35a4")
+meteor_lands_vfx_lifetime = 1.0
+burning_ball_vfx_scene = ExtResource("1_i35a4")
+burn_duration = 1.0
+tier2_meteor_form_enabled = true
+tier2_meteor_form_duration = 2.0
+tier2_meteor_form_blocks_barrier = true
+disable_strikes_while_meteor_form = true
+strikes_per_tier = 1
+max_tiers = 2
+max_strikes = 4
+display_name = "Meteor"
 shield_scene = ExtResource("2_shield")

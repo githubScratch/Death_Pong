@@ -1,0 +1,92 @@
+[gd_scene load_steps=13 format=3 uid="uid://brsy5domwlixg"]
+
+[ext_resource type="Texture2D" uid="uid://dg3a6ut0uaoq3" path="res://SPRITES/448.png" id="1_hgdvw"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yfum8"]
+atlas = ExtResource("1_hgdvw")
+region = Rect2(0, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jic65"]
+atlas = ExtResource("1_hgdvw")
+region = Rect2(64, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_b768w"]
+atlas = ExtResource("1_hgdvw")
+region = Rect2(128, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mjix7"]
+atlas = ExtResource("1_hgdvw")
+region = Rect2(192, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dsl60"]
+atlas = ExtResource("1_hgdvw")
+region = Rect2(256, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wnwhe"]
+atlas = ExtResource("1_hgdvw")
+region = Rect2(320, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ndpw8"]
+atlas = ExtResource("1_hgdvw")
+region = Rect2(384, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f5xq6"]
+atlas = ExtResource("1_hgdvw")
+region = Rect2(448, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e8dtt"]
+atlas = ExtResource("1_hgdvw")
+region = Rect2(512, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u833h"]
+atlas = ExtResource("1_hgdvw")
+region = Rect2(576, 128, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_l6agw"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yfum8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jic65")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_b768w")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mjix7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dsl60")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wnwhe")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ndpw8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f5xq6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e8dtt")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_u833h")
+}],
+"loop": false,
+"name": &"default",
+"speed": 20.0
+}]
+
+[node name="IceBlast" type="Node2D"]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(66, 0)
+rotation = 0.785398
+scale = Vector2(1.5, 1.5)
+sprite_frames = SubResource("SpriteFrames_l6agw")
+autoplay = "default"
+frame = 9
+frame_progress = 1.0

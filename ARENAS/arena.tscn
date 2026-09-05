@@ -958,7 +958,7 @@ size = Vector2(16.5, 525)
 particle_flag_disable_z = true
 emission_shape = 3
 emission_box_extents = Vector3(596, 1, 1)
-gravity = Vector3(-100, 298, 0)
+gravity = Vector3(0, 298, 0)
 scale_min = 0.05
 scale_max = 0.2
 
@@ -976,10 +976,23 @@ tracks/0/keys = {
 "update": 1,
 "values": [SubResource("ParticleProcessMaterial_liqqh")]
 }
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
 
 [sub_resource type="Animation" id="Animation_ps7ku"]
 resource_name = "rainsway"
 length = 8.0
+loop_mode = 2
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -991,6 +1004,18 @@ tracks/0/keys = {
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1),
 "update": 1,
 "values": [SubResource("ParticleProcessMaterial_liqqh"), SubResource("ParticleProcessMaterial_liqqh"), SubResource("ParticleProcessMaterial_liqqh"), SubResource("ParticleProcessMaterial_liqqh"), SubResource("ParticleProcessMaterial_liqqh")]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = false
+tracks/1/path = NodePath(".:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1.96667, 4, 6, 8),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.0, -1.5708, 0.0, 1.5708, 0.0]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_y3sxm"]
@@ -1498,13 +1523,13 @@ root_node = NodePath("../RainParticles")
 libraries = {
 &"": SubResource("AnimationLibrary_y3sxm")
 }
-autoplay = "rainsway"
 
 [node name="RainParticles" type="GPUParticles2D" parent="."]
 position = Vector2(576, -64)
 amount = 40
 texture = ExtResource("21_ps7ku")
 lifetime = 3.0
+preprocess = 4.0
 trail_enabled = true
 trail_lifetime = 0.1
 process_material = SubResource("ParticleProcessMaterial_liqqh")
@@ -1519,6 +1544,6 @@ process_material = SubResource("ParticleProcessMaterial_liqqh")
 [connection signal="pressed" from="Player_1_Victory/CenterContainer/VBoxContainer/HBoxContainer/Menu1" to="." method="_on_menu_1_pressed"]
 [connection signal="pressed" from="Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch2" to="." method="_on_rematch_2_pressed"]
 [connection signal="pressed" from="Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer/Menu2" to="." method="_on_menu_2_pressed"]
-[connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1" to="." method="_on_continue_pressed"]
 [connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1" to="." method="_on_continue_1_pressed"]
+[connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1" to="." method="_on_continue_pressed"]
 [connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Menu3" to="." method="_on_menu_3_pressed"]
