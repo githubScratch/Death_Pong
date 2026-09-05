@@ -234,6 +234,46 @@ deflect's own new velocity overwrites whatever `thaw()` leaves it at
 immediately after, on both `ball.gd` (`deflection_shield.gd`'s
 `deflect_ball()`) and `wizard.gd` paths.
 
+A separate bug, found later via an actual playtest report rather than
+carried over from the old trap: a ball caught by a zone could visibly
+shrink/squish and stay that way for the whole freeze - worst on
+`ball_big.tscn`, Yonder's enlarged ball. `ball.gd`'s own
+`_physics_process()` runs a purely cosmetic "stretch" effect on every
+unfrozen frame - elongated along the direction of travel, squeezed
+perpendicular to it (inverse-square-root, for a volume-preserving squash),
+tilted to match - reset back to `_original_scale`/`rotation = 0` only once
+velocity drops low again. The frozen branch returns immediately, before
+ever reaching that reset, so once frozen NOTHING touches `scale`/`rotation`
+again for the rest of the freeze: whatever stretched, squeezed, tilted
+shape the ball happened to be in at the exact instant an `Ice Zone` caught
+it just holds there, frozen, for the whole duration. A ball is almost
+always moving fast enough to be mid-stretch at the moment it's caught, so
+this fired on nearly every catch - ordinarily invisible since the real
+stretch only lasts a fraction of a second during normal motion, but held
+perfectly still for a multi-second freeze it reads as the ball having
+shrunk. Fixed by having `freeze_in_place()` itself snap `scale`/`rotation`
+back to rest once, at the same moment it already gives velocity/spin their
+own one-time freeze treatment - exactly what the very next unfrozen frame's
+stretch code would have done anyway, just done before the freeze holds the
+ball still instead of after.
+
+Update: a playtester kept seeing the big ball on Yonder shrink/vanish while
+frozen even after the fix above shipped, describing the frozen overlay as
+"attaching at normal-ball size" while the big ball itself "disappears
+almost." The one-time reset in `freeze_in_place()` only guards against the
+stretch effect specifically, so as a hedge against any other code path that
+might still be touching `scale`/`rotation` mid-freeze, the frozen branch in
+`_physics_process()` now re-pins `scale = _original_scale` and
+`rotation = 0.0` every frame for the whole freeze, not just once at the
+moment of catching. This is defensive rather than a confirmed second root
+cause - static reading of `ball.gd`, `ball_big.tscn`, and
+`VFX/Frozen_Ball.tscn` turned up no other scale-touching code (no
+`top_level`, no `reparent()`, correct overlay scene reference, and the
+overlay's z-index sits behind the ball sprite, not in front of it), so if
+the symptom persists after this it's worth checking whether it's actually a
+lighting/blend artifact from the overlay's `PointLight2D` (`energy = 3.0`)
+rather than a true scale change.
+
 Placeholder overlays: `VFX/Frozen_Ball.tscn` and `VFX/Frozen_Wizard.tscn`,
 simple untextured `Polygon2D` + `Line2D` "ice shard" shapes, spawned as a
 child of a caught target for as long as it stays inside the zone via
@@ -430,18 +470,70 @@ pulled out once two abilities actually needed it.
 `_execute_blink()`'s `test_move()` collision check now branches on what it
 hit, via a new `_wrap_destination()` lookup: if the collider is in the
 `map_wall_left` or `map_wall_right` group, the wizard reappears at that
-wall's own `WrapDestination` `Marker2D` child (X only - Y is untouched)
-instead of stopping short. Anything not tagged into one of those groups
-(another wizard, an untagged wall, a mid-arena platform) keeps the old
+side's `WrapDestination` `Marker2D` (X only - Y is untouched) instead of
+stopping short. Anything not tagged into one of those groups (another
+wizard, an untagged wall, a mid-arena platform) keeps the old
 stop-at-the-clear-portion behavior unchanged. Currently only `arena.tscn`'s
-`left`/`right` walls are tagged - `Tower` and `Yonder` use the same
-collision layer for ALL their solid geometry (many scattered wall/platform
-segments, not one clean boundary box), so neither has a well-defined single
-"map wall" to wrap off of yet. Extending this to another arena means only a
+`left`/`right` walls (and the goal-mouth WizardWall gates parented under
+them - see below) are tagged - `Tower` and `Yonder` use the same collision
+layer for ALL their solid geometry (many scattered wall/platform segments,
+not one clean boundary box), so neither has a well-defined single "map
+wall" to wrap off of yet. Extending this to another arena means only a
 scene change (tag the wall(s), add their own `WrapDestination` marker) - no
-`wizard.gd` change needed, since the lookup is group-based, not a hardcoded
-node path. Deliberately left/right only here - the bottom-to-top
-counterpart is its own separate mechanic, see below.
+`wizard.gd` change needed, since the lookup is group-based end to end (see
+below). Deliberately left/right only here - the bottom-to-top counterpart
+is its own separate mechanic, see "Blink slam wrap" above.
+
+`_wrap_destination()` fetches the actual `WrapDestination` marker via
+`get_tree().get_first_node_in_group(group)`, not as a direct child of
+whichever specific body `test_move()` happened to collide with - it used to
+read it straight off the collider itself, which quietly broke once a side
+gained a SECOND wrap-tagged body (the WizardWall gate below): a blink
+stopped by the gate instead of the main wall would look up a
+`WrapDestination` child on the gate, find nothing, and just stop short
+instead of wrapping. The group-based fetch means any body tagged into
+`map_wall_left`/`map_wall_right` resolves to the same marker regardless of
+which specific one was actually hit - the gate and the main wall are both
+just "entry points" into the same wrap boundary, not two different
+destinations. Same lookup shape `_try_slam_wrap()` already used for
+`map_wall_top`.
+
+## Goal-mouth WizardWall gates (wizards can't camp inside a goal)
+
+Each goal is a physical notch cut into the arena's `left`/`right`
+`CollisionPolygon2D` (its inner face recedes further from the arena center
+for the vertical band the goal covers), purely so the ball has a real gap
+to fly through into `Goal_Left`/`Goal_Right`'s scoring `Area2D` instead of
+bouncing off. That notch used to be a genuine three-sided physical pocket
+(solid top/bottom edges, open only toward the arena) that a WIZARD could
+walk into and use those same solid edges as a tiny private floor/ceiling to
+stand and bounce between - camping inside the goal itself, invisible to
+normal play.
+
+The fix is NOT on `Goal_Left`/`Goal_Right` themselves - an `Area2D` never
+physically blocks anything regardless of its own layer/mask, it only fires
+overlap signals, so those two nodes were never what let a wizard stand in
+there and don't need to change. Instead, `"left wizard wall"`/`"right
+wizard wall"` (`StaticBody2D`, parented under `Arena/walls/left`/`Arena/
+walls/right` respectively) seal each goal's mouth flush with the wall's
+normal face, blocking wizards only, using a layer already built and proven
+for exactly this "solid to wizards, invisible to the ball" split:
+`collision_layer = 16` (physics layer 5, named `"WizardWall"` in
+`project.godot`), `collision_mask = 0` - no mask needed, since it's the
+COLLIDING body's own mask that does the work. `wizard.tscn`'s
+`CharacterBody2D` already has `collision_mask = 18` (Arena + WizardWall),
+so it already sees this gate; the ball's own mask (`14` = Arena + Ball +
+Spells) does not include WizardWall, so it sails straight through
+untouched, same as always. This is the exact same layer `Mid_Barrier/
+Mid_Collision` (the "hot" mode center wall) already uses - not a new
+mechanism, just a second application of one already proven out.
+
+Both gates are also tagged into `map_wall_left`/`map_wall_right`
+respectively, same as the main wall each is parented under, so a blink
+stopped by the gate still wraps around the map exactly like one stopped by
+the main wall - see `_wrap_destination()`'s group-based fetch above for why
+that needed a small `wizard.gd` fix once a side had two wrap-tagged bodies
+instead of one.
 
 ## Blink slam wrap (floor -> ceiling)
 
@@ -450,8 +542,14 @@ counterpart to the wall wrap above, but triggered completely differently:
 not a blocked blink, but the airborne -> grounded landing transition in
 `_physics_process()` (the same `if not hit_the_ground and is_on_floor():`
 block that already plays the landing sound/squish), via
-`wizard.gd`'s `_try_slam_wrap()`. Landing while holding Down, with
-`wrap_on_slam` on and a full tier's worth of strikes banked, spends one
+`wizard.gd`'s `_try_slam_wrap()`. Arming it in the air is a separate step
+handled by `_update_slam_wrap()`, gated by `BlinkAbility.
+slam_wrap_requires_double_tap` (bool, default true): true is the original
+double-tap-Down-and-hold gesture (mirrors `MeteorAbility`'s own
+double-tap-and-hold), false arms it off a single press-and-hold instead -
+either way, releasing Down before landing still cancels the arm, and it's
+still gated on being airborne when Down is first pressed. Landing while
+still armed, with `wrap_on_slam` on and a full tier's worth of strikes banked, spends one
 tier (same `strikes_per_tier` cost and "pay at commit" timing as a normal
 blink) and moves the wizard's Y straight to the ceiling's own
 `WrapDestination` marker (X untouched) instead of landing normally -
@@ -471,6 +569,133 @@ function itself decides. Needs `wrap_on_slam = true` set explicitly on an
 ability's `.tres` to do anything at all - it defaults off like every new
 BlinkAbility toggle has so far, which was the cause of it silently doing
 nothing the first time it was tested.
+
+## Blink wall/ceiling wrap on Tower and Yonder
+
+Both maps looked harder to extend the wrap to than Arena at first glance -
+Tower has destructible bricks stacked in front of each goal, Yonder has
+ceiling/floor panels that slide open and shut - and both DO contain an
+always-solid backstop sitting just behind that moving layer, so no
+brick-state or platform-position tracking was ever needed in script. But
+the first pass at Tower tagged the WRONG wall and shipped a real
+regression along with it - see the correction below before trusting the
+positions here.
+
+Tower, corrected: the first attempt tagged `walls/left/StaticBody2D`/
+`walls/right/StaticBody2D` - full-height `StaticBody2D`s with no notch cut
+for the goal, sitting entirely OUTSIDE the visible playfield (left spans
+global X -64..0, right spans 1152..1216) - on the assumption that they
+were the thing stopping a wizard once a brick broke. They aren't reachable
+by a wizard at all: `zones/leftgoal`/`rightgoal` (the scoring `Area2D`s)
+sit at X 0..32 and 1120..1152 respectively - flush against each brick
+column's inner face, IN FRONT of those far walls, not behind them. Since
+an `Area2D` never physically blocks anything, destroying the brick in
+front of it left NOTHING solid between the open playfield and the goal
+sensor - a wizard could walk straight into the goal pocket, exactly the
+"camping in the goal mouth" bug `Goal_Left`/`Goal_Right`'s `WizardWall`
+gate already exists to prevent on Arena. Tagging the unreachable far wall
+also meant the dash's `test_move()` could never reach a wrap-tagged body
+in the first place - a live brick stopped it short every time, and a
+destroyed one just let it sail into the goal pocket, so the wrap never
+fired either. One bug, two symptoms.
+
+The fix is a `Goal_Left`/`Goal_Right`-style `WizardWall` gate on each
+side, same as Arena: `"left wizard wall"`/`"right wizard wall"`
+(`StaticBody2D`, `collision_layer = 16`, `collision_mask = 0`, parented
+under `walls/left`/`walls/right`) sealing the goal mouth flush at its
+playfield-facing edge, reusing the goal `Area2D`'s own collision shapes
+(`RectangleShape2D_ed6xj`/`RectangleShape2D_x5ail`) so the gate's footprint
+lines up with the goal exactly - solid to wizards (mask 18 includes
+WizardWall), invisible to the ball (mask 14 doesn't). Live or destroyed,
+a brick no longer matters: the gate blocks wizards from ever reaching the
+goal pocket at all, brick or no brick. Both gates are tagged into
+`map_wall_left`/`map_wall_right` alongside the original far wall (same
+"two wrap-tagged bodies share one group" shape `_wrap_destination()`
+already handles for Arena's own gates) - the far wall keeps its existing
+`WrapDestination` children (`walls/left/StaticBody2D/WrapDestination` at
+local `(1024, 1280)`, `walls/right/StaticBody2D/WrapDestination` at local
+`(-1056, 1248)`, both placed past the FAR brick column so reappearing on
+the opposite side can never land inside a brick), and the group lookup
+resolves to those regardless of which of the two tagged bodies the dash
+actually hit, since only the group needs to contain a marker somewhere,
+not the specific collider.
+
+The gate alone meant only the space BEHIND a destroyed brick wrapped -
+hitting a still-standing brick just bumped off it like any other
+obstacle, no wrap. Playtesting showed that reads as "wrapping doesn't
+work on Tower" rather than as the intentionally simpler design it was, so
+every individual brick is now wrap-tagged too: all 39 `Bricks/BricksLeft`
+`RigidBody2D` instances carry `groups=["map_wall_left"]`, all 39
+`Bricks/BricksRight` instances carry `groups=["map_wall_right"]` -
+`Bricks/BottomBricks` (a third, unrelated usage of the same shared
+`brick.tscn`) is deliberately left untagged. No `wizard.gd` changes were
+needed for this - `_wrap_destination()` already just checks
+`is_in_group("map_wall_left"/"map_wall_right")` on whatever collider the
+dash actually hit, and a `WrapDestination` only needs to exist SOMEWHERE
+in the group (the far wall's, unchanged) - so a live brick now wraps
+exactly like the gate behind it does, and a destroyed brick still falls
+through to the gate as before.
+
+Yonder ceiling: `Yonder/walls/top_left`/`top_right` are the visible
+sliding ceiling panels (their `AnimationPlayer` tracks only ever move
+their X, sliding a gap open and closed - their Y is a fixed `-128` in
+every keyframe), but `Yonder/walls/false_roof` is a separate, always-
+static, full-width `StaticBody2D` sitting behind them. Rather than tag the
+moving panels, `false_roof` is tagged `map_wall_top` with a
+`WrapDestination` child at local `(1184, 192)` (global Y 0) - comfortably
+below the panels' own collision floor (their box bottom edge sits at
+global Y -64 whenever a panel is present at that X) regardless of how open
+or closed the panels currently are. `_try_slam_wrap()` only ever applies
+the target's Y, so the X chosen for the marker doesn't matter; anchoring
+to the one node that never moves means the "stay clear of the moving
+platform" requirement is satisfied by construction rather than needing a
+live check.
+
+Yonder left/right (added after the Tower correction above, not part of
+the original pass): `Yonder/walls/left_wall`/`right_wall` are plain,
+un-notched `StaticBody2D`s spanning the full playfield height with no
+brick/panel equivalent in front of them at all - the goal here is a
+floating circular `Area2D` "portal" (`left_goal_pack`/`right_goal_pack`)
+sitting out in the open field, not recessed into the wall, so there's no
+adjacent camping bug to fix and no gate needed. Tagged directly into
+`map_wall_left`/`map_wall_right` with a `WrapDestination` child each -
+`left_wall/WrapDestination` at local `(1392, 312)`, `right_wall/
+WrapDestination` at local `(-240, 318)` - placed a comfortable distance
+inside the opposite wall rather than hugging it, purely so a reappearing
+wizard doesn't materialize flush against the wall or right on top of the
+goal circle.
+
+Tower ceiling/floor (added after the above): Tower is a scripted,
+continuously-descending-camera vertical shaft (see the `DescentCamera`
+AnimationPlayer, `autoplay="descent"`) - the 13 `Platforms/PlatformShape*`
+bodies never move vertically at all (their own "movingparts" animation
+only ever slides them horizontally, scales them away, or rotates them in
+place - checked every track), so the earlier assumption that this needed
+dynamic platform-position tracking was wrong. The part that actually
+needed solving was different: nothing readable as a fixed-world "floor"
+or "ceiling" exists at all, because there isn't one - what a wizard
+actually lands on and bumps their head on is `CameraPackage/roof`/
+`CameraPackage/floor`, a matched pair of solid `StaticBody2D`s parented
+directly under the `Camera2D` node itself (not camera-relative decoration,
+despite the name - both carry real collision, `collision_layer = 2`,
+`mask = 7`, which is why "hitting the floor" already worked before any of
+this) that ride along with the camera's descent to keep the current
+on-screen slice of the shaft always capped top and bottom. Tagging
+`CameraPackage/roof/StaticBody2D` into `map_wall_top` with a
+`WrapDestination` child (`CameraPackage/roof/StaticBody2D/
+WrapDestination`, local `(0, 96)` - just past the roof collision shape's
+own bottom edge at local Y 32, same margin-past-the-collision-edge idea
+Yonder's `false_roof` marker uses) was the entire fix: because that
+marker is parented under a node that moves with the camera every frame,
+it automatically always resolves to "just below whatever's currently
+capping the top of the screen," with no per-frame tracking code needed -
+the exact same "anchor to the thing that already never needs live
+position math" shape every other wrap destination in this file uses, just
+with the anchor itself being the one thing that moves. `_try_slam_wrap()`
+doesn't care what body was actually landed on to fire (it only cares
+about the airborne -> grounded transition itself), so this one tag now
+covers landing on the real floor AND landing on any of the 13 platforms
+alike, no additional tagging needed anywhere else on the map.
 
 ## Blink max-tier clone
 
@@ -515,6 +740,84 @@ clone's own shield deflects gets credited back to `_clone_source` via
 `_on_shield_deflected()`'s new clone-redirect branch, or just vanishes with
 the clone).
 
+The clone no longer just vanishes when `_despawn_clone()` fires - it now
+tweens `modulate.a` from `clone_transparency` down to 0 over
+`clone_fade_duration` seconds (default 0.5) before the chassis is actually
+freed, shaped by `clone_fade_trans`/`clone_fade_ease` (`Tween.
+TransitionType`/`EaseType`, defaulting to a plain `TRANS_LINEAR`/
+`EASE_IN`) - the "decay curve" knob, reusing the same trans/ease
+vocabulary every other decay tween in this project already exposes
+(`deflection_shield.gd`'s shield-return tween, the knockback-decay tweens
+in `wizard.gd`) rather than adding a one-off `Curve` resource just for
+this. `clone_fade_duration = 0` skips the tween entirely and frees the
+clone immediately - the original behavior, still there as an opt-out. Any
+barrier the clone left standing fades on its own timeline via
+`DeflectionShield.start_fade()`, started right alongside this, not
+sequenced before or after it.
+
+That fade-out `await` introduced a real bug: for the whole
+`clone_fade_duration` window, the clone chassis is still sitting in the
+scene tree, fully alive, and `_physics_process()` was still calling into it
+every frame - meaning a despawning clone could keep reading input and cast
+a brand-new barrier during its own fade-out. `_despawn_clone()`'s
+barrier-cleanup only ever runs once, right at the top (before the fade
+even starts), so any barrier cast during that window was never tracked and
+never cleaned up - it just sat there forever, which is what surfaced as
+leftover spell barriers piling up on the field. Fixed with a new
+`_despawning: bool` field on `wizard.gd`, set true as the very first thing
+`_despawn_clone()` does - before its barrier cleanup, before the fade
+tween, before anything else - and never cleared. `_physics_process()`'s
+whole ability-dispatch block (`_update_growth_channel()` through
+`_update_meteor()`) is now gated behind `not _despawning`, so a clone
+already told to despawn can no longer cast anything for the rest of its
+life, fade included. Movement/gravity/animation below that block are
+deliberately left ungated, so a despawning clone still finishes
+falling/sliding naturally instead of visibly freezing mid-air while it
+fades. `_despawn_clone()` also re-checks `current_instance` right before
+the final `chassis.queue_free()` and frees anything still there as a
+last-resort safety net, even though `_despawning` should make that
+unreachable in practice.
+
+Fixing that didn't fully stop leftover barriers from showing up, though -
+they kept appearing on Growth and Meteor casts too, nothing to do with
+Blink at all, which pointed at a second, unrelated bug in the ONE piece of
+fade logic every class's ordinary jump/recast shares:
+`create_new_instance()`. That function used to fade an outgoing barrier by
+grabbing its `AnimationPlayer` directly and calling `play("fade")`, with
+no further tracking - it trusted the "fade" clip's own embedded Call
+Method Track (every class's `spell_N.tscn` has one, calling `queue_free()`
+on the barrier root at the clip's last frame - see the clip itself, not
+any script) to actually remove the barrier once the animation played
+through. But `DeflectionShield.deflect_ball()` has no concept of "this
+barrier is already retiring" - any ball that touches ANY barrier
+unconditionally interrupts whatever the `AnimationPlayer` is doing
+(`stop()` then `play("deflect")`), fade included. A ball clipping a
+barrier that `create_new_instance()` had just started fading out would
+knock it off "fade" and onto "deflect" before that Call Method Track ever
+fired, permanently discarding the pending `queue_free()` - the barrier
+would just sit there, snapped back to its normal "deflect" pose, forever.
+This could in principle fire off a single unlucky recast, but casting
+faster (more retirements queued up, each with its own ~0.5s window a ball
+could clip) made it far more likely to actually happen, which is why it
+read as a "spam" bug.
+
+Fixed at the source rather than by patching this one call site:
+`DeflectionShield` (`deflection_shield.gd`) now has an `_is_fading: bool`
+flag, set true as the very first thing `start_fade()` does and never
+cleared, and `_on_body_entered()` early-outs on it exactly like it already
+does for `pass_through` - so once a barrier starts fading, NO later ball
+hit can touch its `AnimationPlayer` again, through any code path.
+`create_new_instance()` itself no longer pokes the `AnimationPlayer`
+directly at all - it now just calls the retiring barrier's own
+`DeflectionShield.start_fade()`, the exact same call `_despawn_clone()`
+and `_end_meteor_barrier()` already used, so there's now exactly one
+function in the whole project that ever decides a barrier's fade has
+started, and one flag that protects it the rest of the way to
+`queue_free()`. The old `fading_instances` array `create_new_instance()`
+used to maintain was dead weight even before this - it only ever pruned
+already-freed entries from itself, never actually freed anything - and is
+gone now that the real cleanup lives in `start_fade()`.
+
 `_is_clone`/`_clone_source` (new `wizard.gd` fields) mark a spawned clone
 and point back at whoever cast it. Deliberate design choice, not something
 explicitly asked for: a clone that itself reaches max tier never spawns a
@@ -534,6 +837,49 @@ Fades it out first via the exact same `DeflectionShield.start_fade()`
 teardown in this file already uses, falling back to a bare `queue_free()`
 if the barrier has no `DeflectionShield` to ask - then frees the clone's
 whole `WizardSeat` chassis (not just the `CharacterBody2D`).
+
+## Meteor hover delay (visual wind-up before the plunge)
+
+`MeteorAbility.meteor_hover_delay` (default `0.0`, opt-in like every other
+timing knob in this file) adds a beat of hang-time right at the top of a
+meteor fall, between the double-tap-and-hold registering and the actual
+straight-down plunge starting - a "visual registry" window so the drop
+reads as a deliberate, telegraphed commitment (a dodge/parry opportunity
+for whoever's about to get fallen on) instead of an instant snap into
+`fall_speed`, same spirit as `BlinkAbility.blink_delay`'s own wind-up
+before a teleport fires.
+
+`wizard.gd`'s `_start_meteor()` still does everything it always did the
+instant the fall triggers - attaches the barrier (`_attach_meteor_barrier()`)
+and spawns `meteor_fall_vfx_scene` (`_spawn_meteor_vfx()`) - unconditionally,
+before the delay even starts, not after it. That ordering is the whole
+point: the vfx needs to already be on screen for the entire hover for the
+wind-up to actually telegraph anything, so both are still fired off exactly
+where they always were, only `velocity` is treated differently. With
+`meteor_hover_delay` above 0, `_start_meteor()` zeroes velocity and arms a
+new `_meteor_hover_remaining` countdown instead of setting `fall_speed`
+directly; `_physics_process()`'s own `if _is_meteor:` override (right
+before `move_and_slide()`, same spot the plunge override always lived)
+now checks that countdown first and forces velocity to `Vector2.ZERO` for
+as long as it's still counting down - the exact same per-frame-override
+shape `_is_channeling`'s hold-to-grow hover already uses just above it -
+falling through to the normal `fall_speed` plunge once it hits 0. The
+countdown itself ticks down from `_update_meteor()`'s own tail (the
+"nothing else happens here, the fall is uninterruptible by input" block) -
+a duration counting down, not a reaction to input, so it doesn't conflict
+with that function's own doc comment about the fall being uninterruptible
+once started.
+
+A `meteor_hover_delay` of 0 (the default) leaves `_meteor_hover_remaining`
+at 0, so the override falls through to the plunge on the very same frame
+`_start_meteor()` runs - identical, frame-for-frame, to the behavior
+before this knob existed. `_meteor_hover_remaining` is also reset to 0 in
+both `_cancel_meteor()` (an external interrupt, like a freeze, catching
+the wizard mid-hover or mid-plunge) and `_land_meteor()` (reaching the
+ground), even though a fresh `_start_meteor()` call always re-arms it from
+scratch anyway - just to avoid leaving stale countdown state sitting
+around between falls, same hygiene every other mid-action flag in this
+file already gets on cleanup.
 
 ## Growth VFX (attached to the shield, continuous - contrast with Blink's one-shot drops)
 
@@ -653,6 +999,19 @@ live today (`MeteorAbility.burn_duration` is `1.0` on `ability_4.tres`),
 but if that knob's ever tuned down to `0` (or negative) in the Inspector
 for an "instant"/"permanent" burn effect, this is exactly the kind of
 one-node leak this checklist exists to catch.
+
+Burning is no longer purely cosmetic: `Ball.burning_max_speed` (default
+`1400.0`) replaces `max_speed` outright as this ball's speed cap for as
+long as it's burning, tracked by a new `_is_burning: bool` rather than by
+checking whether `_burning_overlay` is set - `burning_ball_vfx_scene` is
+still opt-in/nullable like every other `vfx_scene` field in this project,
+so a class with no fire art assigned yet should still get the speed-cap
+effect; only the VISUAL half of `ignite()` is a no-op on a null scene now,
+not the gameplay half. `_is_burning` is set the instant `ignite()` runs
+and cleared by `_clear_burning_overlay()` - which runs both from the top
+of a fresh `ignite()` (harmless there, since `_is_burning` is set true
+again immediately after on the same frame) and from the duration timer
+actually ending the burn, which is what turns the raised cap back off.
 
 **When adding a new ability VFX**: give it its own tracked reference
 variable and make sure every path that stops needing it - not just the

@@ -159,7 +159,7 @@ process_material = SubResource("ParticleProcessMaterial_qlj7o")
 
 [node name="PointLight2D" type="PointLight2D" parent="."]
 color = Color(0.393968, 0.531603, 0.882239, 1)
-energy = 5.0
+energy = 3.0
 texture = ExtResource("3_7sgn2")
 texture_scale = 0.2
 

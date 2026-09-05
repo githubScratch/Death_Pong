@@ -3081,7 +3081,7 @@ scale = Vector2(4, 4)
 tile_map_data = PackedByteArray("AAAIAP3/AAAOAA8AAAD7//7/AAAAABIAAAD8//3/AAAJAA8AAAD8//7/AAABABIAAAD9//3/AAAJAA8AAAD9//7/AAAIABAAAAD+//3/AAANAA8AAAD+//7/AAAJABAAAAD///3/AAAIAA8AAAD///7/AAAIABAAAAAAAP3/AAAJAA8AAAAAAP7/AAAJABAAAAABAP3/AAAKAA8AAAABAP7/AAAKABAAAAACAP3/AAALAA8AAAACAP7/AAALABAAAAADAP3/AAAMAA8AAAADAP7/AAAMABAAAAAEAP3/AAANAA8AAAAEAP7/AAANABAAAAAFAP3/AAAOAA8AAAAFAP7/AAAOABAAAAAGAP7/AAAOABAAAAAIAP7/AAAWABIAAAAJAP7/AAAXABIAAAAHAP3/AAAPAA8AAAAHAP7/AAAPABAAAAAGAP3/AAAOAA8AAAA=")
 tile_set = SubResource("TileSet_fpm8b")
 
-[node name="right_wall" type="StaticBody2D" parent="Yonder/walls"]
+[node name="right_wall" type="StaticBody2D" parent="Yonder/walls" groups=["map_wall_right"]]
 position = Vector2(192, 2)
 collision_layer = 2
 collision_mask = 7
@@ -3104,7 +3104,10 @@ scale = Vector2(4, 4)
 tile_map_data = PackedByteArray("AAANAP3/AAAGABAAAAANAP7/AAAGABAAAAANAP//AAAGABEAAAANAAAAAAAGABAAAAANAAEAAAAGABAAAAANAAIAAAAGABEAAAANAAMAAAAGABIAAAANAAQAAAAGABEAAAANAAUAAAAGABIAAAANAAYAAAAGABIAAAANAAcAAAAGABAAAAANAAgAAAAIABUAAAANAAkAAAAIABYAAAAOAAYAAAARABAAAAAOAAcAAAAUABQAAAAOAAgAAAAUABQAAAAOAAMAAAAUABQAAAAOAAQAAAAUABQAAAAOAAUAAAAUABQAAAAOAP//AAAVABIAAAAOAAAAAAAUABQAAAAOAAEAAAAVABIAAAAOAP3/AAACABIAAAAOAP7/AAACABIAAAAOAPz/AAACABIAAAANAPz/AAAGABAAAAAOAAIAAAAUABQAAAAOAAkAAAAUABQAAAA=")
 tile_set = SubResource("TileSet_fpm8b")
 
-[node name="left_wall" type="StaticBody2D" parent="Yonder/walls"]
+[node name="WrapDestination" type="Marker2D" parent="Yonder/walls/right_wall"]
+position = Vector2(-240, 318)
+
+[node name="left_wall" type="StaticBody2D" parent="Yonder/walls" groups=["map_wall_left"]]
 position = Vector2(-192, 8)
 collision_layer = 2
 collision_mask = 7
@@ -3126,6 +3129,9 @@ position = Vector2(256, 120)
 scale = Vector2(4, 4)
 tile_map_data = PackedByteArray("AAD8//3/AAARABAAAAD8//7/AAARABAAAAD8////AAARABEAAAD8/wAAAAARABIAAAD8/wEAAAARABAAAAD8/wIAAAARABEAAAD8/wMAAAARABIAAAD8/wQAAAARABAAAAD8/wUAAAARABEAAAD8/wYAAAARABEAAAD8/wcAAAARABEAAAD8/wgAAAAPABUAAAD8/wkAAAAPABYAAAD7/wgAAAARAA8AAAD7/wcAAAACABIAAAD7/wYAAAARAA8AAAD6/wYAAAAVABIAAAD6/wcAAAARABAAAAD6/wgAAAARABAAAAD6/wUAAAARABAAAAD7/wUAAAARABAAAAD7/wQAAAAVABIAAAD6/wQAAAARABAAAAD6/wMAAAACABIAAAD7/wMAAAAGABAAAAD7/wIAAAARABAAAAD6/wIAAAARABAAAAD6/wEAAAARABAAAAD7/wEAAAACABIAAAD7/wAAAAACABIAAAD6/wAAAAAGABAAAAD6////AAACABIAAAD7////AAACABIAAAD6//7/AAACABIAAAD7//7/AAAGABAAAAD7//3/AAACABIAAAD6//3/AAAGABAAAAD6//z/AAACABIAAAD7//z/AAACABIAAAD8//z/AAACABIAAAD7/wkAAAAGAA8AAAD6/wkAAAARAA8AAAD8/woAAAAVABIAAAD7/woAAAAVABIAAAD6/woAAAAVABIAAAA=")
 tile_set = SubResource("TileSet_fpm8b")
+
+[node name="WrapDestination" type="Marker2D" parent="Yonder/walls/left_wall"]
+position = Vector2(1392, 312)
 
 [node name="right_goal_pack" type="Node2D" parent="Yonder/walls"]
 position = Vector2(769, 320)
@@ -3328,7 +3334,7 @@ offset_right = 1544.0
 offset_bottom = 928.0
 color = Color(0, 0, 0, 1)
 
-[node name="false_roof" type="StaticBody2D" parent="Yonder/walls"]
+[node name="false_roof" type="StaticBody2D" parent="Yonder/walls" groups=["map_wall_top"]]
 position = Vector2(-576, -192)
 collision_layer = 2
 collision_mask = 7
@@ -3342,6 +3348,9 @@ shape = SubResource("RectangleShape2D_e055s")
 offset_right = 2368.0
 offset_bottom = 64.0
 color = Color(0, 0, 0, 1)
+
+[node name="WrapDestination" type="Marker2D" parent="Yonder/walls/false_roof"]
+position = Vector2(1184, 192)
 
 [node name="false_floor" type="StaticBody2D" parent="Yonder/walls"]
 position = Vector2(-576, 752)

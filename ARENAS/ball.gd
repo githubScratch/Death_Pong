@@ -6,6 +6,17 @@ class_name Ball
 # Properties
 @export var min_speed: float = 200.0
 @export var max_speed: float = 1000.0
+
+## Replaces max_speed as this ball's speed cap for as long as it's burning
+## (see ignite()/_is_burning below) - a flat replacement, not added on top
+## of max_speed, so raise or lower it independently of whatever this
+## particular ball scene's own max_speed happens to be. A burning ball is
+## meant to read as more dangerous/harder to control, so the intent is for
+## this to sit above max_speed, but nothing enforces that ordering - it's
+## just whatever the cap becomes while burning, same "one flat number" shape
+## max_speed itself already is.
+@export var burning_max_speed: float = 2400.0
+
 var last_applied_force: Vector2 = Vector2.ZERO
 @onready var sparks_player: AnimationPlayer = $SparksPlayer
 
@@ -39,11 +50,25 @@ var _frozen_slow_amount: float = 0.0
 var _frozen_base_gravity_scale: float = 0.0
 var _frozen_overlay: Node2D = null
 
+## True for as long as this ball is burning (see ignite()/
+## _clear_burning_overlay() below) - the one gameplay effect burning
+## actually has: _physics_process()'s own speed cap uses burning_max_speed
+## instead of max_speed while this is true. Tracked as its own flag rather
+## than just checking `is_instance_valid(_burning_overlay)` because
+## burning_ball_vfx_scene (the overlay) is opt-in/nullable like every other
+## vfx_scene field in this project - a class with no overlay art assigned
+## yet should still get the speed-cap effect, same "the mechanic works even
+## with no art" convention _spawn_frozen_overlay()'s own opt-in shape
+## already follows. Set the instant ignite() is called (regardless of
+## whether overlay_scene is valid), cleared by _clear_burning_overlay() -
+## same lifetime as the overlay itself when there is one.
+var _is_burning: bool = false
+
 ## The currently-attached "on fire" overlay, if any - see ignite()/
-## _clear_burning_overlay() below. Entirely independent of _frozen_overlay
-## above: a burning ball has no gameplay effect of its own (no slow, no
-## freeze-lockout) unlike a frozen one, it's purely cosmetic, so it gets its
-## own separate field rather than being folded into the freeze state.
+## _clear_burning_overlay() below. Independent of _frozen_overlay above in
+## the same way _is_frozen/_is_burning are two separate flags - a frozen
+## ball and a burning ball are unrelated states that could in principle
+## overlap.
 var _burning_overlay: Node2D = null
 
 @onready var wall_impact: AudioStreamPlayer2D = $"../wall_impact"
@@ -88,6 +113,16 @@ func _physics_process(_delta):
 		# position so the first frame after thawing doesn't read a huge
 		# one-frame jump as velocity and trigger a stretch-effect glitch.
 		_previous_position = global_position
+		# Belt-and-suspenders alongside freeze_in_place()'s own one-time
+		# scale/rotation reset: pin it back to rest EVERY frame this branch
+		# runs, not just once at the instant of catching. freeze_in_place()
+		# already resets it once, which should be enough on its own - but if
+		# anything else this file hasn't accounted for ever touches scale/
+		# rotation while _is_frozen is true, holding it here every frame
+		# means a frozen ball can never visibly drift away from its correct
+		# rest size/orientation for the rest of the freeze, no matter what.
+		scale = _original_scale
+		rotation = 0.0
 		if _frozen_remaining <= 0.0:
 			thaw()
 		return
@@ -119,9 +154,12 @@ func _physics_process(_delta):
 		scale = _original_scale
 		rotation = 0
 
-	# Cap maximum speed
-	if linear_velocity.length() > max_speed:
-		linear_velocity = linear_velocity.normalized() * max_speed
+	# Cap maximum speed - burning_max_speed replaces the normal cap outright
+	# for as long as _is_burning is true (see that flag's own doc comment),
+	# rather than being added on top of it.
+	var effective_max_speed := burning_max_speed if _is_burning else max_speed
+	if linear_velocity.length() > effective_max_speed:
+		linear_velocity = linear_velocity.normalized() * effective_max_speed
 
 
 func apply_deflection(force_vector):
@@ -210,6 +248,27 @@ func freeze_in_place(duration: float, slow_amount: float, overlay_scene: PackedS
 	gravity_scale = _frozen_base_gravity_scale * (1.0 - _frozen_slow_amount)
 	linear_velocity *= (1.0 - _frozen_slow_amount)
 	angular_velocity *= (1.0 - _frozen_slow_amount)
+	# _physics_process()'s own `if _is_frozen:` branch returns immediately,
+	# before it ever reaches the stretch-effect code further down that
+	# ordinarily resets scale/rotation back to rest every frame the ball
+	# isn't moving fast - so once frozen, NOTHING touches scale/rotation
+	# again for the rest of the freeze; whatever shape the ball happened to
+	# be mid-stretch in at the exact instant it got caught (elongated along
+	# its direction of travel, squeezed thinner perpendicular to it, tilted
+	# to match) just holds there, frozen, for the whole duration. A ball is
+	# almost always moving fast enough to be mid-stretch at the moment an
+	# Ice Zone catches it, so this fired on nearly every catch - normally
+	# invisible since the real stretch only ever lasts a fraction of a
+	# second during motion, but held perfectly still for a multi-second
+	# freeze it reads as the ball having visibly shrunk/squished, worst on
+	# ball_big.tscn (Yonder's enlarged ball) simply because the same
+	# percentage squeeze is far more pixels there. Snapping back to rest
+	# here, once, at the same moment velocity/spin above get their own
+	# one-time freeze treatment, is what _physics_process()'s stretch code
+	# would have done itself on the very next unfrozen frame - this just
+	# does it before the freeze holds the ball still instead of after.
+	scale = _original_scale
+	rotation = 0.0
 	_spawn_frozen_overlay(overlay_scene)
 
 
@@ -249,19 +308,24 @@ func thaw() -> void:
 
 
 ## Called by whichever Meteor's attached barrier just touched this ball (see
-## wizard.gd's _on_meteor_barrier_touched_ball()) - "Burning_Ball," a purely
-## cosmetic
-## overlay with none of freeze_in_place()'s gameplay weight (no slow, no
-## lockout of anything). Restarts the timer and swaps in a fresh overlay
+## wizard.gd's _on_meteor_barrier_touched_ball()) - "Burning_Ball." Used to
+## be purely cosmetic (no slow, no lockout of anything, matching
+## freeze_in_place()'s gameplay weight); now also raises this ball's speed
+## cap to burning_max_speed for as long as it's burning (see _is_burning's
+## own doc comment) - a burning ball reads as faster/harder to control, not
+## just visually on fire. Restarts the timer and swaps in a fresh overlay
 ## instance if this ball was already burning rather than stacking a second
 ## one on top - same "clear whatever was there first" shape
 ## _spawn_frozen_overlay() already uses. duration <= 0 skips the auto-clear
-## entirely, leaving the overlay attached until something else removes it
-## (nothing does today - see MeteorAbility.burn_duration's own doc comment).
-## Null overlay_scene is a safe no-op, same opt-in convention every vfx_scene
-## field in this project follows.
+## entirely, leaving both the overlay AND the raised speed cap in effect
+## until something else removes it (nothing does today - see
+## MeteorAbility.burn_duration's own doc comment). A null overlay_scene
+## still sets _is_burning true and still raises the speed cap - only the
+## VISUAL half of this is a no-op then, same opt-in convention every other
+## vfx_scene field in this project follows for its own purely-cosmetic half.
 func ignite(duration: float, overlay_scene: PackedScene) -> void:
 	_clear_burning_overlay()
+	_is_burning = true
 	if not is_instance_valid(overlay_scene):
 		return
 	var overlay: Node2D = overlay_scene.instantiate()
@@ -283,10 +347,15 @@ func ignite(duration: float, overlay_scene: PackedScene) -> void:
 ## ignite() clearing out whatever was there before attaching a new instance,
 ## and by ignite()'s own duration timer once burn_duration elapses. Plays the
 ## overlay's one-shot "fade" clip first if it has one, same safe-before-the-
-## clip-exists shape _clear_frozen_overlay() already uses just above.
+## clip-exists shape _clear_frozen_overlay() already uses just above. Also
+## clears _is_burning - harmless when this runs from the TOP of ignite()
+## (that call sets it true again immediately after, same frame, before
+## anything else can read it), and what actually ends the raised speed cap
+## when this runs from the duration timer instead.
 func _clear_burning_overlay() -> void:
 	var overlay := _burning_overlay
 	_burning_overlay = null
+	_is_burning = false
 	if not is_instance_valid(overlay):
 		return
 	var anim := overlay.get_node_or_null("AnimationPlayer") as AnimationPlayer

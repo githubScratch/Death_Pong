@@ -1,4 +1,4 @@
-[gd_scene load_steps=64 format=3 uid="uid://n1d5enqknm4d"]
+[gd_scene load_steps=61 format=3 uid="uid://n1d5enqknm4d"]
 
 [ext_resource type="Texture2D" uid="uid://brs3upq0p1dpg" path="res://SPRITES/123.png" id="1_0yopu"]
 [ext_resource type="Texture2D" uid="uid://4eddi1wqvnlh" path="res://SPRITES/124.png" id="2_q2j24"]
@@ -214,22 +214,6 @@ region = Rect2(384, 384, 64, 64)
 atlas = ExtResource("1_0yopu")
 region = Rect2(448, 384, 64, 64)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_x0vcl"]
-atlas = ExtResource("1_0yopu")
-region = Rect2(512, 384, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_gpkfy"]
-atlas = ExtResource("1_0yopu")
-region = Rect2(576, 384, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_a2kja"]
-atlas = ExtResource("1_0yopu")
-region = Rect2(640, 384, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_jxai8"]
-atlas = ExtResource("1_0yopu")
-region = Rect2(704, 384, 64, 64)
-
 [sub_resource type="SpriteFrames" id="SpriteFrames_8rsn1"]
 animations = [{
 "frames": [{
@@ -256,18 +240,6 @@ animations = [{
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_06c66")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_x0vcl")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_gpkfy")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_a2kja")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_jxai8")
 }],
 "loop": true,
 "name": &"default",
@@ -325,10 +297,10 @@ region = Rect2(704, 320, 64, 64)
 [sub_resource type="SpriteFrames" id="SpriteFrames_auv48"]
 animations = [{
 "frames": [{
-"duration": 1.0,
+"duration": 0.5,
 "texture": SubResource("AtlasTexture_4vo1s")
 }, {
-"duration": 1.0,
+"duration": 0.5,
 "texture": SubResource("AtlasTexture_k8ew2")
 }, {
 "duration": 1.0,
@@ -352,13 +324,57 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_w3jpr")
 }, {
-"duration": 1.0,
+"duration": 0.5,
 "texture": SubResource("AtlasTexture_h1s50")
 }, {
-"duration": 1.0,
+"duration": 0.5,
 "texture": SubResource("AtlasTexture_t28lc")
 }, {
+"duration": 0.5,
+"texture": SubResource("AtlasTexture_fogd1")
+}],
+"loop": true,
+"name": &"default",
+"speed": 20.0
+}]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_85ivh"]
+animations = [{
+"frames": [{
+"duration": 0.5,
+"texture": SubResource("AtlasTexture_4vo1s")
+}, {
+"duration": 0.5,
+"texture": SubResource("AtlasTexture_k8ew2")
+}, {
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_h83vc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1hxsq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ui4in")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jct5v")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gc6l6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4x3dr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_w3jpr")
+}, {
+"duration": 0.5,
+"texture": SubResource("AtlasTexture_h1s50")
+}, {
+"duration": 0.5,
+"texture": SubResource("AtlasTexture_t28lc")
+}, {
+"duration": 0.5,
 "texture": SubResource("AtlasTexture_fogd1")
 }],
 "loop": true,
@@ -433,31 +449,44 @@ color_ramp = SubResource("GradientTexture1D_ex6g1")
 [node name="Meteor" type="Node2D"]
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+visible = false
 scale = Vector2(2, 2)
 sprite_frames = SubResource("SpriteFrames_th4sw")
 autoplay = "default"
 frame_progress = 0.0867096
 
 [node name="AnimatedSprite2D2" type="AnimatedSprite2D" parent="."]
-rotation = 3.14159
-scale = Vector2(1.8, 1.8)
+visible = false
+rotation = 1.5708
+scale = Vector2(1.4, 1.4)
 sprite_frames = SubResource("SpriteFrames_xv11g")
 autoplay = "default"
-frame_progress = 0.762357
+frame_progress = 0.672275
 
 [node name="AnimatedSprite2D3" type="AnimatedSprite2D" parent="."]
-rotation = 4.71239
-scale = Vector2(1.9, 1.9)
+visible = false
+rotation = 3.14159
+scale = Vector2(1.5, 1.5)
 sprite_frames = SubResource("SpriteFrames_8rsn1")
 autoplay = "default"
-frame_progress = 0.510367
+frame_progress = 0.453075
 
 [node name="AnimatedSprite2D4" type="AnimatedSprite2D" parent="."]
-modulate = Color(0.18359, 0.18359, 0.18359, 1)
-z_index = -1
+modulate = Color(0.996171, 0.286602, 0.149929, 1)
+z_index = 3
+scale = Vector2(2, 2)
 sprite_frames = SubResource("SpriteFrames_auv48")
 autoplay = "default"
-frame_progress = 0.957396
+frame_progress = 0.201225
+
+[node name="AnimatedSprite2D5" type="AnimatedSprite2D" parent="."]
+modulate = Color(0.756875, 0.213932, 0.130229, 0.968627)
+z_index = 3
+rotation = -3.14159
+scale = Vector2(2, 2)
+sprite_frames = SubResource("SpriteFrames_85ivh")
+autoplay = "default"
+frame_progress = 0.201225
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
@@ -472,9 +501,8 @@ texture = SubResource("GradientTexture2D_q2j24")
 
 [node name="GPUParticles2D" type="GPUParticles2D" parent="."]
 z_index = -1
-amount = 200
+amount = 400
 texture = ExtResource("3_85ivh")
-lifetime = 1.5
 preprocess = 1.0
 process_material = SubResource("ParticleProcessMaterial_naywy")
 

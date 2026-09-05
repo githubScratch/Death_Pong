@@ -39,7 +39,6 @@ var DIVE_VELOCITY = 1400
 
 var current_instance: Node = null
 var hit_the_ground = false
-var fading_instances = []
 var max_fall_speed = 6000
 
 ## How many successful shield deflections this wizard has banked so far -
@@ -118,6 +117,22 @@ var _is_clone: bool = false
 ## that flag's own doc comment.
 var _clone_source: Wizard = null
 
+## Set true the instant _despawn_clone() starts running - before its barrier
+## cleanup, before its fade tween, before anything else - and never cleared
+## (this chassis is on its way out either way). Gates the ability-dispatch
+## block in _physics_process() (_update_growth_channel() through
+## _update_meteor()) off for the rest of this clone's life, including the
+## whole clone_fade_duration fade-out window. Without this, a clone that's
+## already been told to despawn keeps reading input and casting normally for
+## that entire window - long enough to drop a fresh barrier - and since
+## _despawn_clone()'s barrier-cleanup above only runs once, at the top, any
+## barrier cast during the fade is never tracked and never cleaned up: it
+## just sits there forever. Movement/gravity/animation below the ability-
+## dispatch block are deliberately left ungated, so a despawning clone still
+## finishes falling/sliding naturally instead of freezing mid-air while it
+## fades.
+var _despawning: bool = false
+
 ## Double-tap-and-hold-to-slam-wrap state (see _update_slam_wrap()) - only
 ## meaningful for a class whose ability is a BlinkAbility with wrap_on_slam
 ## enabled. Same "double-tap and keep holding the second press" gesture
@@ -183,6 +198,20 @@ var _meteor_down_tap_window_remaining: float = 0.0
 ## straight-down plunge every frame regardless of whatever the normal
 ## gravity/movement code above it just computed.
 var _is_meteor: bool = false
+
+## Counts down from MeteorAbility.meteor_hover_delay the instant a fall
+## starts (see _start_meteor()) - while this is above 0, _physics_process()'s
+## own `if _is_meteor:` override hovers this wizard in place (velocity forced
+## to Vector2.ZERO, same shape _is_channeling's hover already uses) instead
+## of plunging at fall_speed; once it counts down to 0 the very next frame's
+## override falls through to the normal plunge with no further state needed
+## here. Ticked down from _update_meteor() itself, in the "fall already
+## started, nothing else happens here" tail of that function - not an input
+## reaction, just a duration counting down, so it doesn't conflict with that
+## function's own "deliberately uninterruptible by input" doc comment.
+## Always 0 for a 0 meteor_hover_delay (the default), so a fall starts
+## plunging the very same frame exactly like before this knob existed.
+var _meteor_hover_remaining: float = 0.0
 
 ## The currently-attached MeteorAbility.meteor_fall_vfx_scene instance, if
 ## any - see _spawn_meteor_vfx()/_clear_meteor_vfx(). A child of the WIZARD
@@ -420,11 +449,12 @@ func _physics_process(delta: float) -> void:
 			thaw()
 		return
 
-	_update_growth_channel(delta)
-	_update_blink(delta)
-	_update_slam_wrap(delta)
-	_update_ice_zone(delta)
-	_update_meteor(delta)
+	if not _despawning:
+		_update_growth_channel(delta)
+		_update_blink(delta)
+		_update_slam_wrap(delta)
+		_update_ice_zone(delta)
+		_update_meteor(delta)
 
 	if _ice_input_lock_remaining > 0.0:
 		_ice_input_lock_remaining = maxf(_ice_input_lock_remaining - delta, 0.0)
@@ -527,9 +557,17 @@ func _physics_process(delta: float) -> void:
 	# whatever the Down-press dive/dash block above happened to just set
 	# this same frame (that block is also gated off while _is_meteor is
 	# true - see its own condition - but this still needs to win outright on
-	# the very frame _start_meteor() itself runs).
+	# the very frame _start_meteor() itself runs). While _meteor_hover_
+	# remaining is still counting down (see MeteorAbility.meteor_hover_delay),
+	# this hovers in place instead - velocity forced to ZERO, same override
+	# shape _is_channeling's own hold-to-grow hover uses just above - rather
+	# than plunging yet, so the vfx _start_meteor() already spawned gets a
+	# beat to actually read as "about to fall" before it happens.
 	if _is_meteor:
-		velocity = Vector2(0.0, _meteor_fall_speed())
+		if _meteor_hover_remaining > 0.0:
+			velocity = Vector2.ZERO
+		else:
+			velocity = Vector2(0.0, _meteor_fall_speed())
 
 	move_and_slide()
 
@@ -702,18 +740,28 @@ func create_new_instance():
 		if lingering_ability != null and lingering_ability.tier2_meteor_form_blocks_barrier:
 			return
 
-	# If there's a current instance, start its fade animation
+	# If there's a current instance, retire it via the exact same
+	# DeflectionShield.start_fade() every other barrier teardown in this file
+	# already uses (_despawn_clone(), _end_meteor_barrier()) instead of this
+	# function poking the AnimationPlayer directly. Those two both route
+	# through start_fade() specifically so nothing but that one function is
+	# ever responsible for deciding when a barrier is actually gone - this
+	# used to play "fade" here directly and just hope its own Call Method
+	# Track (see start_fade()'s doc comment) would reach queue_free() on its
+	# own, with nothing tracking whether it actually did. It usually did, but
+	# deflect_ball() has no idea a barrier is mid-fade and will happily knock
+	# the AnimationPlayer over onto "deflect" the instant a ball clips it,
+	# which throws away that pending queue_free() and leaves the barrier
+	# stuck forever - the exact "leftover spell barrier" bug this was
+	# causing on every class, not just Blink's clone. start_fade() itself now
+	# guards against that (see DeflectionShield._is_fading), so going through
+	# it here closes the leak everywhere at once instead of needing every
+	# call site to duplicate the same care.
 	if is_instance_valid(current_instance):
-		# Get reference to animation player (assuming it's a direct child of the instance)
-		var anim_player = current_instance.get_node_or_null("AnimationPlayer")
-
-		if is_instance_valid(anim_player) and anim_player.has_animation("fade"):
-			# Track this instance as fading
-			fading_instances.append(current_instance)
-			# Play fade animation
-			anim_player.play("fade")
+		var shield := current_instance.get_node_or_null("Area2D") as DeflectionShield
+		if shield != null:
+			shield.start_fade()
 		else:
-			# No animation player or animation, just queue_free
 			current_instance.queue_free()
 
 	# Reset current instance reference before creating new one
@@ -727,12 +775,6 @@ func create_new_instance():
 
 	# Immediately create new instance without delay
 	_spawn_shield_instance(_current_ability())
-
-	# Clean up any stale instances in the fading list (run occasionally)
-	if fading_instances.size() > 10 or randf() < 0.1:
-		for old_instance in fading_instances.duplicate():
-			if !is_instance_valid(old_instance):
-				fading_instances.erase(old_instance)
 
 
 ## Every class's shield reports its own successful deflections back here via
@@ -1464,10 +1506,27 @@ func _spawn_blink_clone(ability: BlinkAbility) -> void:
 ## driven, ending in that barrier's own queue_free()) every other barrier
 ## teardown in this file already uses, see _end_meteor_barrier() - falling
 ## back to a bare queue_free() if the barrier has no DeflectionShield to ask,
-## same fallback _end_meteor_barrier() uses. Frees the whole clone chassis
+## same fallback _end_meteor_barrier() uses. The barrier's own fade (if any)
+## and the clone's own fade below run side by side, not sequenced - neither
+## waits on the other.
+##
+## The clone chassis itself no longer just vanishes the instant this fires:
+## if ability.clone_fade_duration is above 0, modulate.a tweens from
+## whatever it's currently at (ability.clone_transparency, set once at
+## spawn - see _spawn_blink_clone()) down to 0 over that many seconds,
+## shaped by ability.clone_fade_trans/clone_fade_ease (see those exports'
+## own doc comments for the "decay curve" knob), and only THEN is the
+## chassis freed. A duration of 0 (or no BlinkAbility resolving here at
+## all - shouldn't happen for a clone, but cheap to guard) skips straight to
+## the old immediate-queue_free() behavior. Frees the whole clone chassis
 ## (this CharacterBody2D's parent WizardSeat root, not just this node)
-## afterward, not just this script's own node.
+## either way, not just this script's own node.
 func _despawn_clone() -> void:
+	# Must be the very first thing this function does - see _despawning's own
+	# doc comment. Everything below this line, including the await further
+	# down, runs with ability-dispatch already shut off, so nothing can spawn
+	# a new current_instance out from under the one-shot cleanup right below.
+	_despawning = true
 	if is_instance_valid(current_instance):
 		var barrier := current_instance as Node2D
 		var shield: DeflectionShield = null
@@ -1477,6 +1536,20 @@ func _despawn_clone() -> void:
 			shield.start_fade()
 		elif barrier != null:
 			barrier.queue_free()
+		current_instance = null
+	var ability := _current_ability() as BlinkAbility
+	if ability != null and ability.clone_fade_duration > 0.0:
+		var fade_tween := create_tween()
+		fade_tween.tween_property(self, "modulate:a", 0.0, ability.clone_fade_duration) \
+			.set_trans(ability.clone_fade_trans).set_ease(ability.clone_fade_ease)
+		await fade_tween.finished
+	# Defensive re-check: _despawning already forbids any NEW cast for the
+	# whole fade, so this should always be null by now - but if anything ever
+	# slips through, free it here rather than let it outlive the chassis.
+	if is_instance_valid(current_instance):
+		var leftover := current_instance as Node2D
+		if leftover != null:
+			leftover.queue_free()
 		current_instance = null
 	var chassis := get_parent()
 	if is_instance_valid(chassis):
@@ -1594,27 +1667,48 @@ func _execute_blink(ability: BlinkAbility, direction: float) -> void:
 
 ## Returns the WrapDestination marker for a blocked blink's collider, or
 ## null if that collider isn't tagged as a wrap boundary. Only
-## map_wall_left/map_wall_right (currently just Arena's left/right walls -
-## see arena.tscn) opt in; anything else - another wizard, a mid-arena
-## platform, an arena with no wrap walls tagged at all - returns null and
-## _execute_blink() falls back to its normal stop-short behavior. Keeping
-## this as a group lookup rather than a hardcoded node path means adding
-## wrap walls to another arena later is a scene-only change, no script
-## change needed here.
+## map_wall_left/map_wall_right (currently just Arena's left/right walls,
+## PLUS each side's goal-mouth WizardWall gate - see arena.tscn) opt in;
+## anything else - another wizard, a mid-arena platform, an arena with no
+## wrap walls tagged at all - returns null and _execute_blink() falls back
+## to its normal stop-short behavior.
+##
+## Fetches the actual WrapDestination marker via the GROUP (get_first_node_
+## in_group()), not as a direct child of whichever specific collider was
+## hit - same lookup shape _try_slam_wrap() already uses for map_wall_top.
+## This matters now that a side has TWO separate wrap-tagged bodies: the
+## main wall (which owns the actual WrapDestination child) and the thinner
+## WizardWall gate sealing the goal mouth for wizards only (see CLAUDE.md's
+## "goal-mouth WizardWall gates" note) - a blink stopped by either one still
+## resolves to the same marker, since both are just entry points into the
+## same wrap boundary, not two different destinations. Keeping this a group
+## lookup rather than a hardcoded node path also means adding more wrap-
+## tagged geometry to a side (this arena or another) later is a scene-only
+## change, no script change needed here.
 func _wrap_destination(collider: Node) -> Node2D:
 	if collider == null:
 		return null
-	if not (collider.is_in_group("map_wall_left") or collider.is_in_group("map_wall_right")):
+	var group := ""
+	if collider.is_in_group("map_wall_left"):
+		group = "map_wall_left"
+	elif collider.is_in_group("map_wall_right"):
+		group = "map_wall_right"
+	else:
 		return null
-	return collider.get_node_or_null("WrapDestination") as Node2D
+	var wall := get_tree().get_first_node_in_group(group)
+	if wall == null:
+		return null
+	return wall.get_node_or_null("WrapDestination") as Node2D
 
 
-## Double-tap-and-hold Down (in-air) arms _slam_wrap_armed for _try_slam_wrap()
-## to consume at landing - mirrors MeteorAbility's own double-tap-and-hold
-## gesture (_update_meteor()'s own doc comment) so both fire off the same
-## kind of deliberate input, rather than the old behavior of just checking
-## Input.is_action_pressed(_action_down) at the landing frame, which fired
-## on literally every ordinary Down-held dive - see BlinkAbility.
+## Arms _slam_wrap_armed for _try_slam_wrap() to consume at landing - either
+## via a double-tap-and-hold Down (in-air), mirroring MeteorAbility's own
+## double-tap-and-hold gesture (_update_meteor()'s own doc comment), or via
+## a single press-and-hold, depending on BlinkAbility.
+## slam_wrap_requires_double_tap (see that export's own doc comment) - both
+## paths are a deliberate gesture rather than the old behavior of just
+## checking Input.is_action_pressed(_action_down) at the landing frame,
+## which fired on literally every ordinary Down-held dive - see BlinkAbility.
 ## wrap_on_slam's own doc comment. No-op unless the current ability is a
 ## BlinkAbility with wrap_on_slam enabled, same "costs nothing for classes/
 ## configs that don't use it" convention every other _update_*() function
@@ -1634,6 +1728,18 @@ func _update_slam_wrap(delta: float) -> void:
 		# of leaving it armed for whenever this wizard eventually lands.
 		if not Input.is_action_pressed(_action_down):
 			_slam_wrap_armed = false
+		return
+
+	if not ability.slam_wrap_requires_double_tap:
+		# Single press-and-hold arms it outright, no double-tap gesture
+		# needed - still gated on airborne at the moment Down is first
+		# pressed, same as the double-tap path below, so pressing Down
+		# while already grounded still just falls through to the ordinary
+		# dash untouched. The double-tap window is never touched on this
+		# path, so flipping this knob mid-game can't leave a stale window
+		# ticking down from the other mode.
+		if Input.is_action_just_pressed(_action_down) and not is_on_floor():
+			_slam_wrap_armed = true
 		return
 
 	if _slam_down_tap_window_remaining > 0.0:
@@ -1765,14 +1871,21 @@ func _update_meteor(delta: float) -> void:
 				_meteor_down_tap_window_remaining = ability.double_tap_window
 		return
 
-	# Deliberately nothing else here - once a fall actually starts, it's
-	# uninterruptible by input on purpose (an earlier version cancelled early
-	# on releasing Down, same as Growth's hold ending the instant Up
+	# Otherwise nothing here reacts to input - once a fall actually starts,
+	# it's uninterruptible by input on purpose (an earlier version cancelled
+	# early on releasing Down, same as Growth's hold ending the instant Up
 	# releases; that's gone now). The ONLY way out early is an external
 	# interrupt like a freeze catching this wizard mid-plunge (see
 	# _physics_process()'s frozen branch, which still calls _cancel_meteor()
 	# itself). Landing is handled separately, from _physics_process()'s own
 	# airborne-to-grounded transition (see _land_meteor()), not from here.
+	#
+	# The hover-delay countdown below is the one thing that still needs
+	# ticking once falling - not an input reaction, just a duration counting
+	# down toward 0, same as _meteor_down_tap_window_remaining's own countdown
+	# above - see _meteor_hover_remaining's own doc comment.
+	if _meteor_hover_remaining > 0.0:
+		_meteor_hover_remaining = maxf(_meteor_hover_remaining - delta, 0.0)
 
 
 ## Begins a meteor fall: forces this wizard into a straight-down plunge (see
@@ -1783,9 +1896,23 @@ func _update_meteor(delta: float) -> void:
 ## hitbox, is what actually does the fall's hitting now. Free to call - no
 ## strike cost to become a meteor at all; see MeteorAbility's own doc
 ## comment for why.
+##
+## ability.meteor_hover_delay above 0 means the plunge itself doesn't start
+## immediately: _meteor_hover_remaining is armed here and velocity is zeroed
+## rather than set to fall_speed, so _physics_process()'s own override hovers
+## this wizard in place until that counts down (see that override and
+## _update_meteor()'s own countdown). The barrier and vfx are still attached/
+## spawned right here regardless, unconditionally, so both are already up and
+## visible for the entire hover, not just the plunge that follows it - the
+## whole point of the delay is to telegraph the fall that's about to happen,
+## which needs its own vfx already on screen to actually read as a warning.
+## A 0 delay (the default) leaves _meteor_hover_remaining at 0, so the very
+## next physics frame's override falls through to the plunge immediately,
+## identical to before this knob existed.
 func _start_meteor(ability: MeteorAbility) -> void:
 	_is_meteor = true
-	velocity = Vector2(0.0, ability.fall_speed)
+	_meteor_hover_remaining = ability.meteor_hover_delay
+	velocity = Vector2.ZERO if ability.meteor_hover_delay > 0.0 else Vector2(0.0, ability.fall_speed)
 	_attach_meteor_barrier(ability)
 	_spawn_meteor_vfx(ability)
 
@@ -1799,6 +1926,7 @@ func _start_meteor(ability: MeteorAbility) -> void:
 ## needs to touch velocity itself.
 func _cancel_meteor() -> void:
 	_is_meteor = false
+	_meteor_hover_remaining = 0.0
 	_end_meteor_vfx(_current_ability() as MeteorAbility)
 	_end_meteor_barrier()
 
@@ -1817,6 +1945,7 @@ func _cancel_meteor() -> void:
 ## the branch below.
 func _land_meteor() -> void:
 	_is_meteor = false
+	_meteor_hover_remaining = 0.0
 	var ability := _current_ability() as MeteorAbility
 	if ability == null:
 		_end_meteor_vfx(null)

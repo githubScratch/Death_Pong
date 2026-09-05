@@ -1,7 +1,7 @@
 [gd_scene load_steps=36 format=3 uid="uid://ct4ajy6y060p0"]
 
-[ext_resource type="Texture2D" uid="uid://digthh0it584s" path="res://SPRITES/88.png" id="1_jhama"]
 [ext_resource type="Texture2D" uid="uid://y358y2w6rnmf" path="res://SPRITES/475.png" id="1_rbx67"]
+[ext_resource type="Texture2D" uid="uid://bqymyl0du2lt1" path="res://SPRITES/sprite_0089.png" id="2_s8his"]
 [ext_resource type="Texture2D" uid="uid://lovia63fg07t" path="res://SPRITES/75.png" id="2_yargl"]
 [ext_resource type="AudioStream" uid="uid://dtnhs6dommt08" path="res://SFX/thump.wav" id="3_wuwwc"]
 [ext_resource type="Script" uid="uid://vm2kbqxepj87" path="res://PLAYERS/deflection_shield.gd" id="4_jhama"]
@@ -847,13 +847,15 @@ slosh_stiffness = 30.0
 
 [node name="passivebubbles" type="CPUParticles2D" parent="."]
 position = Vector2(4.2, -0.6)
-texture = ExtResource("1_jhama")
+texture = ExtResource("2_s8his")
 lifetime = 1.5
 emission_shape = 1
-emission_sphere_radius = 40.0
+emission_sphere_radius = 50.0
 gravity = Vector2(0, -20)
-scale_amount_min = 0.5
-scale_amount_max = 1.5
+angle_min = -360.0
+angle_max = 360.0
+scale_amount_min = 0.02
+scale_amount_max = 0.02
 color = Color(0.216667, 1, 0, 0.368627)
 color_ramp = SubResource("Gradient_uw7x3")
 

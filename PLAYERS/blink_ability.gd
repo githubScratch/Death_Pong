@@ -77,6 +77,23 @@ class_name BlinkAbility
 ## floor - that stays the existing horizontal dash untouched.
 @export var wrap_on_slam: bool = false
 
+## Only matters when wrap_on_slam is true. If true (the default - matches
+## the original behavior), arming a slam-wrap takes the full double-tap-and-
+## hold gesture described above: tap Down, tap it again within
+## double_tap_window while still airborne, and keep holding that second
+## press through to landing. If false, a single press-and-hold of Down while
+## airborne arms it outright - no double-tap needed, see wizard.gd's
+## _update_slam_wrap(). Either way, releasing Down before landing still
+## cancels the arm, and it's still gated on being airborne when Down is
+## first pressed (pressing Down while already grounded just falls through
+## to the ordinary dash, same as always) - this knob only changes how many
+## presses of Down it takes to arm, not any of the other rules around it.
+## Exists because double-tap-and-hold reads as a deliberate, hard-to-
+## trigger-by-accident input (matching MeteorAbility's own gesture), while a
+## plain hold is faster/twitchier to use - which one feels right is a
+## per-class, per-feel call, not a single right answer.
+@export var slam_wrap_requires_double_tap: bool = true
+
 ## How close this wizard must already be to a wrap-tagged wall (map_wall_
 ## left/map_wall_right - see wizard.gd's _wrap_destination()) for a blink
 ## that reaches it to actually wrap to the opposite side, rather than just
@@ -116,6 +133,25 @@ class_name BlinkAbility
 ## it reads as a clone at a glance instead of an indistinguishable second
 ## copy of the real player. 1.0 makes it fully opaque/identical.
 @export var clone_transparency: float = 0.5
+
+## Seconds spent tweening the clone's modulate.a from clone_transparency
+## down to 0 right before its chassis is freed - see wizard.gd's
+## _despawn_clone(). 0 skips the tween and frees the clone immediately, the
+## original "just disappears" behavior - same "0 opts out" convention every
+## other timing knob on this resource already uses (blink_delay, etc).
+@export var clone_fade_duration: float = 0.5
+
+## The actual "decay curve" shape applied to that fade - Tween's own
+## TransitionType/EaseType vocabulary, same pair every other decay/return
+## tween in this project already exposes as a feel knob (see
+## deflection_shield.gd's shield-return tween and wizard.gd's own
+## knockback-decay tweens) rather than introducing a separate Curve
+## resource just for this one spot. TRANS_LINEAR/EASE_IN is a plain,
+## constant-speed fade; swap in something like TRANS_CUBIC/EASE_IN for a
+## fade that lingers early and drops off fast at the end, or TRANS_SINE/
+## EASE_OUT for the reverse.
+@export var clone_fade_trans: Tween.TransitionType = Tween.TRANS_LINEAR
+@export var clone_fade_ease: Tween.EaseType = Tween.EASE_IN
 
 ## If true, any strike the clone's own shield deflects is credited back to
 ## the player who cast it (see wizard.gd's _on_shield_deflected()) instead

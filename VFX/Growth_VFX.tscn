@@ -1,8 +1,9 @@
-[gd_scene load_steps=24 format=3 uid="uid://c0gadpe3ctdnd"]
+[gd_scene load_steps=34 format=3 uid="uid://c0gadpe3ctdnd"]
 
 [ext_resource type="Texture2D" uid="uid://bqymyl0du2lt1" path="res://SPRITES/sprite_0089.png" id="1_ulhue"]
 [ext_resource type="AudioStream" uid="uid://c8h5wf6cw7vyi" path="res://SFX/magic heartbeat.mp3" id="2_sin78"]
 [ext_resource type="Texture2D" uid="uid://bar8mn5ms2f2r" path="res://SPRITES/509.png" id="3_sin78"]
+[ext_resource type="Texture2D" uid="uid://dt5le3v72dpxo" path="res://SPRITES/Free Smoke Fx  Pixel 07.png" id="4_pesqj"]
 
 [sub_resource type="Gradient" id="Gradient_pesqj"]
 offsets = PackedFloat32Array(0, 0.218182, 0.818182, 1)
@@ -26,8 +27,8 @@ linear_accel_min = -12.64
 linear_accel_max = 6.9
 tangential_accel_min = -21.84
 tangential_accel_max = 22.99
-scale_min = 0.01
-scale_max = 0.03
+scale_min = 0.02
+scale_max = 0.02
 color_ramp = SubResource("GradientTexture1D_6n6wl")
 hue_variation_min = -0.02
 hue_variation_max = 0.02
@@ -70,6 +71,30 @@ tracks/2/keys = {
 "update": 0,
 "values": [5.0]
 }
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("AnimatedSprite2D2:modulate")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(0.4, 0.298, 0.196, 1)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("AnimatedSprite2D3:modulate")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(0.248443, 0.449163, 0.245228, 1)]
+}
 
 [sub_resource type="Animation" id="Animation_s4f6f"]
 resource_name = "grow"
@@ -109,6 +134,30 @@ tracks/2/keys = {
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
 "values": [-10.0, 5.0]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("AnimatedSprite2D2:modulate")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(-0.0333333, 0.9),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(0.4, 0.298, 0.196, 0), Color(0.4, 0.298, 0.196, 1)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("AnimatedSprite2D3:modulate")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.933333),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(0.250875, 0.45, 0.2475, 0), Color(0.248443, 0.449163, 0.245228, 1)]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_oc1d3"]
@@ -216,11 +265,114 @@ animations = [{
 "speed": 20.0
 }]
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_1xuk4"]
+radius = 47.0106
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_j32t6"]
+atlas = ExtResource("4_pesqj")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_31sdx"]
+atlas = ExtResource("4_pesqj")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2wf2j"]
+atlas = ExtResource("4_pesqj")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_14w5r"]
+atlas = ExtResource("4_pesqj")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1v0ux"]
+atlas = ExtResource("4_pesqj")
+region = Rect2(320, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wj7k3"]
+atlas = ExtResource("4_pesqj")
+region = Rect2(384, 0, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_jdy5v"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_j32t6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_31sdx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2wf2j")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_14w5r")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1v0ux")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wj7k3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1v0ux")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_14w5r")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2wf2j")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_31sdx")
+}],
+"loop": true,
+"name": &"default",
+"speed": 15.0
+}]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_8ye6n"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1v0ux")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wj7k3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1v0ux")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_14w5r")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2wf2j")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_31sdx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_j32t6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_31sdx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2wf2j")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_14w5r")
+}],
+"loop": true,
+"name": &"default",
+"speed": 15.0
+}]
+
 [node name="GrowthVfx" type="Node2D"]
 
 [node name="GPUParticles2D" type="GPUParticles2D" parent="."]
 modulate = Color(0.298934, 0.679778, 0.355319, 1)
-amount = 10
+amount = 4
 texture = ExtResource("1_ulhue")
 explosiveness = 0.24
 process_material = SubResource("ParticleProcessMaterial_oipe6")
@@ -241,4 +393,26 @@ modulate = Color(1, 1, 1, 0.513726)
 scale = Vector2(1.5, 1.5)
 sprite_frames = SubResource("SpriteFrames_1v0ux")
 autoplay = "default"
-frame_progress = 0.581094
+frame_progress = 0.254096
+
+[node name="rootwall wizard blocker" type="StaticBody2D" parent="."]
+collision_layer = 16
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="rootwall wizard blocker"]
+shape = SubResource("CircleShape2D_1xuk4")
+
+[node name="AnimatedSprite2D2" type="AnimatedSprite2D" parent="."]
+modulate = Color(0.4, 0.298, 0.196, 1)
+scale = Vector2(2, 2)
+sprite_frames = SubResource("SpriteFrames_jdy5v")
+autoplay = "default"
+frame_progress = 0.180425
+
+[node name="AnimatedSprite2D3" type="AnimatedSprite2D" parent="."]
+modulate = Color(0.248443, 0.449163, 0.245228, 1)
+rotation = 1.5708
+scale = Vector2(2, 2)
+sprite_frames = SubResource("SpriteFrames_8ye6n")
+autoplay = "default"
+frame_progress = 0.273861

@@ -77,6 +77,22 @@ class_name MeteorAbility
 ## more committal move than a plain dive.
 @export var fall_speed: float = 2400.0
 
+## Seconds this wizard just hangs in place - velocity forced to zero, same
+## per-frame override shape the hold-to-grow hover already uses (see
+## wizard.gd's _physics_process()) - the instant the fall triggers, before
+## the actual plunge at fall_speed kicks in. Purely a "visual registry" beat
+## so the drop reads as a deliberate, telegraphed commitment instead of an
+## instant snap straight down - a dodge/parry window for whoever's about to
+## get fallen on, same spirit as BlinkAbility.blink_delay's own wind-up.
+## meteor_fall_vfx_scene (see wizard.gd's _start_meteor()/_spawn_meteor_vfx())
+## still spawns and starts up immediately at the top of this hover, not after
+## it - the wind-up is meant to telegraph the incoming fall, which only works
+## if the fall's own vfx is already visible while it's hanging there. 0 (the
+## default) skips the hover entirely and falls the same frame the meteor
+## triggers - the original, no-wind-up behavior - same "0 opts out"
+## convention every other timing knob in this project already uses.
+@export var meteor_hover_delay: float = 0.0
+
 ## Added directly onto the attached barrier's own DeflectionShield.
 ## deflection_force for as long as it's riding along with this wizard (see
 ## wizard.gd's _attach_meteor_barrier()) - this is the ability's entire

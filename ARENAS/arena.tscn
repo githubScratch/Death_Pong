@@ -1,4 +1,4 @@
-[gd_scene load_steps=62 format=4 uid="uid://dgpeqxyiiriwx"]
+[gd_scene load_steps=64 format=4 uid="uid://dgpeqxyiiriwx"]
 
 [ext_resource type="Script" uid="uid://dg4utk7dcltn2" path="res://ARENAS/arena.gd" id="1_3ujay"]
 [ext_resource type="PackedScene" uid="uid://c7wd648uhhby4" path="res://PLAYERS/wizard.tscn" id="1_chassis"]
@@ -344,11 +344,17 @@ scale_max = 1.5
 color = Color(0.0941176, 1, 0.678431, 1)
 color_ramp = SubResource("GradientTexture1D_0yefq")
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_eglsa"]
+size = Vector2(46, 207)
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0fd2y"]
 size = Vector2(24, 192)
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_y3sxm"]
 load_path = "res://.godot/imported/88.png-e3e17f28dacbdd435e0b744639875d35.ctex"
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_w4q3b"]
+size = Vector2(46, 202)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_y3sxm"]
 size = Vector2(2344, 392)
@@ -1027,7 +1033,7 @@ _data = {
 &"rainsway": SubResource("Animation_ps7ku")
 }
 
-[node name="Node2D2" type="Node2D"]
+[node name="Node2D3" type="Node2D"]
 script = ExtResource("1_3ujay")
 instance_scene = ExtResource("3_uo83q")
 p3_scene = ExtResource("15_0yefq")
@@ -1120,6 +1126,15 @@ scale = Vector2(2, 2)
 tile_map_data = PackedByteArray("AAAiAAAAAgAKAAEAAAAiAAEAAgAKAAIAAAAiAAIAAgAKAAMAAAAiAAMAAgAKAAQAAAAiAAQAAgAKAAUAAAAiAAUAAgAKAAYAAAAjAAAAAgALAAEAAAAjAAEAAgALAAIAAAAjAAIAAgALAAMAAAAjAAMAAgALAAQAAAAjAAQAAgALAAUAAAAjAAUAAgALAAYAAAAiAAYAAgADAAEAAAAjAAYAAgAEAAEAAAAjAAcAAgAIAAMAAAAjAAgAAgAIAAQAAAAjAAkAAgAIAAMAAAAjAAoAAgAIAAQAAAAjAAsAAgAIAAMAAAAjAAwAAgAIAAQAAAAiAA0AAgAAAAEAAAAiAA4AAgAAAAIAAAAiAA8AAgAAAAMAAAAiABAAAgAAAAQAAAAiABEAAgAAAAUAAAAjAA0AAgABAAEAAAAjAA4AAgABAAIAAAAjAA8AAgABAAMAAAAjABAAAgABAAQAAAAjABEAAgABAAUAAAAiABIAAgAAAAYAAAAjABIAAgABAAYAAAAiABMAAgAAAAEAAAAiABQAAgAAAAIAAAAiABUAAgAAAAMAAAAiABYAAgAAAAQAAAAiABcAAgAAAAUAAAAiABgAAgAAAAYAAAAjABMAAgABAAEAAAAjABQAAgABAAIAAAAjABUAAgABAAMAAAAjABYAAgABAAQAAAAjABcAAgABAAUAAAAjABgAAgABAAYAAAAiABkAAgAAAAEAAAAiABoAAgAAAAIAAAAiABsAAgAAAAMAAAAiABwAAgAAAAQAAAAiAB0AAgAAAAUAAAAiAB4AAgAAAAYAAAAjABkAAgABAAEAAAAjABoAAgABAAIAAAAjABsAAgABAAMAAAAjABwAAgABAAQAAAAjAB0AAgABAAUAAAAjAB4AAgABAAYAAAAiAPr/AgAKAAEAAAAiAPv/AgAKAAIAAAAiAPz/AgAKAAMAAAAiAP3/AgAKAAQAAAAiAP7/AgAKAAUAAAAiAP//AgAKAAYAAAAjAPr/AgALAAEAAAAjAPv/AgALAAIAAAAjAPz/AgALAAMAAAAjAP3/AgALAAQAAAAjAP7/AgALAAUAAAAjAP//AgALAAYAAAAiAPT/AgAKAAEAAAAiAPX/AgAKAAIAAAAiAPb/AgAKAAMAAAAiAPf/AgAKAAQAAAAiAPj/AgAKAAUAAAAiAPn/AgAKAAYAAAAjAPT/AgALAAEAAAAjAPX/AgALAAIAAAAjAPb/AgALAAMAAAAjAPf/AgALAAQAAAAjAPj/AgALAAUAAAAjAPn/AgALAAYAAAA=")
 tile_set = SubResource("TileSet_w4q3b")
 
+[node name="right wizard wall" type="StaticBody2D" parent="Arena/walls/right" groups=["map_wall_right"]]
+position = Vector2(1099, 234)
+collision_layer = 16
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Arena/walls/right/right wizard wall"]
+position = Vector2(12, 84.5)
+shape = SubResource("RectangleShape2D_eglsa")
+
 [node name="left" type="StaticBody2D" parent="Arena/walls" groups=["map_wall_left"]]
 collision_layer = 2
 collision_mask = 7
@@ -1183,6 +1198,15 @@ z_index = 1
 scale = Vector2(2, 2)
 tile_map_data = PackedByteArray("AAAAAA0AAgAAAAEAAAAAAA4AAgAAAAIAAAAAAA8AAgAAAAMAAAAAABAAAgAAAAQAAAAAABEAAgAAAAUAAAABAA0AAgABAAEAAAABAA4AAgABAAIAAAABAA8AAgABAAMAAAABABAAAgABAAQAAAABABEAAgABAAUAAAAAAAcAAgAIAAMAAAAAAAgAAgAIAAQAAAAAAAkAAgAIAAMAAAAAAAoAAgAIAAQAAAAAAAsAAgAIAAMAAAAAAAwAAgAIAAQAAAAAAAAAAgAKAAEAAAAAAAEAAgAKAAIAAAAAAAIAAgAKAAMAAAAAAAMAAgAKAAQAAAAAAAQAAgAKAAUAAAAAAAUAAgAKAAYAAAABAAAAAgALAAEAAAABAAEAAgALAAIAAAABAAIAAgALAAMAAAABAAMAAgALAAQAAAABAAQAAgALAAUAAAABAAUAAgALAAYAAAAAAAYAAgADAAEAAAABAAYAAgAEAAEAAAAAAPr/AgAKAAEAAAAAAPv/AgAKAAIAAAAAAPz/AgAKAAMAAAAAAP3/AgAKAAQAAAAAAP7/AgAKAAUAAAAAAP//AgAKAAYAAAABAPr/AgALAAEAAAABAPv/AgALAAIAAAABAPz/AgALAAMAAAABAP3/AgALAAQAAAABAP7/AgALAAUAAAABAP//AgALAAYAAAAAAPT/AgAKAAEAAAAAAPX/AgAKAAIAAAAAAPb/AgAKAAMAAAAAAPf/AgAKAAQAAAAAAPj/AgAKAAUAAAAAAPn/AgAKAAYAAAABAPT/AgALAAEAAAABAPX/AgALAAIAAAABAPb/AgALAAMAAAABAPf/AgALAAQAAAABAPj/AgALAAUAAAABAPn/AgALAAYAAAAAABIAAgAAAAYAAAABABIAAgABAAYAAAAAABMAAgAAAAEAAAAAABQAAgAAAAIAAAAAABUAAgAAAAMAAAAAABYAAgAAAAQAAAAAABcAAgAAAAUAAAAAABgAAgAAAAYAAAABABMAAgABAAEAAAABABQAAgABAAIAAAABABUAAgABAAMAAAABABYAAgABAAQAAAABABcAAgABAAUAAAABABgAAgABAAYAAAAAABkAAgAAAAEAAAAAABoAAgAAAAIAAAAAABsAAgAAAAMAAAAAABwAAgAAAAQAAAAAAB0AAgAAAAUAAAAAAB4AAgAAAAYAAAABABkAAgABAAEAAAABABoAAgABAAIAAAABABsAAgABAAMAAAABABwAAgABAAQAAAABAB0AAgABAAUAAAABAB4AAgABAAYAAAA=")
 tile_set = SubResource("TileSet_w4q3b")
+
+[node name="left wizard wall" type="StaticBody2D" parent="Arena/walls/left" groups=["map_wall_left"]]
+position = Vector2(44, 224)
+collision_layer = 16
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Arena/walls/left/left wizard wall"]
+position = Vector2(-3, 94)
+shape = SubResource("RectangleShape2D_w4q3b")
 
 [node name="bottom" type="StaticBody2D" parent="Arena/walls"]
 position = Vector2(576, 609.625)
@@ -1547,6 +1571,6 @@ process_material = SubResource("ParticleProcessMaterial_liqqh")
 [connection signal="pressed" from="Player_1_Victory/CenterContainer/VBoxContainer/HBoxContainer/Menu1" to="." method="_on_menu_1_pressed"]
 [connection signal="pressed" from="Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch2" to="." method="_on_rematch_2_pressed"]
 [connection signal="pressed" from="Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer/Menu2" to="." method="_on_menu_2_pressed"]
-[connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1" to="." method="_on_continue_1_pressed"]
 [connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1" to="." method="_on_continue_pressed"]
+[connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1" to="." method="_on_continue_1_pressed"]
 [connection signal="pressed" from="Pause/CenterContainer/VBoxContainer/HBoxContainer/Menu3" to="." method="_on_menu_3_pressed"]

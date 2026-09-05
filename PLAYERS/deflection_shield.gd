@@ -34,6 +34,24 @@ signal deflected
 ## gets bounced.
 var pass_through: bool = false
 
+## True from the instant start_fade() begins, for the rest of this barrier's
+## life - never cleared, same "one-way" shape as wizard.gd's _despawning.
+## Closes a real leak: deflect_ball() unconditionally interrupts whatever
+## the AnimationPlayer is currently doing (stop() then play("deflect")) any
+## time a ball touches this Area2D, with no awareness that "fade" might
+## already be running. "fade"'s OWN clip is what actually frees this
+## barrier - a Call Method Track calls queue_free() on the barrier root at
+## the very end of the clip (see start_fade()'s doc comment) - so if a ball
+## clips an already-fading barrier and knocks the AnimationPlayer over onto
+## "deflect" before that track fires, the queue_free() call is thrown away
+## with it and this barrier never frees at all: it just sits there,
+## snapped back to a normal "deflect" pose, forever. Gating _on_body_
+## entered() behind `not _is_fading` (same early-out shape pass_through
+## already uses just below) means a barrier that's already on its way out
+## can no longer be knocked off that path by a late hit - it keeps fading
+## and frees on schedule no matter how many balls clip it on the way out.
+var _is_fading: bool = false
+
 var _freeze_queue = []
 var _is_processing_freeze = false
 
@@ -56,7 +74,7 @@ func _on_body_entered(body):
 	# itself is.
 	if body.is_in_group("wizard") and body.has_method("thaw"):
 		body.thaw()
-	if pass_through:
+	if pass_through or _is_fading:
 		return
 	if body.is_in_group("ball"):
 		var direction = (body.global_position - global_position).normalized()
@@ -125,6 +143,10 @@ func knockback(direction: Vector2, distance: float) -> void:
 ## was playing" rule deflect_ball() already follows for its own "deflect")
 ## guarantees this actually starts the instant it's called instead.
 func start_fade() -> void:
+	# Set before anything else touches the AnimationPlayer - see _is_fading's
+	# own doc comment for why this has to close the window completely rather
+	# than just being set alongside the play() call below.
+	_is_fading = true
 	animation_player.stop()
 	if animation_player.has_animation("fade"):
 		animation_player.play("fade")
