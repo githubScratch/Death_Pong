@@ -60,6 +60,7 @@ const _NEVER_EXPIRES := 1.0e9
 
 var caster: Node = null
 var affects_caster: bool = false
+var affects_other_wizards: bool = true
 var slow_amount: float = 0.5
 var duration: float = 2.0
 var despawn_delay: float = 0.3
@@ -89,13 +90,14 @@ var _despawning: bool = false
 ## own Node2D scale so the collision shape and the (code-instantiated)
 ## self_vfx_scene visual both grow together for free, no separate sizing
 ## math needed per child.
-func configure(p_scale: float, p_slow_amount: float, p_duration: float, p_despawn_delay: float, p_caster: Node, p_affects_caster: bool, p_frozen_ball_overlay: PackedScene, p_frozen_wizard_overlay: PackedScene, p_self_vfx_scene: PackedScene, p_cast_direction: float) -> void:
+func configure(p_scale: float, p_slow_amount: float, p_duration: float, p_despawn_delay: float, p_caster: Node, p_affects_caster: bool, p_affects_other_wizards: bool, p_frozen_ball_overlay: PackedScene, p_frozen_wizard_overlay: PackedScene, p_self_vfx_scene: PackedScene, p_cast_direction: float) -> void:
 	scale = Vector2.ONE * p_scale
 	slow_amount = p_slow_amount
 	duration = p_duration
 	despawn_delay = p_despawn_delay
 	caster = p_caster
 	affects_caster = p_affects_caster
+	affects_other_wizards = p_affects_other_wizards
 	frozen_ball_overlay = p_frozen_ball_overlay
 	frozen_wizard_overlay = p_frozen_wizard_overlay
 	self_vfx_scene = p_self_vfx_scene
@@ -143,10 +145,17 @@ func _physics_process(delta: float) -> void:
 ## freeze_in_place() at all, is never touched - same duck-typed opt-in
 ## shape used everywhere else in this project. The caster is excluded
 ## entirely unless affects_caster is true (see IceAbility.self_affected).
+## A wizard that ISN'T the caster is further gated by affects_other_wizards
+## (IceAbility.affects_other_wizards) - false turns this into a ball-only
+## zone, letting every other wizard walk through untouched, same as if they
+## weren't in the "wizard" group at all; balls are never affected by this
+## knob either way.
 func _eligible(body: Node) -> bool:
 	if body == caster and not affects_caster:
 		return false
 	if not body.has_method("freeze_in_place"):
+		return false
+	if body.is_in_group("wizard") and body != caster and not affects_other_wizards:
 		return false
 	return body.is_in_group("ball") or body.is_in_group("wizard")
 

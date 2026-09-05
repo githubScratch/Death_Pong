@@ -113,6 +113,17 @@ class_name IceAbility
 ## like anyone else.
 @export var self_affected: bool = false
 
+## Whether a zone can slow OTHER wizards at all - separate knob from
+## self_affected above, which only ever decided whether the CASTER's own
+## zone can catch the caster. True (the default) is today's behavior: any
+## wizard other than the caster that steps into the zone gets slowed same
+## as a ball would. False turns Ice into a purely anti-ball/utility zone -
+## still slows balls exactly as before, still gives the caster their own
+## self_knockback recoil, but every other wizard just walks through it
+## untouched, same as if they weren't in the "wizard" group at all. See
+## ice_zone.gd's _eligible().
+@export var affects_other_wizards: bool = true
+
 ## The interactive zone spawned by a cast - PLAYERS/ice_zone.tscn (a bare
 ## Area2D + CollisionShape2D with the slow-while-inside logic described
 ## above; self_vfx_scene below is what actually gives it a visual). Not a
