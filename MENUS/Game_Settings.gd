@@ -19,6 +19,29 @@ var selected_classes: Array = [
 	preload("res://PLAYERS/classes/class_4.tres"),
 ]
 
+# Every real class a seat can land on - used by reroll_random_seats() below
+# to pick a fresh one for a rematch. A separate list from character_select.gd's
+# own CLASSES const (same four resources) rather than a shared reference,
+# same "duplicated per file that needs it" shape selected_classes' own
+# defaults above already follow in this file.
+const CLASSES: Array[WizardClass] = [
+	preload("res://PLAYERS/classes/class_1.tres"),
+	preload("res://PLAYERS/classes/class_2.tres"),
+	preload("res://PLAYERS/classes/class_3.tres"),
+	preload("res://PLAYERS/classes/class_4.tres"),
+]
+
+# Whether each seat's CURRENT selected_classes entry came from a "Random"
+# pick on the character select screen rather than a deliberately chosen
+# class - index 0..3 for seats 1..4. Set by set_selected_class() below
+# (character_select.gd's _resolve_random_picks() passes was_random=true the
+# moment a Random pick actually gets rolled; every deliberate pick passes
+# the default false instead). Read by reroll_random_seats() so a rematch can
+# roll every still-Random seat a FRESH surprise instead of silently
+# repeating whatever it happened to land on last match, while a seat that
+# deliberately chose a class keeps wearing it, rematch after rematch.
+var was_random_pick: Array = [false, false, false, false]
+
 # Which menu sent the player to character select, so its Back button can
 # return them to wherever they actually came from.
 var character_select_origin: String = "res://MENUS/Menu.tscn"
@@ -89,15 +112,31 @@ func set_game_magic(on: String) -> void:
 	emit_signal("settings_changed")
 	print("magic change signal emitted")
 
-func set_selected_class(seat: int, wizard_class: WizardClass) -> void:
+func set_selected_class(seat: int, wizard_class: WizardClass, was_random: bool = false) -> void:
 	if seat < 1 or seat > selected_classes.size():
 		return
 	selected_classes[seat - 1] = wizard_class
+	was_random_pick[seat - 1] = was_random
 
 func set_seat_active(seat: int, active: bool) -> void:
 	if seat < 1 or seat > seat_active.size():
 		return
 	seat_active[seat - 1] = active
+
+## Re-rolls a fresh random class for every active seat whose CURRENT class
+## came from a "Random" pick (see was_random_pick above) - called by each
+## arena's own _on_rematch_N_pressed() before it reloads the arena scene, so
+## a seat that picked Random on character select keeps getting a new
+## surprise every rematch instead of silently repeating whatever it happened
+## to land on the first time. A seat that deliberately chose a real class is
+## untouched either way - this only ever rerolls entries still flagged
+## was_random_pick. Routes back through set_selected_class() itself (with
+## was_random=true) so was_random_pick stays true afterward too - a
+## rerolled seat is still a "Random" seat for whichever rematch comes next.
+func reroll_random_seats() -> void:
+	for i in range(was_random_pick.size()):
+		if was_random_pick[i] and seat_active[i]:
+			set_selected_class(i + 1, CLASSES[randi() % CLASSES.size()], true)
 
 ## Both "Start" buttons (Main Menu and the Mode/Settings menu) call this
 ## instead of switching scenes directly, so Character_Select.tscn's Back

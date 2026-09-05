@@ -65,6 +65,30 @@ class_name GrowthAbility
 ## same opt-in shape as BlinkAbility.vfx_scene.
 @export var vfx_scene: PackedScene
 
+## Seconds vfx_scene takes to fade out and disappear once shrink_duration's
+## own scale-back tween finishes - see wizard.gd's _end_growth_vfx(), called
+## from _end_growth_channel(). Only used as a fallback: if vfx_scene's own
+## AnimationPlayer has an "end" or "fade" clip authored on it, that plays
+## instead (same has_animation() opt-in every other vfx outro in this project
+## uses) and this is ignored. Without either, the vfx used to just keep
+## riding the barrier - fully visible, still looping its "grow" animation -
+## until the shield was eventually replaced by an entirely new cast, long
+## after the enlarge effect itself had already ended. 0 (or less) skips the
+## fallback fade and frees the vfx instantly instead.
+@export var vfx_fade_duration: float = 0.5
+
+## True disables banking any NEW strikes for as long as this wizard is
+## currently channeling growth (_is_channeling - covers active growing, the
+## per-tier stutter pause, and the post-channel grace hover alike, since the
+## barrier reads as "enlarged" throughout all three) - see wizard.gd's
+## _on_shield_deflected(). The enlarged barrier still physically deflects
+## whatever it touches either way (that's plain DeflectionShield behavior,
+## unrelated to this knob); this only decides whether those deflections also
+## grow this wizard's own banked strike count for a FUTURE channel. False
+## (the old behavior) leaves strikes banking normally the whole time, same
+## as standing behind a barrier at its normal size.
+@export var disable_strikes_while_enlarged: bool = false
+
 
 ## The full list of scales a hold steps through: 1.0 (base), then one entry
 ## per tier_scale_step for each of max_tiers steps. Computed from the

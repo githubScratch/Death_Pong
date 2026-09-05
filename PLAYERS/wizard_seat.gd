@@ -1,4 +1,5 @@
 extends Node2D
+class_name WizardSeat
 
 ## Lives on the wizard chassis's ROOT node (see wizard.tscn), not on the
 ## CharacterBody2D child. That placement is deliberate, not cosmetic:
@@ -16,6 +17,10 @@ extends Node2D
 ##
 ## wizard.gd (on the CharacterBody2D child) reads both of these from its
 ## parent - this node - at _ready().
+##
+## class_name'd (WizardSeat) so wizard.gd's _spawn_blink_clone() can cast the
+## fresh instance it gets back from preloading wizard.tscn and set `seat`
+## directly, type-safely, instead of a dynamic set() call.
 
 @export var seat: int = 1
 @export var wizard_class: WizardClass

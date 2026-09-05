@@ -184,8 +184,10 @@ func _on_rightslow_body_exited(body: Node2D) -> void:
 
 
 func _on_rematch_1_pressed() -> void:
+	GameSettings.reroll_random_seats()
 	get_tree().change_scene_to_file("res://ARENAS/tower.tscn")
 func _on_rematch_2_pressed() -> void:
+	GameSettings.reroll_random_seats()
 	get_tree().change_scene_to_file("res://ARENAS/tower.tscn")
 
 

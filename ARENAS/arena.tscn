@@ -1,4 +1,4 @@
-[gd_scene load_steps=61 format=4 uid="uid://dgpeqxyiiriwx"]
+[gd_scene load_steps=62 format=4 uid="uid://dgpeqxyiiriwx"]
 
 [ext_resource type="Script" uid="uid://dg4utk7dcltn2" path="res://ARENAS/arena.gd" id="1_3ujay"]
 [ext_resource type="PackedScene" uid="uid://c7wd648uhhby4" path="res://PLAYERS/wizard.tscn" id="1_chassis"]
@@ -346,6 +346,9 @@ color_ramp = SubResource("GradientTexture1D_0yefq")
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0fd2y"]
 size = Vector2(24, 192)
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_y3sxm"]
+load_path = "res://.godot/imported/88.png-e3e17f28dacbdd435e0b744639875d35.ctex"
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_y3sxm"]
 size = Vector2(2344, 392)
@@ -1167,7 +1170,7 @@ texture_scale = 1.5
 position = Vector2(64, 320)
 emitting = false
 amount = 80
-texture = ExtResource("4_fro25")
+texture = SubResource("CompressedTexture2D_y3sxm")
 lifetime = 1.5
 explosiveness = 1.0
 process_material = ExtResource("5_1xjwm")

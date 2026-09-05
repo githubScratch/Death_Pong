@@ -6,12 +6,17 @@
 
 [resource]
 script = ExtResource("1_script")
-blink_distance = 250.0
+blink_distance = 300.0
 double_tap_window = 0.25
 blink_delay = 0.01
 cast_on_blink = false
 vfx_scene = ExtResource("3_vfx")
 wrap_on_slam = true
+wrap_activation_distance = 80.0
+clone_on_max_tier = true
+clone_duration = 5.0
+clone_transparency = 0.35
+clone_strikes_count_for_player = false
 strikes_per_tier = 2
 max_tiers = 3
 max_strikes = 6

@@ -1,7 +1,9 @@
-[gd_scene load_steps=22 format=3 uid="uid://bxu8vuum73ohd"]
+[gd_scene load_steps=34 format=3 uid="uid://bxu8vuum73ohd"]
 
 [ext_resource type="Texture2D" uid="uid://dli55st7k7svx" path="res://SPRITES/612.png" id="1_63pff"]
 [ext_resource type="AudioStream" uid="uid://c63dxlutpr1fh" path="res://SFX/dark jump.mp3" id="2_er8ok"]
+[ext_resource type="Texture2D" uid="uid://d32hp71pqn4o0" path="res://SPRITES/388.png" id="3_qde28"]
+[ext_resource type="Texture2D" uid="uid://cn2njurkxp3iq" path="res://SPRITES/2d_lights_and_shadows_neutral_point_light.webp" id="4_87yao"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_er8ok"]
 atlas = ExtResource("1_63pff")
@@ -162,6 +164,18 @@ tracks/1/keys = {
 "update": 1,
 "values": [false]
 }
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath(".:script")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [null]
+}
 
 [sub_resource type="Animation" id="Animation_hkt8c"]
 resource_name = "blink"
@@ -190,6 +204,30 @@ tracks/1/keys = {
 "update": 1,
 "values": [true]
 }
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("PointLight2D:energy")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.0333333, 0.2, 1.06667),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, 1.5, 0.0]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath(".:script")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [null]
+}
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_hgpj3"]
 _data = {
@@ -197,14 +235,84 @@ _data = {
 &"blink": SubResource("Animation_hkt8c")
 }
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_460bh"]
+atlas = ExtResource("3_qde28")
+region = Rect2(0, 320, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ns4c5"]
+atlas = ExtResource("3_qde28")
+region = Rect2(64, 320, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qylmr"]
+atlas = ExtResource("3_qde28")
+region = Rect2(128, 320, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mfn6e"]
+atlas = ExtResource("3_qde28")
+region = Rect2(192, 320, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pyne0"]
+atlas = ExtResource("3_qde28")
+region = Rect2(256, 320, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_a2avv"]
+atlas = ExtResource("3_qde28")
+region = Rect2(320, 320, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ntmf3"]
+atlas = ExtResource("3_qde28")
+region = Rect2(384, 320, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0ide8"]
+atlas = ExtResource("3_qde28")
+region = Rect2(448, 320, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3y4rr"]
+atlas = ExtResource("3_qde28")
+region = Rect2(512, 320, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_ychtd"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_460bh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ns4c5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qylmr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mfn6e")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pyne0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_a2avv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ntmf3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0ide8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3y4rr")
+}],
+"loop": false,
+"name": &"default",
+"speed": 15.0
+}]
+
 [node name="BlinkVfx" type="Node2D"]
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 modulate = Color(0.77616, 0.4554, 0.99, 0.396078)
-rotation = -0.970186
 scale = Vector2(2.5, 2.5)
 sprite_frames = SubResource("SpriteFrames_lyylv")
-autoplay = "blinks"
+autoplay = "default"
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
@@ -216,3 +324,19 @@ autoplay = "blink"
 stream = ExtResource("2_er8ok")
 volume_db = 4.0
 autoplay = true
+
+[node name="AnimatedSprite2D2" type="AnimatedSprite2D" parent="."]
+visible = false
+modulate = Color(0.53222, 0.2937, 0.89, 0.839216)
+scale = Vector2(2, 2)
+sprite_frames = SubResource("SpriteFrames_ychtd")
+autoplay = "default"
+frame = 8
+frame_progress = 1.0
+
+[node name="PointLight2D" type="PointLight2D" parent="."]
+visible = false
+scale = Vector2(0.5, 0.5)
+color = Color(0.5456, 0.3784, 0.88, 1)
+energy = 0.0
+texture = ExtResource("4_87yao")

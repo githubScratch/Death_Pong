@@ -29,29 +29,38 @@ class_name MeteorAbility
 ## comment) - the only way out early is an external interrupt like getting
 ## frozen mid-plunge.
 ##
-## Needs at least one full tier banked (strikes_per_tier) to activate at
-## all - a qualifying double-tap-and-hold with nothing banked just doesn't
-## trigger a fall, same as Blink denying an unaffordable blink. That one
-## tier is spent the instant the fall actually starts (see wizard.gd's
-## _update_meteor()), same "pay at commit" rule every other ability here
-## follows.
+## Needs at least one full tier banked (strikes_per_tier) just to be ALLOWED
+## to fall at all - a qualifying double-tap-and-hold with nothing banked
+## just doesn't trigger a fall, same as Blink denying an unaffordable blink -
+## but unlike every other spend in this file, clearing that gate doesn't
+## actually spend anything up front. The fall is free to attempt; nothing
+## leaves the bank until it actually lands.
 ##
-## What's left banked AFTER that activation cost matters again at the
-## LANDING: whatever's currently banked at that point (read, and only then
-## spent, if the tier-2 payoff below actually fires - see wizard.gd's
-## _land_meteor()) decides which landing plays - fewer than 2 tiers left (or
-## tier2_meteor_form_enabled being false) is just meteor_lands_vfx_scene, a
-## fiery finish, and the barrier fades out right there. 2 or more tiers left
-## (with the knob on) consumes EVERY currently-banked strike outright - no
-## partial-tier remainder banked for next time, unlike every other spend in
-## this file - and, instead of a one-shot explosion (an earlier version of
-## this ability had one - dropped to keep this focused, see
+## Whatever's banked at the moment of LANDING (see wizard.gd's
+## _land_meteor()) - which can be more than what was banked at activation,
+## since strikes earned from deflects during the fall still count unless
+## disable_strikes_while_meteor_form is on - decides which landing plays,
+## then pays for exactly that landing and banks the rest as change. Same
+## arithmetic as buying whichever item you can currently afford out of a
+## pile of coins and keeping the leftover: tiers_banked (floor(strikes /
+## strikes_per_tier), capped at max_tiers) is the highest tier you can
+## currently afford. Fewer than 2 tiers banked (or tier2_meteor_form_enabled
+## being false) plays a plain landing - meteor_lands_vfx_scene, a fiery
+## finish, barrier fades right there - and costs exactly ONE tier
+## (strikes_per_tier strikes), leaving anything extra banked for next time.
+## 2 or more tiers banked (with the knob on) plays the tier-2 payoff
+## instead - instead of a one-shot explosion (an earlier version of this
+## ability had one - dropped to keep this focused, see
 ## tier2_meteor_form_enabled's own doc comment below for what replaced it),
-## simply keeps the attached barrier and meteor_fall_vfx_scene riding along
-## for tier2_meteor_form_duration more seconds after landing, same as if the
-## fall had never actually ended - then fades the barrier out. Net result:
-## the tier-2 payoff needs 3+ tiers banked BEFORE double-tapping - 1 to
-## activate, 2 more still sitting there at landing.
+## keeps the attached barrier and meteor_fall_vfx_scene riding along for
+## tier2_meteor_form_duration more seconds, same as if the fall had never
+## actually ended, then fades the barrier out - and costs exactly
+## tiers_banked * strikes_per_tier, i.e. every full tier actually cashed in
+## (capped at max_tiers, same as the landing check itself), banking only
+## whatever fell short of one more full tier as change. Net result: tier 2
+## just needs max_strikes to actually reach 2 * strikes_per_tier at some
+## point before or during the fall - no separate hidden "activation tax" tier
+## baked into that requirement anymore.
 
 ## Seconds between the first and second tap of Down to count as a double-tap
 ## rather than two separate single taps - same shape/purpose as

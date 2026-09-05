@@ -1,4 +1,5 @@
 extends CharacterBody2D
+class_name Wizard
 
 ## Generic wizard chassis - the movement/physics/casting "core" every
 ## seat/class combination shares. This replaces wizard_1.gd/wizard_2.gd/
@@ -98,6 +99,44 @@ var _right_tap_window_remaining: float = 0.0
 var _blink_pending: bool = false
 var _blink_pending_direction: float = 0.0
 var _blink_delay_remaining: float = 0.0
+
+## Set on a wizard spawned by _spawn_blink_clone() (see BlinkAbility.
+## clone_on_max_tier) - never true for a normally-summoned wizard. Gates
+## _try_blink()'s AND _try_slam_wrap()'s own clone-spawn branches off (a
+## clone reaching its own max tier just spends a normal flat tier like
+## anything else, rather than spawning a further clone of itself - a
+## deliberate cap to keep this from chaining into a swarm) and lets
+## _on_shield_deflected() know to redirect
+## (or not - see BlinkAbility.clone_strikes_count_for_player) this clone's
+## own strikes back to whoever cast it, via _clone_source below, instead of
+## banking them on a chassis that's about to be despawned and forgotten
+## anyway.
+var _is_clone: bool = false
+
+## The wizard that cast this clone via _spawn_blink_clone(), or null for a
+## normal (non-clone) wizard. Only ever read while _is_clone is true - see
+## that flag's own doc comment.
+var _clone_source: Wizard = null
+
+## Double-tap-and-hold-to-slam-wrap state (see _update_slam_wrap()) - only
+## meaningful for a class whose ability is a BlinkAbility with wrap_on_slam
+## enabled. Same "double-tap and keep holding the second press" gesture
+## MeteorAbility's own _meteor_down_tap_window_remaining/_is_meteor use, but
+## tracked entirely separately (own window, own armed flag) so Down's timing
+## for this mechanic never gets tangled up with Meteor's own use of Down,
+## same "each mechanic gets its own state" split this file follows
+## everywhere else.
+var _slam_down_tap_window_remaining: float = 0.0
+
+## True once a qualifying double-tap-and-hold on Down has registered in-air
+## and Down is still being held - set by _update_slam_wrap(), read and
+## consumed (cleared either way) by _try_slam_wrap() the instant this wizard
+## actually lands. Cleared early instead if Down gets released before
+## landing (see _update_slam_wrap()) - releasing early cancels the gesture,
+## same as never holding it through in the first place. A plain fall/dive
+## that never double-taps Down never sets this at all, so it no longer fires
+## on every ordinary Down-held landing.
+var _slam_wrap_armed: bool = false
 
 ## Double-tap-to-zone state (see _update_ice_zone()/_cast_ice_zone()) -
 ## only meaningful for a class whose ability is an IceAbility. Own separate
@@ -222,6 +261,19 @@ var _action_up: String
 var _action_down: String
 var _action_left: String
 var _action_right: String
+
+## This wizard's own scene, preloaded once - used by _spawn_blink_clone() to
+## instantiate a clone. A fresh instantiate() rather than duplicate()-ing
+## this live wizard deliberately: duplicate() would copy this wizard's
+## CURRENT property values, including reference fields like current_instance,
+## strikes and every mid-action flag (_is_meteor, _is_channeling, etc.) as
+## shared references rather than independent copies - the clone and the
+## original would end up fighting over the same live barrier and state. A
+## fresh instance's own _ready() naturally starts from a clean slate and
+## re-derives wizard_class/input actions/sprite/abilities from
+## GameSettings.selected_classes[seat - 1] on its own, exactly like a
+## normally-spawned wizard, once it's given the same seat.
+const _WIZARD_SCENE: PackedScene = preload("res://PLAYERS/wizard.tscn")
 
 
 
@@ -370,6 +422,7 @@ func _physics_process(delta: float) -> void:
 
 	_update_growth_channel(delta)
 	_update_blink(delta)
+	_update_slam_wrap(delta)
 	_update_ice_zone(delta)
 	_update_meteor(delta)
 
@@ -700,6 +753,20 @@ func _connect_shield_deflected(instance: Node) -> void:
 		print("[DEBUG seat %d] could not find a deflectable Area2D on this shield instance - strikes will not count this cast" % seat)
 
 func _on_shield_deflected() -> void:
+	# A clone (see _spawn_blink_clone()) never banks its own strikes - it's
+	# going to be despawned and forgotten once its clone_duration runs out
+	# anyway. BlinkAbility.clone_strikes_count_for_player decides whether the
+	# strike is instead credited back to whoever cast this clone
+	# (_clone_source) - delegating to that wizard's own _on_shield_deflected()
+	# runs its full normal banking logic (cap, gauge, slosh) exactly as if
+	# its OWN shield had made the deflection, rather than duplicating that
+	# logic here. Either way, a clone always returns here without running
+	# any of the rest of this function on itself.
+	if _is_clone:
+		var clone_ability := _current_ability() as BlinkAbility
+		if clone_ability != null and clone_ability.clone_strikes_count_for_player and is_instance_valid(_clone_source):
+			_clone_source._on_shield_deflected()
+		return
 	# MeteorAbility.disable_strikes_while_meteor_form can turn this whole
 	# function into a no-op for as long as this wizard is in ANY part of
 	# meteor form - falling (_is_meteor) or tier-2 lingering (_meteor_form_
@@ -713,6 +780,17 @@ func _on_shield_deflected() -> void:
 	if meteor_ability != null and meteor_ability.disable_strikes_while_meteor_form:
 		if _is_meteor or _meteor_form_lock_remaining > 0.0:
 			return
+	# GrowthAbility.disable_strikes_while_enlarged mirrors the exact same
+	# idea for an enlarged barrier - _is_channeling covers active growing,
+	# the per-tier stutter pause, and the post-channel grace hover alike,
+	# since the barrier reads as "enlarged" throughout all three. Same "the
+	# barrier still physically deflects either way, this only gates whether
+	# it ALSO banks a strike" split as meteor's own check above. Non-growth
+	# classes always see `growth_ability` come back null here and skip this
+	# check for free.
+	var growth_ability := _current_ability() as GrowthAbility
+	if growth_ability != null and growth_ability.disable_strikes_while_enlarged and _is_channeling:
+		return
 	strikes += 1
 	var cap := _max_banked_strikes(_current_ability())
 	if cap >= 0 and strikes > cap:
@@ -926,11 +1004,12 @@ func _try_pay_next_growth_step(ability: GrowthAbility) -> bool:
 ## Ends the current channel and snaps the shield back to its base scale -
 ## called on release, and also when strikes run out mid-hold. Whatever
 ## scale was reached is never kept; only the strikes already spent on fully
-## completed steps stay spent. Deliberately does NOT touch the growth VFX -
-## that's tied to the shield (the "barrier") persisting, not to the channel
-## itself, so it keeps riding current_instance right through the shrink
-## tween below and stays alive until the shield is actually replaced/faded
-## out in create_new_instance(). See _start_growth_vfx()'s doc comment.
+## completed steps stay spent. Also kicks off _end_growth_vfx() so the vfx
+## itself fades out once that shrink finishes, instead of the old behavior
+## of leaving it riding current_instance indefinitely - fully visible, still
+## looping - until the shield was eventually replaced/faded out by an
+## entirely new cast (see _start_growth_vfx()'s doc comment for the other
+## half of this).
 func _end_growth_channel() -> void:
 	_is_channeling = false
 	_channel_tier = 0
@@ -945,6 +1024,7 @@ func _end_growth_channel() -> void:
 			_shield_scale_tween.kill()
 		_shield_scale_tween = create_tween()
 		_shield_scale_tween.tween_property(current_instance, "scale", Vector2.ONE, shrink_time)
+		_end_growth_vfx(ability, shrink_time)
 
 
 ## Attaches ability.vfx_scene (if assigned) directly to current_instance
@@ -974,10 +1054,13 @@ func _start_growth_vfx(ability: GrowthAbility) -> void:
 ## STILL-LIVE current_instance - only ever needed when a fresh channel
 ## commits again on a shield that already has one running (belt and
 ## suspenders against back-to-back channels), since a channel ending on its
-## own no longer calls this (see _end_growth_channel()) and a retired shield
-## just carries its VFX away with it as a child (see create_new_instance()).
-## Explicitly stops the AnimationPlayer first (cutting off its
-## particles/audio immediately) before queue_free()ing the instance itself.
+## own calls _end_growth_vfx() below instead (see _end_growth_channel()),
+## and a retired shield just carries its VFX away with it as a child (see
+## create_new_instance()). Explicitly stops the AnimationPlayer first
+## (cutting off its particles/audio immediately) before queue_free()ing the
+## instance itself - an instant cut, unlike _end_growth_vfx()'s graceful
+## fade, since this only ever fires to make room for a fresh vfx about to
+## replace it right away.
 func _stop_growth_vfx() -> void:
 	if not is_instance_valid(_growth_vfx):
 		_growth_vfx = null
@@ -987,6 +1070,47 @@ func _stop_growth_vfx() -> void:
 		anim.stop()
 	_growth_vfx.queue_free()
 	_growth_vfx = null
+
+
+## Fades out and removes whatever _start_growth_vfx() attached, timed to
+## start the instant _end_growth_channel()'s own shrink tween actually
+## finishes - so the vfx keeps riding the barrier for exactly as long as it's
+## still visibly enlarged, instead of the old behavior of being left looping
+## there (or just sitting fully grown) long after the barrier itself already
+## shrank back to normal. Plays an "end" or "fade" outro clip on the vfx's
+## own AnimationPlayer first if either exists (same has_animation() opt-in
+## _end_meteor_vfx() already uses) and waits for it to finish; otherwise
+## falls back to a plain ability.vfx_fade_duration modulate tween, so this
+## always visibly fades even before a dedicated outro clip is ever authored
+## on the vfx scene itself. Bails out quietly if a FRESH channel already
+## replaced _growth_vfx with a new instance while this was waiting on the
+## shrink (_start_growth_vfx()'s own _stop_growth_vfx() call already handles
+## that swap) - never frees out from under a vfx that isn't this call's
+## anymore. Fire-and-forget from _end_growth_channel() (not awaited there),
+## same as _end_meteor_vfx()'s own callers.
+func _end_growth_vfx(ability: GrowthAbility, shrink_time: float) -> void:
+	if not is_instance_valid(_growth_vfx):
+		return
+	var vfx := _growth_vfx
+	if shrink_time > 0.0:
+		await get_tree().create_timer(shrink_time).timeout
+	if _growth_vfx != vfx or not is_instance_valid(vfx):
+		return
+	var anim := vfx.get_node_or_null("AnimationPlayer") as AnimationPlayer
+	if anim != null and anim.has_animation("end"):
+		anim.play("end")
+		await anim.animation_finished
+	elif anim != null and anim.has_animation("fade"):
+		anim.play("fade")
+		await anim.animation_finished
+	elif ability != null and ability.vfx_fade_duration > 0.0:
+		var fade_tween := create_tween()
+		fade_tween.tween_property(vfx, "modulate:a", 0.0, ability.vfx_fade_duration)
+		await fade_tween.finished
+	if _growth_vfx == vfx:
+		_growth_vfx = null
+	if is_instance_valid(vfx):
+		vfx.queue_free()
 
 
 ## Double-tap-to-zone: double-tapping Left or Right within
@@ -1052,6 +1176,7 @@ func _cast_ice_zone(ability: IceAbility, direction: float) -> void:
 			ability.despawn_delay,
 			self,
 			ability.self_affected,
+			ability.affects_other_wizards,
 			ability.frozen_ball_overlay,
 			ability.frozen_wizard_overlay,
 			ability.self_vfx_scene,
@@ -1250,13 +1375,32 @@ func _update_blink(delta: float) -> void:
 ## rule growth uses. Strikes banked beyond one tier are left untouched, so
 ## a maxed-out player can queue up to ability.max_tiers blinks back to
 ## back if they want, or save them for later.
+##
+## The one exception: if this wizard is already sitting on a full
+## max_tiers-worth of banked strikes at the moment a blink commits, and
+## ability.clone_on_max_tier is true, this blink cashes in EVERYTHING banked
+## instead of just one tier and spawns a temporary clone (see
+## _spawn_blink_clone()) - a bonus payoff for saving up the full amount
+## instead of spending blinks the instant one tier is affordable. A clone
+## itself (`_is_clone`) never triggers this branch even at its own max tier -
+## it always falls through to the plain flat-tier spend below - so this can
+## never chain into a second clone.
 func _try_blink(ability: BlinkAbility, direction: float) -> void:
 	if strikes < ability.strikes_per_tier:
 		# TEMP DEBUG - remove once blink charges are confirmed working.
 		print("[DEBUG seat %d] blink denied - only %d strikes banked, need %d" % [seat, strikes, ability.strikes_per_tier])
 		return
-	strikes -= ability.strikes_per_tier
-	_update_strike_gauge()
+	var tiers_banked := strikes / ability.strikes_per_tier if ability.strikes_per_tier > 0 else 0
+	var maxed_out := ability.strikes_per_tier > 0 and tiers_banked >= ability.max_tiers
+	if maxed_out and ability.clone_on_max_tier and not _is_clone:
+		strikes = 0
+		_update_strike_gauge()
+		_spawn_blink_clone(ability)
+		# TEMP DEBUG - remove once blink charges are confirmed working.
+		print("[DEBUG seat %d] blink at max tier - consumed all strikes and spawned a clone" % seat)
+	else:
+		strikes -= ability.strikes_per_tier
+		_update_strike_gauge()
 	_spawn_blink_vfx(ability, direction)
 	if ability.blink_delay <= 0.0:
 		_execute_blink(ability, direction)
@@ -1265,7 +1409,73 @@ func _try_blink(ability: BlinkAbility, direction: float) -> void:
 	_blink_pending_direction = direction
 	_blink_delay_remaining = ability.blink_delay
 	# TEMP DEBUG - remove once blink charges are confirmed working.
-	print("[DEBUG seat %d] blink queued %s - spent %d strikes, %d remain, firing in %.2fs" % [seat, ("left" if direction < 0.0 else "right"), ability.strikes_per_tier, strikes, ability.blink_delay])
+	print("[DEBUG seat %d] blink queued %s - %d strikes remain, firing in %.2fs" % [seat, ("left" if direction < 0.0 else "right"), strikes, ability.blink_delay])
+
+
+## Spawns a temporary clone of this wizard - the payoff for cashing in a
+## blink OR a slam-wrap landing at a full max_tiers bank (see _try_blink()/
+## _try_slam_wrap()). Instantiates a fresh
+## copy of this wizard's own scene (_WIZARD_SCENE) at this wizard's current
+## position, gives it the SAME seat, and lets its own _ready() take it from
+## there - see _WIZARD_SCENE's doc comment for why a fresh instance instead
+## of duplicate()-ing this live wizard.
+##
+## Sharing this wizard's seat is also what makes the clone "mimic all
+## inputs of the user" for free: Godot's Input singleton is queried by
+## action name, not scoped to any particular node, so both this wizard and
+## the clone independently read the exact same InputRemap.action_for(seat,
+## ...) actions off the exact same physical button presses, in perfect
+## lockstep - no custom input recording/playback needed.
+##
+## modulate.a is set to ability.clone_transparency so the clone reads as a
+## clone at a glance rather than an indistinguishable second copy of the
+## real player. A timer for ability.clone_duration seconds schedules
+## _despawn_clone() on the clone itself once its time is up.
+func _spawn_blink_clone(ability: BlinkAbility) -> void:
+	var clone_root := _WIZARD_SCENE.instantiate() as WizardSeat
+	if clone_root == null:
+		return
+	clone_root.seat = seat
+	clone_root.global_position = global_position
+	get_tree().current_scene.add_child(clone_root)
+	var clone := clone_root.get_node_or_null("CharacterBody2D") as Wizard
+	if clone == null:
+		clone_root.queue_free()
+		return
+	clone._is_clone = true
+	clone._clone_source = self
+	clone.modulate.a = ability.clone_transparency
+	get_tree().create_timer(ability.clone_duration).timeout.connect(clone._despawn_clone)
+
+
+## Cleans up a clone spawned by _spawn_blink_clone() once its
+## ability.clone_duration timer runs out. Barriers are always spawned as a
+## child of get_tree().current_scene, never of the wizard that cast them
+## (see _spawn_shield_instance()), so simply freeing the clone's chassis
+## would never take down a barrier it left standing on its own - this fades
+## it out first via the exact same DeflectionShield.start_fade() (animation-
+## driven, ending in that barrier's own queue_free()) every other barrier
+## teardown in this file already uses, see _end_meteor_barrier() - falling
+## back to a bare queue_free() if the barrier has no DeflectionShield to ask,
+## same fallback _end_meteor_barrier() uses. Frees the whole clone chassis
+## (this CharacterBody2D's parent WizardSeat root, not just this node)
+## afterward, not just this script's own node.
+func _despawn_clone() -> void:
+	if is_instance_valid(current_instance):
+		var barrier := current_instance as Node2D
+		var shield: DeflectionShield = null
+		if barrier != null:
+			shield = barrier.get_node_or_null("Area2D") as DeflectionShield
+		if shield != null:
+			shield.start_fade()
+		elif barrier != null:
+			barrier.queue_free()
+		current_instance = null
+	var chassis := get_parent()
+	if is_instance_valid(chassis):
+		chassis.queue_free()
+	else:
+		queue_free()
 
 
 ## Drops ability.vfx_scene (if assigned) at the wizard's CURRENT position -
@@ -1325,23 +1535,36 @@ func _execute_blink(ability: BlinkAbility, direction: float) -> void:
 	var collision := KinematicCollision2D.new()
 	if test_move(global_transform, motion, collision):
 		var wrap_target := _wrap_destination(collision.get_collider())
-		if wrap_target != null:
-			# Hit a wall tagged as a wrap boundary (see arena.tscn's
-			# map_wall_left/map_wall_right groups) - reappear at that wall's
-			# own WrapDestination marker instead of stopping short. Only X
-			# moves; Y is left untouched - this is a left/right wrap only,
-			# vertical wrap is a separate planned mechanic (the down-dash
+		var travel: Vector2 = collision.get_travel()
+		# A wrap wall only actually wraps if this wizard was already within
+		# ability.wrap_activation_distance of it BEFORE this blink started -
+		# travel.length() is exactly that clear distance (test_move() only
+		# swept this far before hitting the wall). Without this check, any
+		# blink_distance long enough to reach a wrap wall from anywhere -
+		# mid-arena, mid-fight - would launch the wizard clean across the
+		# map; gating it on proximity keeps that an "already sneaking up on
+		# the wall" move instead of an accident (see BlinkAbility.
+		# wrap_activation_distance's own doc comment).
+		if wrap_target != null and travel.length() <= ability.wrap_activation_distance:
+			# Close enough to the wall AND it's a wrap boundary (see
+			# arena.tscn's map_wall_left/map_wall_right groups) - reappear at
+			# that wall's own WrapDestination marker instead of stopping
+			# short. Only X moves; Y is left untouched - this is a left/right
+			# wrap only, vertical wrap is a separate mechanic (the slam-wrap
 			# landing one), not this one.
 			global_position.x = wrap_target.global_position.x
 			# TEMP DEBUG - remove once blink charges are confirmed working.
 			print("[DEBUG seat %d] blink %s wrapped to the opposite side" % [seat, ("left" if direction < 0.0 else "right")])
 		else:
 			# Blocked by something that isn't a wrap boundary (another
-			# wizard, an untagged wall, a mid-arena platform) - only take
-			# the portion of the motion that's actually clear, so the
-			# wizard stops flush against whatever it hit instead of ending
-			# up inside it.
-			motion = collision.get_travel()
+			# wizard, an untagged wall, a mid-arena platform), or it IS one
+			# but this wizard started too far from it to count as a
+			# deliberate wrap - either way, only take the portion of the
+			# motion that's actually clear, so the wizard stops flush
+			# against whatever it hit instead of ending up inside it (or,
+			# for a too-far wrap wall, instead of launching clean across the
+			# map).
+			motion = travel
 			global_position += motion
 			# TEMP DEBUG - remove once blink charges are confirmed working.
 			print("[DEBUG seat %d] blink %s blocked - only %.1f of %.1f px clear" % [seat, ("left" if direction < 0.0 else "right"), motion.length(), ability.blink_distance])
@@ -1379,25 +1602,78 @@ func _wrap_destination(collider: Node) -> Node2D:
 	return collider.get_node_or_null("WrapDestination") as Node2D
 
 
+## Double-tap-and-hold Down (in-air) arms _slam_wrap_armed for _try_slam_wrap()
+## to consume at landing - mirrors MeteorAbility's own double-tap-and-hold
+## gesture (_update_meteor()'s own doc comment) so both fire off the same
+## kind of deliberate input, rather than the old behavior of just checking
+## Input.is_action_pressed(_action_down) at the landing frame, which fired
+## on literally every ordinary Down-held dive - see BlinkAbility.
+## wrap_on_slam's own doc comment. No-op unless the current ability is a
+## BlinkAbility with wrap_on_slam enabled, same "costs nothing for classes/
+## configs that don't use it" convention every other _update_*() function
+## here follows. Runs every physics frame regardless of class.
+func _update_slam_wrap(delta: float) -> void:
+	var ability := _current_ability() as BlinkAbility
+	if ability == null or not ability.wrap_on_slam:
+		# Not this class/config - nothing to track, and nothing should be
+		# left armed if either ever changes mid-game.
+		_slam_down_tap_window_remaining = 0.0
+		_slam_wrap_armed = false
+		return
+
+	if _slam_wrap_armed:
+		# Already armed and waiting for _try_slam_wrap() to consume it at
+		# landing - releasing Down early cancels the whole gesture instead
+		# of leaving it armed for whenever this wizard eventually lands.
+		if not Input.is_action_pressed(_action_down):
+			_slam_wrap_armed = false
+		return
+
+	if _slam_down_tap_window_remaining > 0.0:
+		_slam_down_tap_window_remaining = maxf(_slam_down_tap_window_remaining - delta, 0.0)
+
+	if Input.is_action_just_pressed(_action_down):
+		if _slam_down_tap_window_remaining > 0.0 and not is_on_floor():
+			# Second tap, still airborne, and it's a HOLD (Down is still
+			# down this same frame it was just pressed) - same "double tap
+			# and hold on the second tap" gesture MeteorAbility's own
+			# _update_meteor() uses, including excluding grounded outright:
+			# there's no fall left for this to attach to standing on the
+			# floor already.
+			_slam_down_tap_window_remaining = 0.0
+			_slam_wrap_armed = true
+		else:
+			_slam_down_tap_window_remaining = ability.double_tap_window
+
+
 ## Blink's floor-to-ceiling counterpart to the left/right wall wrap above -
 ## called only from the airborne -> grounded landing transition in
 ## _physics_process(), so "only while airborne" falls out for free: this is
 ## never reached from pressing Down while already standing on the floor,
 ## since hit_the_ground is already true by then and that block never runs.
 ## Requires the current ability to be a BlinkAbility with wrap_on_slam
-## enabled, Down still held at the moment of landing, and a full tier's
-## worth of strikes banked (same strikes_per_tier cost as a normal blink,
-## paid the same "pay at commit" way) - any of those failing just leaves
-## the landing as a normal landing. The destination is looked up by group
-## (map_wall_top's WrapDestination child - see arena.tscn) rather than a
-## hardcoded node, same reasoning as _wrap_destination(): an arena with no
-## ceiling tagged simply doesn't support this yet, no crash.
+## enabled, a qualifying double-tap-and-hold already armed by
+## _update_slam_wrap() (consumed here either way, whether or not the rest of
+## this actually fires), and a full tier's worth of strikes banked (same
+## strikes_per_tier cost as a normal blink, paid the same "pay at commit"
+## way) - any of those failing just leaves the landing as a normal landing.
+## The destination is looked up by group (map_wall_top's WrapDestination
+## child - see arena.tscn) rather than a hardcoded node, same reasoning as
+## _wrap_destination(): an arena with no ceiling tagged simply doesn't
+## support this yet, no crash.
+##
+## Landing a slam-wrap while a full max_tiers is already banked cashes in
+## and spawns a clone exactly the same way a max-tier _try_blink() does -
+## see that function's own doc comment - rather than being its own separate
+## reward: a maxed-out player gets the same bonus whichever of the two
+## teleports they happen to cash in with.
 func _try_slam_wrap() -> void:
 	var ability := _current_ability() as BlinkAbility
 	if ability == null or not ability.wrap_on_slam:
 		return
-	if not Input.is_action_pressed(_action_down):
+	if not _slam_wrap_armed:
 		return
+	_slam_wrap_armed = false
 	if strikes < ability.strikes_per_tier:
 		# TEMP DEBUG - remove once slam wrap is confirmed working.
 		print("[DEBUG seat %d] slam wrap denied - only %d strikes banked, need %d" % [seat, strikes, ability.strikes_per_tier])
@@ -1408,8 +1684,17 @@ func _try_slam_wrap() -> void:
 		wrap_target = ceiling_wall.get_node_or_null("WrapDestination") as Node2D
 	if wrap_target == null:
 		return
-	strikes -= ability.strikes_per_tier
-	_update_strike_gauge()
+	var tiers_banked := strikes / ability.strikes_per_tier if ability.strikes_per_tier > 0 else 0
+	var maxed_out := ability.strikes_per_tier > 0 and tiers_banked >= ability.max_tiers
+	if maxed_out and ability.clone_on_max_tier and not _is_clone:
+		strikes = 0
+		_update_strike_gauge()
+		_spawn_blink_clone(ability)
+		# TEMP DEBUG - remove once slam wrap is confirmed working.
+		print("[DEBUG seat %d] slam wrap at max tier - consumed all strikes and spawned a clone" % seat)
+	else:
+		strikes -= ability.strikes_per_tier
+		_update_strike_gauge()
 	# _spawn_blink_vfx() reads global_position at call time, so calling it
 	# once here (before moving global_position) drops a VFX at the ground
 	# strike point, and once more below (after the teleport) drops a
@@ -1421,7 +1706,7 @@ func _try_slam_wrap() -> void:
 	velocity.y = 0.0
 	_spawn_blink_vfx(ability, 0.0)
 	# TEMP DEBUG - remove once slam wrap is confirmed working.
-	print("[DEBUG seat %d] slam-wrapped floor to ceiling - spent %d strikes, %d remain" % [seat, ability.strikes_per_tier, strikes])
+	print("[DEBUG seat %d] slam-wrapped floor to ceiling - %d strikes remain" % [seat, strikes])
 
 
 ## Double-tap-and-hold-to-meteor: double-tapping Down and continuing to hold
@@ -1457,14 +1742,14 @@ func _update_meteor(delta: float) -> void:
 				# `and not _is_meteor` guard, which only matters once this IS
 				# true - it never blocks the tap that gets it there).
 				_meteor_down_tap_window_remaining = 0.0
-				# Needs at least one full tier banked to activate at all -
-				# see MeteorAbility's own doc comment - spent right here, the
-				# instant the gesture registers, same "pay at commit, not
-				# refunded on cancel" rule every other ability in this file
-				# follows (see _try_blink()/_cast_ice_zone()).
+				# Needs at least one full tier banked just to be ALLOWED to
+				# fall at all - see MeteorAbility's own doc comment - but
+				# unlike every other ability in this file, this is a pure
+				# affordability GATE, not a spend: nothing is subtracted
+				# here. The fall itself is free to attempt; what it actually
+				# costs is only decided at the landing, from whatever's
+				# banked by then (see _land_meteor()).
 				if ability.strikes_per_tier > 0 and strikes >= ability.strikes_per_tier:
-					strikes -= ability.strikes_per_tier
-					_update_strike_gauge()
 					_start_meteor(ability)
 				else:
 					# TEMP DEBUG - remove once meteor strikes are confirmed working.
@@ -1513,14 +1798,16 @@ func _cancel_meteor() -> void:
 
 ## Called from _physics_process()'s own airborne-to-grounded transition the
 ## instant a meteor fall actually reaches the floor - the ONE place this
-## fires, never from _update_meteor() itself. Reads (rather than spends,
-## unless the tier-2 payoff actually triggers) whatever strikes are
-## CURRENTLY banked to decide which of the two landings plays - see
-## MeteorAbility's own doc comment for the full reasoning. A normal landing
-## (fewer than 2 tiers banked, or the tier2_meteor_form_enabled knob off)
-## runs the usual end-of-fall cleanup right here, same as _cancel_meteor()
-## does; a qualifying tier-2 landing deliberately skips all of that instead -
-## see the branch below.
+## fires, never from _update_meteor() itself. Reads whatever strikes are
+## CURRENTLY banked (nothing was spent at activation - see _update_meteor())
+## to decide which of the two landings plays, then spends exactly that
+## landing's own cost and leaves the rest banked as change - see
+## MeteorAbility's own doc comment for the full "afford whichever tier you
+## can, keep the leftover" reasoning. A normal landing (fewer than 2 tiers
+## banked, or the tier2_meteor_form_enabled knob off) runs the usual
+## end-of-fall cleanup right here, same as _cancel_meteor() does; a
+## qualifying tier-2 landing deliberately skips all of that instead - see
+## the branch below.
 func _land_meteor() -> void:
 	_is_meteor = false
 	var ability := _current_ability() as MeteorAbility
@@ -1541,16 +1828,25 @@ func _land_meteor() -> void:
 		# tier2_meteor_form_duration more seconds via
 		# _meteor_form_lock_remaining, which _physics_process() ticks down
 		# and which runs the normal end-of-fall cleanup on its own once it
-		# expires (see _end_meteor_form_lingering()). Consumes EVERY
-		# currently-banked strike outright rather than just tiers_banked *
-		# strikes_per_tier - unlike every other spend in this file, tier 2
-		# is all-or-nothing, no partial-tier remainder banked for next time.
-		strikes = 0
+		# expires (see _end_meteor_form_lingering()). Spends exactly
+		# tiers_banked * strikes_per_tier - every full tier actually cashed
+		# in here (already capped at max_tiers, same as the check above) -
+		# rather than wiping the bank to zero, so overbanking beyond what
+		# this landing needed still comes back as change for next time.
+		strikes -= tiers_banked * ability.strikes_per_tier
 		_update_strike_gauge()
 		_meteor_form_lock_remaining = ability.tier2_meteor_form_duration
 		# TEMP DEBUG - remove once meteor strikes are confirmed working.
-		print("[DEBUG seat %d] meteor tier-2 landing - barrier extended %.1fs, all charges consumed" % [seat, ability.tier2_meteor_form_duration])
+		print("[DEBUG seat %d] meteor tier-2 landing - barrier extended %.1fs, %d strikes spent, %d remain" % [seat, ability.tier2_meteor_form_duration, tiers_banked * ability.strikes_per_tier, strikes])
 	else:
+		# A plain landing always cashes in exactly ONE tier - the same
+		# strikes_per_tier cost _update_meteor() used to take up front -
+		# regardless of how much more might be sitting banked (extra
+		# headroom, or tiers_banked >= 2 with the knob simply off): this is
+		# the "afford the cheaper item" branch, so it only ever pays that
+		# item's price and banks the rest.
+		strikes -= ability.strikes_per_tier
+		_update_strike_gauge()
 		_end_meteor_vfx(ability)
 		_end_meteor_barrier()
 		_play_dropped_vfx(ability.meteor_lands_vfx_scene, ability.meteor_lands_vfx_lifetime)

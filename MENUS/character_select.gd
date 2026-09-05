@@ -84,10 +84,20 @@ var _frame_time := [0.0, 0.0, 0.0, 0.0]
 
 func _ready() -> void:
 	# Remember whatever was picked last time (a previous visit to this
-	# screen, or just the game's defaults), so reopening this screen -
-	# including via Back-then-Start-again - doesn't reset everyone back to
-	# class 1/2/3/4 for no reason.
+	# screen, or just the game's defaults), so reopening this screen - via
+	# Back-then-Start-again, quitting a match back to a menu and returning
+	# here, or anything else that routes back through Character_Select.tscn -
+	# doesn't reset everyone back to class 1/2/3/4 for no reason. A seat
+	# whose last pick was "Random" (see GameSettings.was_random_pick, set by
+	# _resolve_random_picks() below and cleared the moment a seat locks in a
+	# real class instead - see _refresh_box()) is restored to Random itself,
+	# not whatever concrete class it happened to roll last time - Random is
+	# a standing preference this screen should keep honoring, not a one-time
+	# roll that quietly turns into a fixed class the instant you leave.
 	for i in range(4):
+		if i < GameSettings.was_random_pick.size() and GameSettings.was_random_pick[i]:
+			_class_index[i] = CLASSES.size()
+			continue
 		var stored: WizardClass = GameSettings.selected_classes[i] if i < GameSettings.selected_classes.size() else null
 		if stored != null:
 			var idx := CLASSES.find(stored)
@@ -241,7 +251,11 @@ func _refresh_box(i: int) -> void:
 func _resolve_random_picks() -> void:
 	for i in range(4):
 		if _active[i] and _is_random(i):
-			GameSettings.set_selected_class(i + 1, CLASSES[randi() % CLASSES.size()])
+			# was_random=true so a later rematch (see arena.gd's
+			# _on_rematch_N_pressed()/GameSettings.reroll_random_seats())
+			# knows this seat's class was rolled, not chosen, and gives it a
+			# fresh roll instead of just repeating this one.
+			GameSettings.set_selected_class(i + 1, CLASSES[randi() % CLASSES.size()], true)
 
 
 func _on_ready_pressed() -> void:

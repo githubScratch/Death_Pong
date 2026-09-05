@@ -41,9 +41,13 @@ inspector:
     activation spends exactly one tier's worth of strikes all at once, and
     unspent tiers just stay banked as charges rather than being forced out
     the way growth's are - see `wizard.gd`'s `_update_blink()` /
-    `_try_blink()`. Groundwork note left in `blink_ability.gd`'s doc
-    comment: using a blink while maxed out is meant to eventually also
-    spawn a temporary input-mirroring clone - not implemented yet.
+    `_try_blink()`. Cashing in a blink OR a slam-wrap landing (see below)
+    while already sitting on a full `max_tiers` bank spends EVERYTHING
+    banked instead of the usual flat one-tier cost, and - if
+    `clone_on_max_tier` is true - spawns a temporary input-mirroring clone
+    (`wizard.gd`'s `_spawn_blink_clone()`/`_despawn_clone()`, gated by the
+    new `class_name Wizard`/`class_name WizardSeat` declarations added for
+    it - see "Blink max-tier clone" below).
 
 `wizard.gd` checks ability type with `is`/`as` (e.g. `ability is
 GrowthAbility`), never a boolean flag on the shared base - that's the
@@ -163,6 +167,17 @@ checked - the checkbox - same "never affects the caster by default"
 convention every other class's ability already used (Growth's channel,
 Blink's teleport, the old trap's freeze query).
 
+`IceAbility.affects_other_wizards` (bool, default true) is a separate knob
+from `self_affected` above - `self_affected` only ever gated whether the
+CASTER's own zone can catch the caster; this one gates whether the zone can
+catch any OTHER wizard at all. False turns Ice into a purely anti-ball/
+utility zone: balls are slowed exactly as before, the caster still gets
+their own `self_knockback` recoil, but every other wizard just walks
+through untouched, as if they weren't in the `"wizard"` group. Threaded
+through as a new `IceZone.configure()` parameter
+(`affects_other_wizards`) and checked in `IceZone._eligible()` right next
+to the existing caster-exclusion check.
+
 `slow_amount`/`slow_amount_per_tier` (0..1, clamped after adding tiers) work
 exactly like the old trap's `slow_amount` did: 1.0 zeroes a target's
 velocity/spin outright and stops gravity outright ("remains in place" - "at
@@ -269,7 +284,8 @@ one-time recoil jolt - see above), `knockback_lock_time` (seconds normal
 LEFT/RIGHT movement input is held off after a cast so the jolt isn't
 instantly overwritten - replaces the old `hover_time`, which also paused
 gravity and was dropped), `self_affected` (the checkbox - can the ice mage
-be slowed by its own zone), `zone_scene` (the interactive zone itself,
+be slowed by its own zone), `affects_other_wizards` (can the zone slow any
+OTHER wizard at all - false leaves it slowing balls only), `zone_scene` (the interactive zone itself,
 `ice_zone.tscn` - not opt-out/null-able like the vfx-only fields below it,
 since it IS the ability's gameplay object), `self_vfx_scene` (the cosmetic
 visual `IceZone` instantiates in code at `_ready()`, positioned at the
@@ -442,6 +458,69 @@ ability's `.tres` to do anything at all - it defaults off like every new
 BlinkAbility toggle has so far, which was the cause of it silently doing
 nothing the first time it was tested.
 
+## Blink max-tier clone
+
+Cashing in EITHER teleport - a normal left/right blink (`_try_blink()`) or a
+slam-wrap landing (`_try_slam_wrap()`) - while `strikes` is already sitting
+on a full `max_tiers` bank consumes ALL of it in one go (not the usual flat
+`strikes_per_tier` cost) and, if `BlinkAbility.clone_on_max_tier` is true
+(default), spawns a temporary clone of the wizard via `wizard.gd`'s
+`_spawn_blink_clone()`. Both call sites run the identical
+`tiers_banked >= ability.max_tiers` check, so a maxed-out player gets the
+same payoff no matter which of the two they spend it with.
+
+The clone is a fresh `PackedScene.instantiate()` of `wizard.tscn` itself
+(preloaded once as `wizard.gd`'s `_WIZARD_SCENE` constant), NOT a
+`duplicate()` of the live wizard - `duplicate()` would copy the live
+wizard's current property values, including reference fields
+(`current_instance`, mid-action flags), as shared references rather than
+independent copies, risking the clone and the original fighting over the
+same barrier/state. A fresh instance just gets the same `seat` set on its
+`WizardSeat` root and lets its own `_ready()` derive everything else
+(`wizard_class`, input actions, sprite, abilities) exactly like a normal
+spawn.
+
+"Mimics all inputs" needs no recording/playback code at all: Godot's
+`Input` singleton is queried by action name, not scoped to any node, so the
+clone (same seat) and the original both read the exact same
+`InputRemap.action_for(seat, ...)` actions off the same physical button
+presses, in lockstep, for free.
+
+`wizard.gd` and `wizard_seat.gd` each picked up a `class_name` (`Wizard`,
+`WizardSeat` respectively - neither had one before, confirmed no existing
+conflicts) purely so the clone-spawning code can type the instantiated
+scene's nodes (`_WIZARD_SCENE.instantiate() as WizardSeat`, its
+`CharacterBody2D` child `as Wizard`) instead of dynamic `set()`/`call()`.
+
+Knobs on `BlinkAbility`: `clone_on_max_tier` (the on/off switch, default
+true), `clone_duration` (seconds before `_despawn_clone()` fires, default
+5.0), `clone_transparency` (alpha applied to the clone's `modulate` on
+spawn, default 0.5 - purely so it reads as a clone at a glance), and
+`clone_strikes_count_for_player` (default false - whether a strike the
+clone's own shield deflects gets credited back to `_clone_source` via
+`_on_shield_deflected()`'s new clone-redirect branch, or just vanishes with
+the clone).
+
+`_is_clone`/`_clone_source` (new `wizard.gd` fields) mark a spawned clone
+and point back at whoever cast it. Deliberate design choice, not something
+explicitly asked for: a clone that itself reaches max tier never spawns a
+FURTHER clone - `_try_blink()`/`_try_slam_wrap()` both gate the whole
+clone-spawn branch on `not _is_clone`, so a maxed-out clone just falls
+through to a normal flat one-tier spend. Prevents an unbounded clone chain;
+revisit if a different cap (e.g. one clone-generation deep) is ever wanted
+instead.
+
+`_despawn_clone()` (called by a one-shot timer started the instant the
+clone spawns) is also the reason this feature needed its own barrier
+cleanup: barriers are always children of `get_tree().current_scene`, never
+of the wizard that cast them (see `_spawn_shield_instance()`), so just
+freeing the clone's chassis would never have taken its barrier down too.
+Fades it out first via the exact same `DeflectionShield.start_fade()`
+(animation-driven, ends in its own `queue_free()`) every other barrier
+teardown in this file already uses, falling back to a bare `queue_free()`
+if the barrier has no `DeflectionShield` to ask - then frees the clone's
+whole `WizardSeat` chassis (not just the `CharacterBody2D`).
+
 ## Growth VFX (attached to the shield, continuous - contrast with Blink's one-shot drops)
 
 `GrowthAbility.vfx_scene` (a `PackedScene`, unset by default - same opt-in
@@ -500,3 +579,72 @@ tier pay/lock events, up-press diagnostics) left in deliberately while the
 strike/growth system is still being verified. Deferred cleanup, not
 forgotten - ask before removing them, since they've been the main tool for
 diagnosing several real bugs this project.
+
+## VFX/overlay cleanup checklist - don't create memory sinks
+
+Every VFX or status overlay this project spawns at runtime
+(`instantiate()` + `add_child()`) follows the same three-part shape, and
+any NEW one should too:
+
+1. Track the live instance in a variable (a `var _foo_vfx: Node2D = null`
+   on whichever script owns it), not just a local that goes out of scope.
+2. Something ends it - either a duration knob (a timer/`await
+   get_tree().create_timer(...).timeout`), an animation finishing (`await
+   anim.animation_finished`, or `has_animation("end"/"fade")` played first
+   as an outro), or an explicit state transition (a shield being retired, a
+   `thaw()` call, a clone despawning).
+3. Whichever path gets there always ends in `is_instance_valid(x)` +
+   `x.queue_free()` - and re-checks the tracked variable still points at
+   THIS instance first (`if _foo_vfx == vfx:`) before clearing/freeing, so
+   an overlapping respawn (a fresh cast/freeze/ignite landing while the old
+   one is still fading out) can never double-free or free a newer instance
+   out from under itself.
+
+Current sites, all confirmed following this shape:
+
+- `wizard.gd` `_spawn_blink_vfx()` - Blink's cast-point + landing-point
+  drops (also used by `_try_slam_wrap()`'s ground/ceiling pair). One-shot,
+  drop-and-forget: frees on the vfx's own `AnimatedSprite2D.animation_finished`,
+  or a 1s fallback timer if the scene has no such child.
+- `wizard.gd` `_start_growth_vfx()`/`_stop_growth_vfx()`/`_end_growth_vfx()`
+  - continuous, attached to the shield itself; always ends in a stop-and-free
+    or a fade-then-free.
+- `wizard.gd` `_spawn_meteor_vfx()`/`_clear_meteor_vfx()`/`_end_meteor_vfx()`
+  - the falling-meteor vfx attached to the wizard; same stop-and-free/
+    fade-then-free shape, plus a despawn-delay knob.
+- `wizard.gd` `_play_dropped_vfx()` - Meteor's landing splash, a generic
+  drop-and-forget-with-a-lifetime-timer helper (same shape as
+  `_spawn_blink_vfx()`, minus the flip).
+- `wizard.gd`/`ARENAS/ball.gd` `_spawn_frozen_overlay()`/
+  `_clear_frozen_overlay()` - the ice-zone freeze overlay on both wizards
+  and balls; freed on `thaw()`, with a "fade" outro if the overlay has one.
+- `ARENAS/ball.gd` `ignite()`/`_clear_burning_overlay()` - Meteor's
+  burning-ball overlay; freed after `burn_duration` seconds, or on a fresh
+  `ignite()` re-lighting it early.
+- `PLAYERS/ice_zone.gd` - `self_vfx_scene` is a CHILD of the zone `Area2D`
+  itself, so it's carried away for free whenever the zone despawns
+  (`_despawn()`); no separate reference/cleanup needed on that one.
+- `wizard.gd` `_spawn_blink_clone()`/`_despawn_clone()` - the newest one
+  (see "Blink max-tier clone" above): a clone chassis freed after
+  `clone_duration`, which also explicitly fades out any barrier the clone
+  itself left standing first (barriers are never children of the wizard
+  that cast them, so this needed its own cleanup step beyond just freeing
+  the clone).
+
+One known soft spot, not new/introduced by this pass, just worth
+remembering: `Ball.ignite()`'s doc comment already flags that
+`duration <= 0` skips the auto-clear entirely and leaves that overlay
+attached forever, since nothing else in the project ever clears it. Not
+live today (`MeteorAbility.burn_duration` is `1.0` on `ability_4.tres`),
+but if that knob's ever tuned down to `0` (or negative) in the Inspector
+for an "instant"/"permanent" burn effect, this is exactly the kind of
+one-node leak this checklist exists to catch.
+
+**When adding a new ability VFX**: give it its own tracked reference
+variable and make sure every path that stops needing it - not just the
+"happy path" end-of-effect, but also any early-cancel/interrupt/replace
+path - reaches a `queue_free()`. If it's short-lived and one-shot, the
+`_spawn_blink_vfx()`/`_play_dropped_vfx()` drop-and-forget pattern is the
+simplest template; if it's meant to persist and follow something for a
+while, the growth/meteor "attach, track, explicitly end" pattern is the
+one to copy.

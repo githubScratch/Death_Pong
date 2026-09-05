@@ -186,8 +186,10 @@ func _on_zone_right_body_exited(body: Node2D) -> void:
 
 #UI
 func _on_rematch_1_pressed() -> void:
+	GameSettings.reroll_random_seats()
 	get_tree().change_scene_to_file("res://ARENAS/training.tscn")
 func _on_rematch_2_pressed() -> void:
+	GameSettings.reroll_random_seats()
 	get_tree().change_scene_to_file("res://ARENAS/training.tscn")
 func _on_menu_1_pressed() -> void:
 	get_tree().change_scene_to_file("res://MENUS/Menu.tscn")
