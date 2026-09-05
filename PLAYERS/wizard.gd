@@ -1167,6 +1167,13 @@ func _cast_ice_zone(ability: IceAbility, direction: float) -> void:
 
 	if is_instance_valid(ability.zone_scene):
 		var zone_scale := ability.zone_scale_for_tier(tiers_spent)
+		# A cast that spent every currently-banked tier can unlock wizard
+		# targeting even when affects_other_wizards is normally off - see
+		# IceAbility.affects_other_wizards_at_max_tier's own doc comment.
+		# Resolved once, per cast, into a plain bool this particular zone
+		# instance is configured with - the zone itself doesn't need to know
+		# or care that tiers/max-tier bonuses exist at all.
+		var targets_other_wizards := ability.affects_other_wizards or (tiers_spent >= ability.max_tiers and ability.affects_other_wizards_at_max_tier)
 		var zone: Node2D = ability.zone_scene.instantiate()
 		zone.global_position = global_position + Vector2(direction * IceZone.BASE_RADIUS * zone_scale, 0.0)
 		zone.configure(
@@ -1176,7 +1183,7 @@ func _cast_ice_zone(ability: IceAbility, direction: float) -> void:
 			ability.despawn_delay,
 			self,
 			ability.self_affected,
-			ability.affects_other_wizards,
+			targets_other_wizards,
 			ability.frozen_ball_overlay,
 			ability.frozen_wizard_overlay,
 			ability.self_vfx_scene,

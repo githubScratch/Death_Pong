@@ -178,6 +178,17 @@ through as a new `IceZone.configure()` parameter
 (`affects_other_wizards`) and checked in `IceZone._eligible()` right next
 to the existing caster-exclusion check.
 
+`IceAbility.affects_other_wizards_at_max_tier` (bool, default false) is a
+"fully-charged zone breaks the usual restriction" bonus on top of that -
+same shape as `BlinkAbility.clone_on_max_tier`'s own max-tier bonus. Only
+does anything when `affects_other_wizards` is false; a cast that spends
+every currently-banked tier (`tiers_spent >= max_tiers`) still unlocks
+wizard-targeting for that one zone even though ordinary lower-tier casts
+stay ball-only. Resolved once per cast in `wizard.gd`'s `_cast_ice_zone()`
+into a plain `targets_other_wizards` bool passed to `IceZone.configure()` -
+`IceZone` itself has no idea tiers or a max-tier bonus even exist, it just
+gets told whether THIS zone instance can catch other wizards.
+
 `slow_amount`/`slow_amount_per_tier` (0..1, clamped after adding tiers) work
 exactly like the old trap's `slow_amount` did: 1.0 zeroes a target's
 velocity/spin outright and stops gravity outright ("remains in place" - "at
@@ -285,7 +296,10 @@ LEFT/RIGHT movement input is held off after a cast so the jolt isn't
 instantly overwritten - replaces the old `hover_time`, which also paused
 gravity and was dropped), `self_affected` (the checkbox - can the ice mage
 be slowed by its own zone), `affects_other_wizards` (can the zone slow any
-OTHER wizard at all - false leaves it slowing balls only), `zone_scene` (the interactive zone itself,
+OTHER wizard at all - false leaves it slowing balls only),
+`affects_other_wizards_at_max_tier` (unlocks wizard-targeting for a
+fully-charged cast specifically, even when `affects_other_wizards` is
+false), `zone_scene` (the interactive zone itself,
 `ice_zone.tscn` - not opt-out/null-able like the vfx-only fields below it,
 since it IS the ability's gameplay object), `self_vfx_scene` (the cosmetic
 visual `IceZone` instantiates in code at `_ready()`, positioned at the

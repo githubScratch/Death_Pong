@@ -124,6 +124,19 @@ class_name IceAbility
 ## ice_zone.gd's _eligible().
 @export var affects_other_wizards: bool = true
 
+## Lets a cast that spent every currently-banked tier (tiers_spent >=
+## max_tiers - see wizard.gd's _cast_ice_zone()) catch other wizards even
+## when affects_other_wizards above is false - a "fully-charged zone
+## breaks the usual restriction" bonus, the same shape BlinkAbility.
+## clone_on_max_tier gives a maxed-out blink. Only actually changes
+## anything when affects_other_wizards is false; if that's already true,
+## every cast already targets other wizards regardless of tier, so this is
+## a no-op. False (the default) means max tier is just a bigger/longer/
+## stronger zone like any other tier, with no special targeting unlock -
+## see wizard.gd's _cast_ice_zone() for exactly where this resolves into
+## the actual per-cast targeting decision passed to IceZone.configure().
+@export var affects_other_wizards_at_max_tier: bool = false
+
 ## The interactive zone spawned by a cast - PLAYERS/ice_zone.tscn (a bare
 ## Area2D + CollisionShape2D with the slow-while-inside logic described
 ## above; self_vfx_scene below is what actually gives it a visual). Not a
