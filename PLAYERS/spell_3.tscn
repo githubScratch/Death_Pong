@@ -1,10 +1,11 @@
-[gd_scene load_steps=30 format=3 uid="uid://cu44w8oxj786"]
+[gd_scene load_steps=34 format=3 uid="uid://cu44w8oxj786"]
 
 [ext_resource type="Texture2D" uid="uid://bf3i7gycqdyvw" path="res://SPRITES/85.png" id="1_lcfej"]
 [ext_resource type="Texture2D" uid="uid://lovia63fg07t" path="res://SPRITES/75.png" id="2_irw07"]
 [ext_resource type="Texture2D" uid="uid://y358y2w6rnmf" path="res://SPRITES/475.png" id="3_46upd"]
-[ext_resource type="Script" path="res://PLAYERS/deflection_shield.gd" id="4_lcfej"]
+[ext_resource type="Script" uid="uid://vm2kbqxepj87" path="res://PLAYERS/deflection_shield.gd" id="4_lcfej"]
 [ext_resource type="AudioStream" uid="uid://dtnhs6dommt08" path="res://SFX/thump.wav" id="5_5b5p7"]
+[ext_resource type="Script" uid="uid://cru5gp264h38p" path="res://PLAYERS/strike_gauge.gd" id="6_sgauge"]
 
 [sub_resource type="Gradient" id="Gradient_i151x"]
 offsets = PackedFloat32Array(0.5, 0.733766, 0.993506, 1)
@@ -25,6 +26,16 @@ gradient = SubResource("Gradient_i67ey")
 fill = 1
 fill_from = Vector2(0.518349, 0.513761)
 fill_to = Vector2(0.848624, 0.270642)
+
+[sub_resource type="Gradient" id="Gradient_sgauge"]
+offsets = PackedFloat32Array(0, 0.85, 1)
+colors = PackedColorArray(0.4, 0.85, 1, 1, 0.4, 0.85, 1, 1, 0.4, 0.85, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_sgauge"]
+gradient = SubResource("Gradient_sgauge")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0, 0.5)
 
 [sub_resource type="Gradient" id="Gradient_uw7x3"]
 offsets = PackedFloat32Array(0, 0.533333, 1)
@@ -127,6 +138,18 @@ tracks/7/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [0.0]
+}
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("../corelight:energy")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.0]
 }
 
 [sub_resource type="Animation" id="Animation_jhama"]
@@ -395,12 +418,16 @@ tracks/5/keys = {
 "values": [true]
 }
 
+[sub_resource type="Animation" id="Animation_yhrai"]
+resource_name = "trap"
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_bip18"]
 _data = {
 &"RESET": SubResource("Animation_aqj70"),
 &"deflect": SubResource("Animation_jhama"),
 &"fade": SubResource("Animation_yargl"),
-&"light": SubResource("Animation_gpwpy")
+&"light": SubResource("Animation_gpwpy"),
+&"trap": SubResource("Animation_yhrai")
 }
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_irw07"]
@@ -720,7 +747,7 @@ fill_to = Vector2(0, 0.5)
 [sub_resource type="CircleShape2D" id="CircleShape2D_asf77"]
 radius = 56.0
 
-[node name="Node2D" type="Node2D"]
+[node name="Node2D2" type="Node2D"]
 z_index = 2
 
 [node name="outerlight" type="PointLight2D" parent="."]
@@ -734,6 +761,12 @@ position = Vector2(0, -1)
 scale = Vector2(0.1, 0.1)
 color = Color(0, 0.4, 1, 1)
 texture = SubResource("GradientTexture2D_dk7g5")
+
+[node name="StrikeGauge" type="Sprite2D" parent="."]
+scale = Vector2(1.7, 1.7)
+texture = SubResource("GradientTexture2D_sgauge")
+script = ExtResource("6_sgauge")
+liquid_color = Color(0.4, 0.85, 1, 1)
 
 [node name="passivebubbles" type="CPUParticles2D" parent="."]
 position = Vector2(4.2, -0.6)
@@ -807,7 +840,7 @@ texture = SubResource("GradientTexture2D_bhlxt")
 [node name="Area2D" type="Area2D" parent="."]
 position = Vector2(0, 1)
 collision_layer = 8
-collision_mask = 4
+collision_mask = 5
 monitoring = false
 script = ExtResource("4_lcfej")
 

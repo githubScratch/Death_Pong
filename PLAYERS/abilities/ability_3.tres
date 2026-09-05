@@ -1,9 +1,31 @@
-[gd_resource type="Resource" script_class="WizardAbility" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="IceAbility" load_steps=7 format=3 uid="uid://besnobikd1ub7"]
 
-[ext_resource type="Script" path="res://PLAYERS/wizard_ability.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://cuj68fuvrnnii" path="res://PLAYERS/ice_ability.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://cu44w8oxj786" path="res://PLAYERS/spell_3.tscn" id="2_shield"]
+[ext_resource type="PackedScene" uid="uid://b1yoci42x7rit" path="res://VFX/Frozen_Ball.tscn" id="3_frozen_ball"]
+[ext_resource type="PackedScene" uid="uid://dxe3xcv2cm1bi" path="res://VFX/Frozen_Wizard.tscn" id="4_frozen_wizard"]
+[ext_resource type="PackedScene" uid="uid://dlhhpvx7ntsp6" path="res://PLAYERS/ice_zone.tscn" id="5_zone"]
+[ext_resource type="PackedScene" uid="uid://d3lt0c8u5qmny" path="res://VFX/Ice_Trap.tscn" id="6_vfx"]
 
 [resource]
 script = ExtResource("1_script")
-display_name = "Shield"
+double_tap_window = 0.3
+zone_size = 2.0
+zone_size_per_tier = 0.5
+slow_amount = 0.5
+slow_amount_per_tier = 0.25
+zone_duration = 1.5
+zone_duration_per_tier = 0.0
+despawn_delay = 1.5
+self_knockback = 60.0
+knockback_lock_time = 0.2
+self_affected = false
+zone_scene = ExtResource("5_zone")
+zone_vfx_scene = ExtResource("6_vfx")
+frozen_ball_overlay = ExtResource("3_frozen_ball")
+frozen_wizard_overlay = ExtResource("4_frozen_wizard")
+strikes_per_tier = 2
+max_tiers = 3
+max_strikes = 6
+display_name = "Ice"
 shield_scene = ExtResource("2_shield")

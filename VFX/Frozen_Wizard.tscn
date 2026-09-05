@@ -1,0 +1,20 @@
+[gd_scene load_steps=2 format=3 uid="uid://dxe3xcv2cm1bi"]
+
+[ext_resource type="AudioStream" uid="uid://cavbk1rrrdqvi" path="res://SFX/yodguard-iced-magic-5-378605.mp3" id="1_tsuu0"]
+
+[node name="FrozenWizardOverlay" type="Node2D"]
+
+[node name="Shard" type="Polygon2D" parent="."]
+scale = Vector2(1.5, 1.5)
+color = Color(0.27, 0.854, 1, 0.419608)
+polygon = PackedVector2Array(2, -30.6667, 25.3333, -6.66667, 10, 26, -9.33333, 27.3333, -22, -8)
+
+[node name="Outline" type="Line2D" parent="."]
+scale = Vector2(1.5, 1.5)
+points = PackedVector2Array(0, -28, 21.3333, -7.33333, 10, 26, -10, 26, -21.3333, -4.66667, 0, -26)
+width = 2.0
+default_color = Color(0.55, 0.85, 1, 0.85)
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("1_tsuu0")
+autoplay = true

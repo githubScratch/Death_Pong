@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3 uid="uid://b1yoci42x7rit"]
+
+[ext_resource type="AudioStream" uid="uid://d4bso0xxg5piq" path="res://SFX/iceshatter.wav" id="1_gv20h"]
+
+[node name="FrozenBallOverlay" type="Node2D"]
+
+[node name="Shard" type="Polygon2D" parent="."]
+color = Color(0.75, 0.95, 1, 0.6)
+polygon = PackedVector2Array(0, -10, 12, -2, 7, 9, -5, 12, -11, -3)
+
+[node name="Outline" type="Line2D" parent="."]
+points = PackedVector2Array(0, -10, 9, -5, 8, 8, -5, 12, -10, -3, 0, -10)
+width = 1.5
+default_color = Color(0.55, 0.85, 1, 0.85)
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("1_gv20h")

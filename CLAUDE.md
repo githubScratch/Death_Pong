@@ -53,6 +53,179 @@ same pattern: a focused subclass (of `StrikeScaledAbility` if it scales with
 strikes, of `WizardAbility` directly if not) rather than adding fields to a
 shared base.
 
+### Class 3 - Ice (Ice Zone)
+
+`IceAbility` (`PLAYERS/ice_ability.gd`) extends `StrikeScaledAbility`.
+`ability_3.tres` points at it (`display_name = "Ice"`,
+`strikes_per_tier`/`max_tiers`/`max_strikes` = 2/3/6), and `class_3.tres`'s
+`display_name` is `"Ice"`, already wired into `character_select.gd`'s
+`CLASSES` array.
+
+`spell_3.tscn` (the shield scene) is a fully-built, ice-blue-tinted shield -
+`deflect`/`fade`/`light` animations, particles, lights, a `StrikeGauge`
+child tinted icy blue - using the shared `deflection_shield.gd`, same as
+every other class. **This is back to being a plain, always-functioning
+barrier** exactly like `spell_1`/`spell_2`/`spell_4`: an earlier version of
+this session had Ice transform the shield itself into a hold-to-grow trap
+(pass-through mode, a fading barrier, an attached trap VFX...) - that whole
+approach was scrapped and rebuilt from scratch as the zone-based ability
+below instead, because it wasn't feeling right in practice. Nothing about
+casting or holding Up does anything Ice-specific anymore; `spell_3.tscn`'s
+`"trap"` animation stub is back to being the empty placeholder it was before
+that experiment (unused, harmless to leave there).
+
+**The Ice Zone mechanic** (`wizard.gd`'s `_update_ice_zone()` /
+`_cast_ice_zone()`, `PLAYERS/ice_zone.gd`/`ice_zone.tscn`, plus
+`freeze_in_place()`/`thaw()` on both `wizard.gd` and `ARENAS/ball.gd`,
+carried over unchanged from the scrapped trap version):
+
+Double-tapping Left or Right (within `IceAbility.double_tap_window` of each
+other - exact same detection shape `BlinkAbility` already uses for its own
+double-tap, tracked with Ice's own separate
+`_ice_left_tap_window_remaining`/`_ice_right_tap_window_remaining` rather
+than sharing Blink's, same "each mechanic gets its own state" split this
+file already follows elsewhere) drops a slowing, circle-shaped zone
+(`IceAbility.zone_scene`, `PLAYERS/ice_zone.tscn`) at a fixed point in the
+tapped direction. Spends every currently-banked tier at once, up to
+`max_tiers` (`floor(strikes / strikes_per_tier)`, clamped) - needs at least
+one full tier banked or the double-tap just doesn't cast anything, same as
+Blink denying an unaffordable blink. The zone's size/slow-strength/lifetime
+all scale up with however many tiers that cast spent -
+`zone_scale_for_tier()`/`zone_slow_for_tier()`/`zone_duration_for_tier()` on
+`IceAbility`, tier 1 exactly the base knob, each tier after adding another
+step, same "tier N = base + step * (N-1)" shape the old trap's
+`trap_tier_scales()` used.
+
+The zone spawns at `global_position + direction * IceZone.BASE_RADIUS *
+zone_scale` - just past its own spawn-time radius, so a bigger zone (more
+tiers spent) naturally reaches further out without a separate distance
+knob. It's a fully independent `Area2D` scene once spawned: nothing in
+`wizard.gd` keeps a reference to it after `add_child()`, it doesn't follow
+or grow, and `IceZone.configure()` (called once, right after
+`instantiate()`, before `add_child()`) sets every knob on it - `zone_scale`
+becomes its own `Node2D.scale`, which grows the `CollisionShape2D`'s
+`CircleShape2D` (authored at `IceZone.BASE_RADIUS = 56.0`, matching the
+shields' own collision radius) and the attached `VFX/Ice_Trap.tscn` visual
+together for free.
+
+The `VFX/Ice_Trap.tscn` visual (`IceAbility.zone_vfx_scene`) is instantiated
+in code, inside `IceZone._ready()` (`vfx_scene.instantiate()` +
+`add_child()`, then `get_node_or_null("AnimationPlayer")` for the `"hold"`/
+`"trap release"` clips) - the same pattern every other VFX attachment in
+this project already uses (`_start_growth_vfx()`, `_spawn_blink_vfx()`,
+`_spawn_frozen_overlay()`). An earlier draft of `ice_zone.tscn` instead baked
+`Ice_Trap.tscn` in as a static instanced-scene child node
+(`[node ... instance=ExtResource(...)]`), the one place in the codebase that
+diverged from that convention, and it just never showed up in play - the
+Area2D/CollisionShape2D (authored directly in `ice_zone.tscn`, not
+instanced) kept working fine, which is what let the zone's slow effect work
+correctly while the visual stayed invisible. `ice_zone.tscn` itself is back
+to just the bare `Area2D` + `CollisionShape2D`; `zone_vfx_scene` is a
+separate field from `zone_scene` above precisely because `zone_scene` is the
+actual gameplay object and `zone_vfx_scene` is only ever its look - null
+skips spawning any visual at all but the zone still slows normally.
+
+**Continuous slow, not a one-time catch**: an object stays slowed for as
+long as it's actually inside the zone, full stop, and goes right back to
+normal the instant it leaves - not on a timer. This reuses
+`freeze_in_place()`/`thaw()` exactly as the old trap left them (same
+duck-typed `has_method()` shape `deflection_shield.gd` already relies on,
+so a frozen ball and a frozen wizard are handled identically) rather than
+inventing a second slow mechanism: `IceZone._on_body_entered()` calls
+`freeze_in_place()` the instant a body enters, passing a `duration` far
+larger than any zone could ever live (`IceZone._NEVER_EXPIRES`, `1.0e9`) so
+a caught body's own internal countdown never naturally expires while
+inside - `IceZone._on_body_exited()` calls `thaw()` explicitly instead, the
+moment a body actually leaves, and `IceZone._despawn()` thaws out whatever's
+still inside when the zone's own lifetime runs out, so nothing stays frozen
+forever just because it happened to still be standing there. The caster's
+own zone skips the caster entirely unless `IceAbility.self_affected` is
+checked - the checkbox - same "never affects the caster by default"
+convention every other class's ability already used (Growth's channel,
+Blink's teleport, the old trap's freeze query).
+
+`slow_amount`/`slow_amount_per_tier` (0..1, clamped after adding tiers) work
+exactly like the old trap's `slow_amount` did: 1.0 zeroes a target's
+velocity/spin outright and stops gravity outright ("remains in place" - "at
+1 we have stopped entirely state"), lower values leave some of its existing
+motion to carry through at a reduced rate. Both `freeze_in_place()`
+implementations (`ball.gd`'s `gravity_scale` trick, `wizard.gd`'s manual
+per-frame scaled gravity) and their three fixed bugs (permanently orphaned
+overlays from a `thaw()` guard racing the countdown; a per-frame velocity
+re-damp that crushed any partial value to a full freeze; a grounded
+wizard's scaled-gravity term being gated behind `is_on_floor()` so a
+standing-still catch never visibly showed a partial value) are unchanged
+carryovers from that version - see git history/the previous state of this
+file if the exact blow-by-blow is ever needed again, not repeated here
+since none of it is Ice-specific anymore now that a Zone (not a Trap)
+calls into it.
+
+Placeholder overlays: `VFX/Frozen_Ball.tscn` and `VFX/Frozen_Wizard.tscn`,
+simple untextured `Polygon2D` + `Line2D` "ice shard" shapes, spawned as a
+child of a caught target for as long as it stays inside the zone via
+`IceAbility.frozen_ball_overlay`/`frozen_wizard_overlay` and `queue_free()`'d
+on `thaw()` - unchanged from the old trap version, same opt-in vfx-scene
+shape used everywhere else in this project.
+
+The zone despawns on its own timeline, independent of the caster:
+`IceAbility.zone_duration`/`zone_duration_per_tier` set how long it actually
+exists and keeps catching/holding bodies; once that runs out,
+`IceZone._despawn()` stops monitoring, thaws everything still inside, plays
+`VFX/Ice_Trap.tscn`'s one-shot `"trap release"` clip on the vfx child if it
+has one (guarded with `has_animation()`, same safe-before-the-clip-exists
+shape used everywhere), then waits `IceAbility.despawn_delay` - "time to
+`queue_free()` the object after the duration" - before actually freeing the
+node, so that outro has room to finish playing instead of the zone just
+vanishing mid-animation.
+
+The cast also gives the wizard a bit of recoil, via `wizard.gd`'s
+`_apply_ice_knockback()`: `IceAbility.self_knockback` sets `velocity.x` once,
+as a single hard jolt in the direction OPPOSITE the cast - the same
+"one impact, one new velocity" shape `ball.gd`'s deflect gets off a shield
+(`deflection_shield.gd`'s `deflect_ball()`: `linear_velocity = direction *
+deflection_force`), not additive on top of whatever velocity.x the wizard
+already had. A `Tween` (`tween_method`, ease-out/cubic) then eases that
+jolt back down to 0 over `IceAbility.knockback_lock_time`, instead of
+holding at full force for the whole window or being cut off abruptly.
+`_physics_process()`'s normal LEFT/RIGHT movement-input handling is skipped
+for that same `knockback_lock_time` window (`_ice_input_lock_remaining`) so
+the jolt/Tween isn't instantly fought and overwritten the same physics frame
+by whatever direction the player's still holding from the double-tap that
+triggered it - the "competing commands" a knockback with no lock at all was
+losing to. Jumping, diving, and casting are unaffected; only the
+direction-based movement code is held off. An earlier version of this also
+suspended gravity for the same window (a "hover", mirroring Growth's channel
+hover) so the knockback would carry through the air, but that conflicted
+with this wizard's own jump/dive/landing logic (which assumes gravity is
+never paused) and produced bad jump behavior, so it was dropped entirely -
+gravity is always normal now.
+
+Inspector knobs on `ability_3.tres` (all on `IceAbility`): `double_tap_window`
+(tap-vs-tap buffer), `zone_size`/`zone_size_per_tier` ("size"/"additional
+size per tier", a scale multiplier on `IceZone.BASE_RADIUS`),
+`slow_amount`/`slow_amount_per_tier` ("slow"/"additional slow per tier", 0..1
+each), `zone_duration`/`zone_duration_per_tier` ("duration of slow
+area"/"additional duration per tier"), `despawn_delay` ("time to
+queue_free the object after the duration"), `self_knockback` (force of the
+one-time recoil jolt - see above), `knockback_lock_time` (seconds normal
+LEFT/RIGHT movement input is held off after a cast so the jolt isn't
+instantly overwritten - replaces the old `hover_time`, which also paused
+gravity and was dropped), `self_affected` (the checkbox - can the ice mage
+be slowed by its own zone), `zone_scene` (the interactive zone itself,
+`ice_zone.tscn` - not opt-out/null-able like the vfx-only fields below it,
+since it IS the ability's gameplay object), `zone_vfx_scene` (the cosmetic
+`VFX/Ice_Trap.tscn` visual `IceZone` instantiates in code at `_ready()` -
+see above), and `frozen_ball_overlay`/`frozen_wizard_overlay` (carried over
+unchanged from the old trap).
+
+Assumption still worth flagging (carried over from the old trap version,
+still true here since it touched shared infrastructure, not anything
+Ice-specific): the "hit by another shield's deflect thaws it early" rule in
+`deflection_shield.gd` was widened to ANY class's shield, not just Ice's -
+easy to narrow back to Ice-only later by reverting just the
+`collision_mask` changes on `spell_1`/`spell_2`/`spell_4.tscn` if that's not
+the intent.
+
 ## Strike gauge (banked-strikes visual - a rising fill, not a scaling bead)
 
 `StrikeGauge` (`PLAYERS/strike_gauge.gd`, extends `Sprite2D`) is a small

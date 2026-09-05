@@ -1,7 +1,8 @@
-[gd_scene load_steps=9 format=3 uid="uid://c0gadpe3ctdnd"]
+[gd_scene load_steps=24 format=3 uid="uid://c0gadpe3ctdnd"]
 
 [ext_resource type="Texture2D" uid="uid://bqymyl0du2lt1" path="res://SPRITES/sprite_0089.png" id="1_ulhue"]
 [ext_resource type="AudioStream" uid="uid://c8h5wf6cw7vyi" path="res://SFX/magic heartbeat.mp3" id="2_sin78"]
+[ext_resource type="Texture2D" uid="uid://bar8mn5ms2f2r" path="res://SPRITES/509.png" id="3_sin78"]
 
 [sub_resource type="Gradient" id="Gradient_pesqj"]
 offsets = PackedFloat32Array(0, 0.218182, 0.818182, 1)
@@ -116,6 +117,105 @@ _data = {
 &"grow": SubResource("Animation_s4f6f")
 }
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_pesqj"]
+atlas = ExtResource("3_sin78")
+region = Rect2(0, 192, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6n6wl"]
+atlas = ExtResource("3_sin78")
+region = Rect2(64, 192, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_oipe6"]
+atlas = ExtResource("3_sin78")
+region = Rect2(128, 192, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_s4f6f"]
+atlas = ExtResource("3_sin78")
+region = Rect2(192, 192, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1xuk4"]
+atlas = ExtResource("3_sin78")
+region = Rect2(256, 192, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_oc1d3"]
+atlas = ExtResource("3_sin78")
+region = Rect2(320, 192, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tb07t"]
+atlas = ExtResource("3_sin78")
+region = Rect2(384, 192, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kj7le"]
+atlas = ExtResource("3_sin78")
+region = Rect2(448, 192, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2j3qx"]
+atlas = ExtResource("3_sin78")
+region = Rect2(512, 192, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_oqptj"]
+atlas = ExtResource("3_sin78")
+region = Rect2(576, 192, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8w8i1"]
+atlas = ExtResource("3_sin78")
+region = Rect2(640, 192, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_allex"]
+atlas = ExtResource("3_sin78")
+region = Rect2(704, 192, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fcamr"]
+atlas = ExtResource("3_sin78")
+region = Rect2(768, 192, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_1v0ux"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pesqj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6n6wl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_oipe6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_s4f6f")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1xuk4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_oc1d3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tb07t")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kj7le")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2j3qx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_oqptj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8w8i1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_allex")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fcamr")
+}],
+"loop": true,
+"name": &"default",
+"speed": 20.0
+}]
+
 [node name="GrowthVfx" type="Node2D"]
 
 [node name="GPUParticles2D" type="GPUParticles2D" parent="."]
@@ -135,3 +235,10 @@ autoplay = true
 libraries = {
 &"": SubResource("AnimationLibrary_oc1d3")
 }
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+modulate = Color(1, 1, 1, 0.513726)
+scale = Vector2(1.5, 1.5)
+sprite_frames = SubResource("SpriteFrames_1v0ux")
+autoplay = "default"
+frame_progress = 0.581094

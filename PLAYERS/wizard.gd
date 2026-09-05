@@ -99,6 +99,55 @@ var _blink_pending: bool = false
 var _blink_pending_direction: float = 0.0
 var _blink_delay_remaining: float = 0.0
 
+## Double-tap-to-zone state (see _update_ice_zone()/_cast_ice_zone()) -
+## only meaningful for a class whose ability is an IceAbility. Own separate
+## double-tap tracking from _update_blink()'s _left_tap_window_remaining/
+## _right_tap_window_remaining, even though the detection shape is
+## identical - same "each mechanic gets its own state" split this file
+## already follows elsewhere, so an unrelated ability's timing never gets
+## tangled up with this one's.
+var _ice_left_tap_window_remaining: float = 0.0
+var _ice_right_tap_window_remaining: float = 0.0
+
+## Seconds normal LEFT/RIGHT movement-input handling is suppressed after the
+## most recent zone cast - see _cast_ice_zone()/IceAbility.knockback_lock_time.
+## Exists purely so that cast's single jolt of self_knockback (set once,
+## then eased back to 0 by a Tween - see _cast_ice_zone()) isn't instantly
+## fought and overwritten the very same physics frame by whatever direction
+## the player's still holding from the double-tap that triggered it - the
+## "competing commands" this whole knob is here to avoid. An earlier version
+## also suspended GRAVITY for this same window (a "hover"), but that fought
+## this wizard's own jump/dive/landing logic (which assumes gravity is never
+## paused) and was dropped - gravity is always normal now, only horizontal
+## movement input is briefly held off. Never locks out jumping/diving/
+## casting themselves, unlike Growth's full velocity-zero channel hover.
+var _ice_input_lock_remaining: float = 0.0
+
+## True while THIS wizard is standing inside someone ELSE's Ice Zone (see
+## IceZone._on_body_entered(), which always skips the caster's own zone
+## unless IceAbility.self_affected is true) - mirrors Ball.freeze_in_place()/thaw() with the
+## CharacterBody2D-appropriate version below. A wizard's own movement is
+## fully script-driven through move_and_slide() (unlike the ball's
+## RigidBody2D, which the physics engine keeps integrating independent of
+## _physics_process() timing - see Ball.freeze_in_place()'s doc comment for
+## why THAT needs a gravity_scale trick this doesn't), so simply
+## short-circuiting _physics_process() while this is true is enough.
+##
+## Deliberately a SEPARATE flag from _frozen_remaining, rather than just
+## checking _frozen_remaining > 0.0 everywhere (which an earlier version of
+## this file did) - the natural-timeout call to thaw() below happens the
+## same frame _frozen_remaining is driven to <= 0, so thaw()'s own "was this
+## even frozen" guard (see thaw()'s doc comment - it has to no-op when
+## called on an already-normal wizard, since deflection_shield.gd calls it
+## unconditionally on every wizard any shield touches) would otherwise see
+## _frozen_remaining already at 0 and skip its own cleanup - silently
+## leaving _frozen_overlay attached forever, which is exactly the "sprites
+## stuck on wizards permanently" bug this flag fixes.
+var _is_frozen: bool = false
+var _frozen_remaining: float = 0.0
+var _frozen_slow_amount: float = 0.0
+var _frozen_overlay: Node2D = null
+
 # Cached per-seat action names, so the hot path in _physics_process isn't
 # rebuilding strings ("p%d_up" % seat) every frame.
 var _action_up: String
@@ -187,10 +236,60 @@ func _build_sprite_frames(sheet: Texture2D) -> SpriteFrames:
 ### wizard_N.gd scripts with p{N}_* swapped for the cached _action_* names.
 
 func _physics_process(delta: float) -> void:
+	# Frozen locks out everything below unconditionally - movement, jump,
+	# dive, casting, growth/blink/trap holds - regardless of how partial
+	# _frozen_slow_amount is; the player can never act while frozen, full
+	# stop or not. What DOES scale with that knob is whether gravity still
+	# pulls this wizard down while frozen: freeze_in_place() already cut
+	# whatever velocity it had once, at the moment of catching it (see that
+	# function), so from here it's just a matter of how much of gravity's
+	# ongoing pull gets through each frame - 0 at slow_amount 1.0 (truly
+	# suspended, "remains in place"), the same 2x gravity the normal branch
+	# below uses at slow_amount 0.0 (falls at the usual rate, just unable to
+	# act), and something in between otherwise. This used to instead re-damp
+	# velocity toward zero every single frame regardless of slow_amount,
+	# which at 60 physics frames/sec crushed any residual motion back to
+	# nothing within a couple frames even at low slow_amount values - that's
+	# why the knob used to look like it did nothing.
+	if _is_frozen:
+		_frozen_remaining -= delta
+		# Deliberately NOT gated behind is_on_floor(), unlike the identical-
+		# looking check in the normal branch below. Ball.freeze_in_place()
+		# gives a partially-slowed ball a persistent gravity_scale that the
+		# physics engine just keeps integrating regardless of whether the
+		# ball happens to be resting against anything at any given instant
+		# (a RigidBody2D has no is_on_floor() to gate on in the first place),
+		# so a caught ball always visibly reflects a mid slow_amount setting.
+		# Gating this the same way the normal branch does meant a wizard
+		# caught while already standing on solid ground got NO gravity term
+		# at all, at ANY slow_amount - 0.5 and 1.0 looked identical (fully
+		# frozen), since there was nothing pulling it down either way. move_
+		# and_slide() below still keeps a grounded wizard pinned to the floor
+		# exactly like it always does outside a freeze, so this doesn't let
+		# one sink through the ground - it just means a value below 1.0 now
+		# actually reads as "slowed" rather than "frozen" even for a wizard
+		# that was standing still the instant it got caught.
+		velocity += get_gravity() * 2 * delta * (1.0 - _frozen_slow_amount)
+		if velocity.y > max_fall_speed:
+			velocity.y = max_fall_speed
+		move_and_slide()
+		if _frozen_remaining <= 0.0:
+			thaw()
+		return
+
 	_update_growth_channel(delta)
 	_update_blink(delta)
+	_update_ice_zone(delta)
 
-	# Add the gravity and stretch.
+	if _ice_input_lock_remaining > 0.0:
+		_ice_input_lock_remaining = maxf(_ice_input_lock_remaining - delta, 0.0)
+
+	# Add the gravity and stretch. Always active, every frame - an earlier
+	# version of Ice's knockback suspended gravity here for a short window
+	# (a "hover") so the recoil would carry, but that fought this wizard's
+	# own jump/dive/landing logic (all of which assumes gravity is never
+	# paused) and was dropped; see _ice_input_lock_remaining's doc comment
+	# for what replaced it.
 	if not is_on_floor():
 		velocity += get_gravity() * 2 * delta
 		if velocity.y > max_fall_speed:
@@ -239,23 +338,33 @@ func _physics_process(delta: float) -> void:
 			#set_collision_layer(1)
 			SPEED = INIT_SPEED
 
-	# Get the input direction and handle the movement/deceleration.
-	var direction := Input.get_axis(_action_left, _action_right)
-	if direction:
-		velocity.x = direction * SPEED
-		if direction > 0:
-			sprite.flip_h = false  # Face right
-		elif direction < 0:
-			sprite.flip_h = true   # Face left
-	else:
-		velocity.x = move_toward(velocity.x, 0, SPEED)
+	# Get the input direction and handle the movement/deceleration. Skipped
+	# entirely while _ice_input_lock_remaining is still counting down, so a
+	# zone cast's self_knockback jolt (set once, then eased back to 0 by a
+	# Tween - see _cast_ice_zone()) actually reads as a visible burst for
+	# the whole of ability.knockback_lock_time instead of being instantly
+	# overwritten this same frame by whatever direction the player's still
+	# holding from the double-tap that triggered it.
+	if _ice_input_lock_remaining <= 0.0:
+		var direction := Input.get_axis(_action_left, _action_right)
+		if direction:
+			velocity.x = direction * SPEED
+			if direction > 0:
+				sprite.flip_h = false  # Face right
+			elif direction < 0:
+				sprite.flip_h = true   # Face left
+		else:
+			velocity.x = move_toward(velocity.x, 0, SPEED)
 
-	# Hold-to-grow hovers in place - whatever gravity/jump/dive/movement
-	# code above just computed for this frame gets overridden here, every
-	# frame, for as long as the channel is active. Gravity still technically
+	# Hold-to-grow hovers in place - whatever gravity/jump/dive/movement code
+	# above just computed for this frame gets overridden here, every frame,
+	# for as long as a growth channel is active. Gravity still technically
 	# accumulates into velocity.y above while this is true, but since it's
 	# zeroed again right here before move_and_slide(), it never actually
-	# moves the wizard - each frame effectively starts fresh.
+	# moves the wizard - each frame effectively starts fresh. Doesn't touch
+	# Ice's own knockback jolt at all - that's a one-time velocity.x set
+	# (plus a Tween easing it back down - see _cast_ice_zone()), not a
+	# per-frame hover, and the two abilities are never active at once.
 	if _is_channeling:
 		velocity = Vector2.ZERO
 
@@ -624,6 +733,182 @@ func _stop_growth_vfx() -> void:
 		anim.stop()
 	_growth_vfx.queue_free()
 	_growth_vfx = null
+
+
+## Double-tap-to-zone: double-tapping Left or Right within
+## ability.double_tap_window drops a slowing zone (see _cast_ice_zone()) -
+## own separate double-tap tracking from _update_blink()'s, even though the
+## detection shape is identical, same "each hold-mechanic gets its own
+## state" split the growth-channel block above already follows. No-op
+## unless the current ability is an IceAbility. Runs every physics frame
+## regardless of class, same as the other _update_*() functions.
+func _update_ice_zone(delta: float) -> void:
+	var ability := _current_ability() as IceAbility
+	if ability == null:
+		# Not this class's ability - nothing to track, and nothing should
+		# be left armed if the class ever changed mid-game.
+		_ice_left_tap_window_remaining = 0.0
+		_ice_right_tap_window_remaining = 0.0
+		return
+
+	if _ice_left_tap_window_remaining > 0.0:
+		_ice_left_tap_window_remaining = maxf(_ice_left_tap_window_remaining - delta, 0.0)
+	if _ice_right_tap_window_remaining > 0.0:
+		_ice_right_tap_window_remaining = maxf(_ice_right_tap_window_remaining - delta, 0.0)
+
+	if Input.is_action_just_pressed(_action_left):
+		if _ice_left_tap_window_remaining > 0.0:
+			_ice_left_tap_window_remaining = 0.0
+			_cast_ice_zone(ability, -1.0)
+		else:
+			_ice_left_tap_window_remaining = ability.double_tap_window
+	if Input.is_action_just_pressed(_action_right):
+		if _ice_right_tap_window_remaining > 0.0:
+			_ice_right_tap_window_remaining = 0.0
+			_cast_ice_zone(ability, 1.0)
+		else:
+			_ice_right_tap_window_remaining = ability.double_tap_window
+
+
+## Spends every currently-banked tier at once (up to ability.max_tiers) -
+## needs at least one full ability.strikes_per_tier banked, or this just
+## doesn't cast at all, same as Blink denying an unaffordable blink - and
+## drops ability.zone_scene (see IceZone) at a fixed point in `direction`
+## (-1.0 left, 1.0 right): just past the zone's own spawn-time radius from
+## the wizard's CURRENT position, so a bigger zone (more tiers spent)
+## naturally reaches further out without needing its own separate distance
+## knob. Also applies this cast's recoil - see _apply_ice_knockback().
+func _cast_ice_zone(ability: IceAbility, direction: float) -> void:
+	var tiers_spent: int = clampi(strikes / ability.strikes_per_tier, 0, ability.max_tiers)
+	if tiers_spent < 1:
+		# TEMP DEBUG - remove once ice zone strikes are confirmed working.
+		print("[DEBUG seat %d] ice zone denied - only %d strikes banked, need %d" % [seat, strikes, ability.strikes_per_tier])
+		return
+	strikes -= tiers_spent * ability.strikes_per_tier
+	_update_strike_gauge()
+
+	if is_instance_valid(ability.zone_scene):
+		var zone_scale := ability.zone_scale_for_tier(tiers_spent)
+		var zone: Node2D = ability.zone_scene.instantiate()
+		zone.global_position = global_position + Vector2(direction * IceZone.BASE_RADIUS * zone_scale, 0.0)
+		zone.configure(
+			zone_scale,
+			ability.zone_slow_for_tier(tiers_spent),
+			ability.zone_duration_for_tier(tiers_spent),
+			ability.despawn_delay,
+			self,
+			ability.self_affected,
+			ability.frozen_ball_overlay,
+			ability.frozen_wizard_overlay,
+			ability.zone_vfx_scene,
+		)
+		get_tree().current_scene.add_child(zone)
+
+	_apply_ice_knockback(-direction * ability.self_knockback, ability.knockback_lock_time)
+
+	# TEMP DEBUG - remove once ice zone strikes are confirmed working.
+	print("[DEBUG seat %d] ice zone cast %s - spent %d tiers (%d strikes), %d strikes remain" % [seat, ("left" if direction < 0.0 else "right"), tiers_spent, tiers_spent * ability.strikes_per_tier, strikes])
+
+
+## Applies a zone cast's recoil as a single, instant jolt of velocity.x
+## (`jolt_x`, IceAbility.self_knockback signed opposite the cast direction) -
+## deliberately a hard, one-time set here (not additive, not per-frame),
+## same "one impact, one new velocity" shape ball.gd's deflect gets off a
+## shield (deflection_shield.gd's deflect_ball(): `linear_velocity =
+## direction * deflection_force`) - rather than the wizard's own held-input
+## movement code fighting it frame-by-frame, which is what made the old
+## additive version still read as "off." A Tween then eases that jolt back
+## down to 0 over `lock_time` (IceAbility.knockback_lock_time) - ease-out,
+## so it decays the way an impact naturally would instead of holding at full
+## speed for the whole window and then snapping to whatever's held - and
+## _ice_input_lock_remaining is set for that same `lock_time`, so
+## _physics_process()'s normal LEFT/RIGHT movement-input handling stays out
+## of the way for exactly as long as the Tween owns velocity.x. Those two
+## windows finishing on the same frame is what hands control back to the
+## player cleanly right as the burst finishes reading, instead of the two
+## "competing commands" (this jolt vs. whatever direction is held) fighting
+## every frame in between the way they used to.
+func _apply_ice_knockback(jolt_x: float, lock_time: float) -> void:
+	velocity.x = jolt_x
+	_ice_input_lock_remaining = lock_time
+	if lock_time <= 0.0:
+		return
+	var tween := create_tween()
+	tween.tween_method(_set_ice_knockback_velocity_x, jolt_x, 0.0, lock_time).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+
+
+## Tween callback for _apply_ice_knockback() - Tween.tween_method() needs an
+## actual callable to drive, it can't write to the `velocity.x` property
+## directly.
+func _set_ice_knockback_velocity_x(value: float) -> void:
+	velocity.x = value
+
+
+## Called by whichever OTHER wizard's Ice Zone this wizard is currently
+## standing inside (see IceZone._on_body_entered() - it excludes the
+## caster's own zone entirely unless IceAbility.self_affected is true).
+## Cuts this wizard's CURRENT velocity by slow_amount once, right here at
+## the moment of catching it - 1.0 (the default) zeroes it outright, so it
+## holds perfectly still, "remains in place"; lower values leave some of
+## whatever it was already doing to carry through, more of a slow-motion
+## catch than a hard stop. From here on, how much gravity keeps acting on
+## it each frame while frozen ALSO scales with slow_amount - see the
+## _physics_process() early-out above - so a partial slow_amount reads as
+## genuinely slowed motion throughout the freeze, not just at the instant
+## it started. Input is locked out entirely regardless of slow_amount, full
+## stop or not - only whether physics keeps acting on it scales with this
+## knob, never whether the player can act. duration is passed in far larger
+## than any zone could actually live (see IceZone._NEVER_EXPIRES) - the
+## zone itself calls thaw() explicitly the moment this wizard actually
+## leaves it (or the zone itself despawns), rather than this ever timing
+## out on its own; overlay_scene (if assigned on the IceAbility that owns
+## this zone - see IceAbility.frozen_wizard_overlay) is spawned as a child
+## for as long as that lasts, same opt-in vfx shape used everywhere else in
+## this file. Null skips spawning anything.
+func freeze_in_place(duration: float, slow_amount: float, overlay_scene: PackedScene = null) -> void:
+	_is_frozen = true
+	_frozen_remaining = duration
+	_frozen_slow_amount = clampf(slow_amount, 0.0, 1.0)
+	velocity *= (1.0 - _frozen_slow_amount)
+	_spawn_frozen_overlay(overlay_scene)
+
+
+## Ends a freeze early - either from freeze_in_place()'s own countdown
+## reaching 0 in the _physics_process() early-out (a natural thaw) or from
+## another shield's deflect touching this wizard while it's still frozen
+## (see deflection_shield.gd's _on_body_entered(), which calls this on
+## anything with a thaw() method it hits). Either way this always "drops":
+## velocity is zeroed rather than resuming whatever it was doing before the
+## freeze, so a thaw never launches the wizard off with pre-freeze momentum,
+## natural timeout or early break alike. No-op if this wizard wasn't
+## actually frozen (guards against _on_body_entered() calling this
+## unconditionally on every wizard any shield ever touches) - gated on
+## _is_frozen rather than _frozen_remaining, since the natural-timeout call
+## from _physics_process() happens the same frame _frozen_remaining already
+## reads <= 0 (see _is_frozen's doc comment for why that distinction matters).
+func thaw() -> void:
+	if not _is_frozen:
+		return
+	_is_frozen = false
+	_frozen_remaining = 0.0
+	_frozen_slow_amount = 0.0
+	velocity = Vector2.ZERO
+	_clear_frozen_overlay()
+
+
+func _spawn_frozen_overlay(overlay_scene: PackedScene) -> void:
+	_clear_frozen_overlay()
+	if not is_instance_valid(overlay_scene):
+		return
+	var overlay: Node2D = overlay_scene.instantiate()
+	add_child(overlay)
+	_frozen_overlay = overlay
+
+
+func _clear_frozen_overlay() -> void:
+	if is_instance_valid(_frozen_overlay):
+		_frozen_overlay.queue_free()
+	_frozen_overlay = null
 
 
 ## Double-tap-to-blink: double-tapping Left or Right within

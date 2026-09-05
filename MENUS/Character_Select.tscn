@@ -151,6 +151,7 @@ vertical_alignment = 1
 autowrap_mode = 2
 
 [node name="P3" type="CenterContainer" parent="Layout/TopRow"]
+modulate = Color(1, 1, 1, 0.423529)
 layout_mode = 2
 size_flags_horizontal = 3
 
@@ -192,6 +193,7 @@ vertical_alignment = 1
 autowrap_mode = 2
 
 [node name="P4" type="CenterContainer" parent="Layout/TopRow"]
+modulate = Color(1, 1, 1, 0.423529)
 layout_mode = 2
 size_flags_horizontal = 3
 
