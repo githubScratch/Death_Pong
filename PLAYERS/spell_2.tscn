@@ -911,8 +911,6 @@ scale = Vector2(2.5, 2.5)
 sprite_frames = SubResource("SpriteFrames_00ppf")
 animation = &"pop"
 autoplay = "hold"
-frame = 9
-frame_progress = 1.0
 
 [node name="PointLight2D" type="PointLight2D" parent="AnimatedSprite2D"]
 visible = false

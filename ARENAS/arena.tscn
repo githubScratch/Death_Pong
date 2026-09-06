@@ -363,7 +363,7 @@ size = Vector2(2344, 392)
 size = Vector2(192, 32)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_uo83q"]
-size = Vector2(192, 28)
+size = Vector2(192, 32)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_55po1"]
 shader = ExtResource("6_2udws")
@@ -1293,7 +1293,7 @@ offset_bottom = 32.0
 color = Color(0, 0, 0, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Arena/Left_Plat"]
-position = Vector2(96, 18)
+position = Vector2(96, 16)
 shape = SubResource("RectangleShape2D_uo83q")
 
 [node name="TileMapLayer7" type="TileMapLayer" parent="Arena/Left_Plat"]

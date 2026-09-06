@@ -335,7 +335,6 @@ frame = 8
 frame_progress = 1.0
 
 [node name="PointLight2D" type="PointLight2D" parent="."]
-visible = false
 scale = Vector2(0.5, 0.5)
 color = Color(0.5456, 0.3784, 0.88, 1)
 energy = 0.0

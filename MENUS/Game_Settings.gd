@@ -54,6 +54,32 @@ var character_select_origin: String = "res://MENUS/Menu.tscn"
 # see character_select.gd's _refresh_box() for where this gets written.
 var seat_active: Array = [true, true, false, false]
 
+# Per-seat identity color - index 0..3 for seats 1..4, same convention as
+# every other per-seat array in this file. Currently only consumed by
+# wizard.gd's _apply_class() to tint a wizard's outline sprite (see
+# WizardClass.outline_sheet), so a player can tell their own wizard apart at
+# a glance. Deliberately a plain array here rather than something keyed by
+# team - there's no team concept yet - but color_for_seat() below is the
+# only place that reads it, so swapping this out for a per-team lookup later
+# (or having it fall back to a team's color when a seat has one) never
+# touches wizard.gd at all, only this one function.
+const SEAT_COLORS: Array[Color] = [
+	Color(0.98, 0.25, 0.25), # P1 - red
+	Color(0.25, 0.55, 0.98), # P2 - blue
+	Color(0.35, 0.9, 0.35),  # P3 - green
+	Color(0.95, 0.85, 0.2),  # P4 - yellow
+]
+
+# Returns seat's identity color (1-indexed, matching every other seat
+# parameter in this file). Falls back to plain white - a no-op tint, same as
+# not modulating at all - for anything out of range rather than erroring, so
+# a stray/mistaken seat number just draws the outline at its natural color
+# instead of crashing.
+func color_for_seat(seat: int) -> Color:
+	if seat < 1 or seat > SEAT_COLORS.size():
+		return Color.WHITE
+	return SEAT_COLORS[seat - 1]
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	# This autoload forwards p1-p4 input into ui_up/down/left/right/select
@@ -144,5 +170,3 @@ func reroll_random_seats() -> void:
 func go_to_character_select(origin_scene: String) -> void:
 	character_select_origin = origin_scene
 	get_tree().change_scene_to_file("res://MENUS/Character_Select.tscn")
-
-

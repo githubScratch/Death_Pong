@@ -818,6 +818,43 @@ used to maintain was dead weight even before this - it only ever pruned
 already-freed entries from itself, never actually freed anything - and is
 gone now that the real cleanup lives in `start_fade()`.
 
+Second bug, found later via another playtest report matching the same
+symptom (barrier visible, collision dead, no strikes, never actually gone -
+"can happen for any class"): `_is_fading` closed the door on a LATER ball
+hit restarting the fade, but nothing stopped `start_fade()` itself from
+being called a SECOND time on a barrier already mid-fade, which does the
+exact same damage a ball hit used to. The concrete path that does this:
+`wizard.gd`'s `_meteor_barrier` (the reference `_attach_meteor_barrier()`/
+`_end_meteor_barrier()` use to track a barrier reparented onto a falling
+Fire wizard) is a separate field from `current_instance`, and nothing keeps
+them in sync once they diverge. If a tier-2 lingering meteor form's own
+jump recast lets `create_new_instance()` fade that same barrier out from
+under the form (`MeteorAbility.tier2_meteor_form_blocks_barrier == false`,
+see "Blink max-tier clone"'s neighboring meteor sections), `_meteor_barrier`
+still points at it - `is_instance_valid()` keeps returning true for the
+rest of that ~0.5s fade window, since `queue_free()` doesn't actually
+remove a node until the fade's own Call Method Track fires at the very end
+of the clip. If the meteor form then ends anywhere inside that window,
+`_end_meteor_barrier()` sees a "still valid" barrier and calls
+`start_fade()` on it again. `start_fade()` responds to a second call the
+same way it always has: `animation_player.stop()` then `play("fade")`,
+restarting the clip from 0 - which re-runs the `Area2D:monitoring` track
+(collision off at t=0) but resets the countdown to the `queue_free()`
+keyframe at t=0.5 before it can ever fire. A barrier hit by this twice ends
+up exactly as reported: permanently non-colliding, banking no strikes, and
+never freed, because it can never survive a full uninterrupted 0.5s to
+reach its own completion.
+
+Fixed the same way as the first bug - at the one function that's supposed
+to be the sole authority on a barrier's fade, rather than chasing down
+every place a stale reference to a fading barrier might come from:
+`start_fade()` now checks its own `_is_fading` flag first and returns
+immediately if it's already true, exactly the same "already retiring,
+leave it alone" rule `_on_body_entered()` uses. Whichever call gets there
+first wins; any later call, from any source, is now a no-op instead of a
+restart - closing this off for good regardless of what other reference to
+a fading barrier turns up mismatched next.
+
 `_is_clone`/`_clone_source` (new `wizard.gd` fields) mark a spawned clone
 and point back at whoever cast it. Deliberate design choice, not something
 explicitly asked for: a clone that itself reaches max tier never spawns a
@@ -919,6 +956,85 @@ previous `AnimationPlayer` and `queue_free()` the previous instance before
 attaching a new one. `ability_2.tres` currently points this at
 `VFX/Growth_VFX.tscn` (particles + a looping heartbeat SFX via its own
 `AnimationPlayer`/`"grow"` animation).
+
+## Per-seat outline tint - attempted, reverted, revisit later
+
+Goal was to let a player pick their own wizard out at a glance: a
+color-per-seat outline around the body sprite. Went through two whole
+approaches and five total drafts across one session before the whole thing
+got reverted at the user's call ("just not doing it for me... ill come back
+to this") rather than land on something that actually looked right - not a
+bug fix this time, a design call. Keeping the history here anyway, because
+several of the individual technical problems hit along the way are real and
+will resurface the moment anyone (human or Claude) tries this again:
+
+- Attempt 1, hand-drawn art: a `WizardClass.outline_sheet` field holding a
+  separate white-on-transparent sprite sheet, one class's worth of which a
+  playtester provided (`SPRITES/outline 2.png`, plus two unused alternates,
+  `outline 1.png` and `fulloutline.png` - all three still sitting in
+  `SPRITES/` unreferenced by anything now, worth deleting whenever this is
+  picked back up or cleaned out for good). Dropped after one round of
+  feedback: at this art's small on-screen size (roughly 64x64), a
+  pixel-perfect hand-traced 1px line aliases badly and reads as too
+  stark/harsh, and fixing that would have meant redrawing art rather than
+  turning a knob.
+- Attempt 2, a live shader (`PLAYERS/sprite_outline.gdshader`, deriving the
+  rim from the sprite's own alpha channel instead of separate art) went
+  through four drafts, each catching a real bug the last one had:
+  1. Averaging alpha over a filled disk of samples via a nested 13x13
+     for-loop (up to 169 dependent `texture()` calls per fragment) failed
+     to compile in-game outright ("Shader compilation failed",
+     `renderer_canvas_render_rd.cpp` - a driver/codegen-level rejection
+     with no line number, not a GDScript-style parse error, which points at
+     the loop's sheer size). Godot fell back to drawing the outline sprite
+     with no shader logic at all - a flat, fully opaque copy of the body
+     art, multiplied by `modulate`, which is why the in-game result looked
+     like a solid seat-colored recolor of the whole wizard rather than a
+     rim: the shader had simply never run.
+  2. Dropping the loop for a hand-unrolled fixed 8-sample ring and a hard
+     0-or-1 alpha cutoff compiled and drew an actual edge, but every seat
+     rendered pure white regardless of `GameSettings.color_for_seat()`, and
+     the hard binary edge read as harsh/aliased at this sprite's small
+     on-screen size.
+  3. Fixing the harshness (a continuous soft-edged falloff via three
+     weighted sample rings - near/mid/far, 8 directions each, 24
+     `texture()` calls total, no loop - averaged rather than maxed) worked
+     and stuck. Fixing the white-regardless-of-seat bug did not: both
+     earlier drafts read/wrote only the `COLOR` built-in, which by the time
+     `fragment()` runs already has `TEXTURE` sampled and multiplied into
+     it - overwriting `COLOR` outright, as both did, throws the modulate
+     tint away entirely. This draft tried reading a `MODULATE` built-in
+     instead, believing Godot exposes a CanvasItem's modulate tint that way
+     separate from the texture-multiplied `COLOR` - it doesn't, at least
+     not in this project's Godot version: `MODULATE` is not a real
+     identifier here, and using it is a hard shader compile failure
+     ("Unknown identifier in expression: 'MODULATE'"), not a silent no-op.
+  4. Final draft sidestepped modulate-inside-a-shader entirely: since the
+     fragment shader always has to fully overwrite `COLOR`, and Godot never
+     re-applies `modulate` afterward, the seat color was instead passed in
+     directly as a shader uniform, set from script
+     (`set_shader_parameter("outline_base_color", ...)`), no node-level
+     `modulate` involved at all. This version actually worked (compiled,
+     colored correctly per seat, soft edge) - it just didn't look good
+     enough in practice once seen running to be worth keeping.
+
+What got reverted, for anyone picking this back up: `wizard.tscn`'s
+`outline` child node, its `ShaderMaterial` sub-resource, and the shader's
+`ext_resource` entry are gone (back to `load_steps=10`, just `sprite` under
+`CharacterBody2D`, no outline sibling/child anywhere). `wizard.gd` lost the
+`outline` `@onready` var, `_build_outline_frames()`, and the `_set_facing()`
+helper - every `flip_h` call site is back to setting `sprite.flip_h`
+directly, and `_build_sprite_frames()` is back to its original inline
+region literals (the `_SPRITE_SHEET_REGIONS` const existed only to share
+with the now-gone outline builder). `WizardClass.sprite_sheet`'s doc comment
+no longer mentions an outline use. One thing NOT cleaned up, because
+nothing in this session's toolset can delete a file on the user's machine:
+`PLAYERS/sprite_outline.gdshader` itself is still sitting on disk,
+unreferenced by anything now that `wizard.tscn` no longer points at it -
+harmless (Godot won't try to load a `.gdshader` nothing points at), but
+worth deleting by hand next time this project's opened, along with the
+three unused `SPRITES/outline*.png`/`fulloutline.png` files from attempt 1
+above.
 
 ## Godot .tres corruption risk
 

@@ -143,6 +143,27 @@ func knockback(direction: Vector2, distance: float) -> void:
 ## was playing" rule deflect_ball() already follows for its own "deflect")
 ## guarantees this actually starts the instant it's called instead.
 func start_fade() -> void:
+	# Re-entrancy guard: a second call arriving while this barrier is already
+	# mid-fade must be a total no-op, not another stop()+play("fade"). The
+	# "fade" clip's Area2D:monitoring track flips collision off at t=0 but its
+	# queue_free() Call Method Track only fires at the very end (t=0.5) - see
+	# the doc comments on the two tracks below and on _is_fading. Restarting
+	# playback from 0 (which stop()+play() does) resets that 0.5s countdown
+	# without ever un-disabling monitoring in between, so a barrier hit by
+	# this twice in a row ends up exactly like the symptom reported after
+	# this guard was added: collision permanently off, no strikes, but never
+	# actually freed, because it can never survive uninterrupted all the way
+	# to its own completion keyframe. Found via wizard.gd's
+	# _end_meteor_barrier(): its own `_meteor_barrier` reference doesn't get
+	# cleared when create_new_instance() independently fades the very same
+	# barrier out from under a lingering meteor form, so a meteor form ending
+	# shortly after that recast calls start_fade() a second time on a barrier
+	# that's already on its way out. _is_fading already means exactly "this
+	# barrier is retiring, leave it alone" everywhere else in this file - this
+	# just makes start_fade() itself respect its own flag instead of only the
+	# callers gated behind it (deflect_ball()) doing so.
+	if _is_fading:
+		return
 	# Set before anything else touches the AnimationPlayer - see _is_fading's
 	# own doc comment for why this has to close the window completely rather
 	# than just being set alongside the play() call below.
