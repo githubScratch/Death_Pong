@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=4 uid="uid://logifil3ltlk"]
+[gd_scene load_steps=21 format=3 uid="uid://logifil3ltlk"]
 
 [ext_resource type="Script" uid="uid://d2l8466qvd8po" path="res://ARENAS/brick.gd" id="1_to833"]
 [ext_resource type="Texture2D" uid="uid://bh352e2u005py" path="res://SPRITES/dingbats-365.png" id="2_yr5cx"]
@@ -3100,6 +3100,6 @@ volume_db = -5.0
 bus = &"SFX"
 
 [node name="TileMapLayer" type="TileMapLayer" parent="."]
-scale = Vector2(1.35, 1.35)
-tile_map_data = PackedByteArray("AAABAAEAAwAbABUAAAAAAAEAAwAfAA8AAAAAAAAAAwAMABQAAAABAAAAAwAbABQAAAAAAAIAAwAfAAkAAAABAAIAAwATAAQAAAACAAAAAwAdABQAAAACAAEAAwAKAA8AAAACAAIAAwAKAAkAAAA=")
+scale = Vector2(2, 2)
+tile_map_data = PackedByteArray(0, 0, 0, 0, 0, 0, 3, 0, 89, 0, 6, 0, 0, 0, 0, 0, 1, 0, 3, 0, 89, 0, 7, 0, 0, 0, 1, 0, 0, 0, 3, 0, 90, 0, 6, 0, 0, 0, 1, 0, 1, 0, 3, 0, 90, 0, 7, 0, 0, 0)
 tile_set = SubResource("TileSet_cyso7")
