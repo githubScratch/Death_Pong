@@ -57,6 +57,56 @@ same pattern: a focused subclass (of `StrikeScaledAbility` if it scales with
 strikes, of `WizardAbility` directly if not) rather than adding fields to a
 shared base.
 
+### Known limitation: this composition only covers DATA, not behavior - plan to revisit via child-node composition
+
+Flagged in a code review, not urgent, but real and worth acting on before
+adding a 5th class: everything above is genuine composition for each
+ability's *tuning knobs* (a `BlinkAbility` carries none of `IceAbility`'s
+fields, etc.), but the actual *behavior* - the state machine, tap-timing
+windows, physics overrides, VFX spawn/despawn - for all four classes still
+lives in one place: `wizard.gd` itself, currently ~2100 lines, carrying every
+class's private state (`_channel_tier`, `_blink_pending`,
+`_ice_left_tap_window_remaining`, `_meteor_hover_remaining`, `_slam_wrap_
+armed`, ~30 fields total) and every class's update function
+(`_update_growth_channel`, `_update_blink`, `_update_ice_zone`,
+`_update_meteor`, ~25 functions total) whether or not a given wizard
+instance is even playing that class. `_physics_process` calls all four
+`_update_*` functions unconditionally, every frame, for every wizard - each
+one opens with `_current_ability() as WhicheverAbility; if ability == null:
+return`, so three of the four silently no-op on any given wizard. Harmless
+at this scale, but it means a Blink wizard's script carries Growth's, Ice's,
+and Meteor's complete logic too, and adding a 5th class means editing this
+same shared file yet again rather than adding an isolated new one.
+
+Not a today problem, but the plan going forward is composition via child
+nodes: a small `AbilityController` base (a `Node`, not another `Resource`),
+with `BlinkController`/`GrowthController`/`IceController`/`MeteorController`
+each in their own script, and `_apply_class()` instantiating exactly the ONE
+controller matching `wizard_class`'s ability as a child - so a Blink wizard
+simply never loads Growth/Ice/Meteor code or state at all, no null-checks
+required, and a 5th class is a new controller file plus one line in
+`_apply_class()`'s dispatch, not an edit to `wizard.gd` itself. (A resource-
+side alternative - giving `WizardAbility` itself virtual-ish methods like
+`physics_process(wizard, delta)` - was considered and set aside: a `.tres`
+Resource loaded from disk is a *shared instance* by default, so two seats
+both picking Blink would reference the same `BlinkAbility` object, meaning
+any runtime state would need to live somewhere per-wizard anyway or the
+resource would need `.duplicate()`-ing per wizard - the node approach avoids
+that gotcha entirely by construction.)
+
+The real complication whenever this actually happens: `_physics_process`
+right now owns one single, carefully ordered read-modify-write of `velocity`
+per frame - frozen check, then gravity, then jump/dive, then movement, then
+growth's hover override, then meteor's fall override, then one
+`move_and_slide()` call - and at least one comment already leans on "the two
+abilities are never active at once" as an assumed invariant. Splitting into
+independent per-controller nodes means that ordering and mutual-exclusion
+has to be made explicit again (something like an `override_velocity(current)
+-> Variant` hook the chassis calls on the active controller once, applied
+only if non-null) rather than falling out for free from everything living in
+one function. Worth doing as its own deliberate pass with every ability
+re-tested afterward, not folded into an unrelated change.
+
 ### Class 3 - Ice (Ice Zone)
 
 `IceAbility` (`PLAYERS/ice_ability.gd`) extends `StrikeScaledAbility`.

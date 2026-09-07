@@ -7971,19 +7971,23 @@ collision_layer = 2
 collision_mask = 7
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="moving platforms/platform"]
+visible = false
 position = Vector2(159.5, 304)
 scale = Vector2(1.35, 1.35)
 shape = SubResource("RectangleShape2D_tgyg7")
+one_way_collision = true
 
 [node name="TileMapLayer" type="TileMapLayer" parent="moving platforms/platform"]
 scale = Vector2(2, 2)
-tile_map_data = PackedByteArray("AAAGAAoAAAA0AB8AAAAFAAkAAAAzABsAAAAGAAkAAAA0ABsAAAAEAAkAAAA0ABsAAAADAAkAAAAzABsAAAACAAkAAAArABwAAAAHABAAAAAzABsAAAAIABAAAAA0ABsAAAAJABAAAAAzABsAAAAKABAAAAA0ABsAAAALABAAAAA0ADQAAAAMABAAAAA/ABwAAAAGABAAAAArABwAAAAGAAsAAAA0ACAAAAAGAAwAAAA0ACEAAAAHAAoAAAA1AB8AAAAHAAsAAAA1ACAAAAAHAAwAAAA1ACEAAAAGAA0AAAA0ACIAAAAGAA4AAAA0ACgAAAAHAA0AAAA1ACIAAAAHAA4AAAA1ACgAAAAGAA8AAAA0ACkAAAAHAA8AAAA1ACkAAAAHAAkAAAA/ABwAAAA=")
+tile_map_data = PackedByteArray("AAAGAAoAAAA0AB8AAAAFAAkAAAAzABsAAAAGAAkAAAA0ABsAAAAEAAkAAAA0ABsAAAADAAkAAAAzABsAAAACAAkAAAArABwAAAAHABAAAAAzABsAAAAIABAAAAA0ABsAAAAJABAAAAAzABsAAAAKABAAAAA0ABsAAAALABAAAAA3ABsAAAAMABAAAAA/ABwAAAAGABAAAAArABwAAAAGAAsAAAA0ACAAAAAGAAwAAAA0ACEAAAAHAAoAAAA1AB8AAAAHAAsAAAA1ACAAAAAHAAwAAAA1ACEAAAAGAA0AAAA0ACIAAAAGAA4AAAA0ACgAAAAHAA0AAAA1ACIAAAAHAA4AAAA1ACgAAAAGAA8AAAA0ACkAAAAHAA8AAAA1ACkAAAAHAAkAAAA/ABwAAAA=")
 tile_set = SubResource("TileSet_03878")
 
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="moving platforms/platform"]
+visible = false
 position = Vector2(303.348, 528.5)
 scale = Vector2(1.35, 1.35)
 shape = SubResource("RectangleShape2D_u7217")
+one_way_collision = true
 
 [node name="platform2" type="StaticBody2D" parent="moving platforms"]
 position = Vector2(592, 728)
@@ -7991,9 +7995,11 @@ collision_layer = 2
 collision_mask = 7
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="moving platforms/platform2"]
+visible = false
 position = Vector2(159.5, 304.5)
 scale = Vector2(1.35, 1.35)
 shape = SubResource("RectangleShape2D_tgyg7")
+one_way_collision = true
 
 [node name="TileMapLayer" type="TileMapLayer" parent="moving platforms/platform2"]
 scale = Vector2(2, 2)
@@ -8001,9 +8007,11 @@ tile_map_data = PackedByteArray("AAAGAAoAAAA0AB8AAAAFAAkAAAAzABsAAAAGAAkAAAA0ABs
 tile_set = SubResource("TileSet_03878")
 
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="moving platforms/platform2"]
+visible = false
 position = Vector2(303.348, 529)
 scale = Vector2(1.35, 1.35)
 shape = SubResource("RectangleShape2D_u7217")
+one_way_collision = true
 
 [node name="platform3" type="StaticBody2D" parent="moving platforms"]
 position = Vector2(40, 1176)
@@ -8011,19 +8019,23 @@ collision_layer = 2
 collision_mask = 7
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="moving platforms/platform3"]
+visible = false
 position = Vector2(159.5, 304.75)
 scale = Vector2(1.35, 1.35)
 shape = SubResource("RectangleShape2D_tgyg7")
+one_way_collision = true
 
 [node name="TileMapLayer" type="TileMapLayer" parent="moving platforms/platform3"]
 scale = Vector2(2, 2)
-tile_map_data = PackedByteArray("AAAGAAoAAAA0AB8AAAAFAAkAAAAzABsAAAAGAAkAAAA0ABsAAAAEAAkAAAA0ABsAAAADAAkAAAAzABsAAAACAAkAAAArABwAAAAHABAAAAAzABsAAAAIABAAAAA0ABsAAAAJABAAAAAzABsAAAAKABAAAAA0ABsAAAALABAAAAA0ADQAAAAMABAAAAA/ABwAAAAGABAAAAArABwAAAAGAAsAAAA0ACAAAAAGAAwAAAA0ACEAAAAHAAoAAAA1AB8AAAAHAAsAAAA1ACAAAAAHAAwAAAA1ACEAAAAGAA0AAAA0ACIAAAAGAA4AAAA0ACgAAAAHAA0AAAA1ACIAAAAHAA4AAAA1ACgAAAAGAA8AAAA0ACkAAAAHAA8AAAA1ACkAAAAHAAkAAAA/ABwAAAA=")
+tile_map_data = PackedByteArray("AAAGAAoAAAA0AB8AAAAFAAkAAAAzABsAAAAGAAkAAAA0ABsAAAAEAAkAAAA0ABsAAAADAAkAAAAzABsAAAACAAkAAAArABwAAAAHABAAAAAzABsAAAAIABAAAAA0ABsAAAAJABAAAAA2ABsAAAAKABAAAAA0ABsAAAALABAAAAA2ABsAAAAMABAAAAA/ABwAAAAGABAAAAArABwAAAAGAAsAAAA0ACAAAAAGAAwAAAA0ACEAAAAHAAoAAAA1AB8AAAAHAAsAAAA1ACAAAAAHAAwAAAA1ACEAAAAGAA0AAAA0ACIAAAAGAA4AAAA0ACgAAAAHAA0AAAA1ACIAAAAHAA4AAAA1ACgAAAAGAA8AAAA0ACkAAAAHAA8AAAA1ACkAAAAHAAkAAAA/ABwAAAA=")
 tile_set = SubResource("TileSet_03878")
 
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="moving platforms/platform3"]
+visible = false
 position = Vector2(303.348, 529.75)
 scale = Vector2(1.35, 1.35)
 shape = SubResource("RectangleShape2D_u7217")
+one_way_collision = true
 
 [node name="platform4" type="StaticBody2D" parent="moving platforms"]
 position = Vector2(600, 1624)
@@ -8034,6 +8046,7 @@ collision_mask = 7
 position = Vector2(159.5, 304.375)
 scale = Vector2(1.35, 1.35)
 shape = SubResource("RectangleShape2D_tgyg7")
+one_way_collision = true
 
 [node name="TileMapLayer" type="TileMapLayer" parent="moving platforms/platform4"]
 scale = Vector2(2, 2)

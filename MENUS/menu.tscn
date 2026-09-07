@@ -82,8 +82,7 @@ layout_mode = 2
 theme = ExtResource("3_m17v8")
 theme_override_fonts/font = ExtResource("1_phoou")
 theme_override_font_sizes/font_size = 40
-text = "OPTIONS
-"
+text = "SETTINGS"
 
 [node name="Quit" type="Button" parent="CenterContainer/VBoxContainer"]
 z_index = 1
