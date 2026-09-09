@@ -18,6 +18,11 @@ extends Control
 ## GameSettings.selected_classes, which wizard.gd's _ready() prefers over
 ## an arena scene's baked-in default class - see that file for the other
 ## half of this wiring.
+##
+## While GameSettings.game_mode is "training" (chosen on the Options
+## screen), only seat 1 gets a class choice here - seats 2-4 are hidden
+## entirely and forced inactive, matching training.tscn's single scene-baked
+## P1 plus its own separate P2/P3/P4 join mechanics (see ARENAS/training.gd).
 
 const CLASSES: Array[WizardClass] = [
 	preload("res://PLAYERS/classes/class_1.tres"),
@@ -46,6 +51,9 @@ const REGIONS := [
 	Rect2(192, 192, 192, 192),
 ]
 
+@onready var _seat_containers: Array = [
+	$Layout/TopRow/P1, $Layout/TopRow/P2, $Layout/TopRow/P3, $Layout/TopRow/P4,
+]
 @onready var _name_labels: Array = [
 	$Layout/TopRow/P1/Box/NameLabel, $Layout/TopRow/P2/Box/NameLabel,
 	$Layout/TopRow/P3/Box/NameLabel, $Layout/TopRow/P4/Box/NameLabel,
@@ -70,6 +78,10 @@ const REGIONS := [
 	$Layout/TopRow/P3/Box/Prompt, $Layout/TopRow/P4/Box/Prompt,
 ]
 
+## Beneath the seat row - non-interactive readout of the currently chosen
+## mod/map (see GameSettings.summary_text()), kept in sync with Options via
+## GameSettings.settings_changed as well as refreshed on every visit here.
+@onready var summary_label: Label = $Layout/Summary
 @onready var ready_button: Button = $Layout/Bottom/Buttons/Ready
 @onready var back_button: Button = $Layout/Bottom/Buttons/Back
 @onready var select_sfx: AudioStreamPlayer2D = $select
@@ -82,7 +94,23 @@ var _frame := [0, 0, 0, 0]
 var _frame_time := [0.0, 0.0, 0.0, 0.0]
 
 
+func _is_training() -> bool:
+	return GameSettings.game_mode == "training"
+
+
 func _ready() -> void:
+	var training := _is_training()
+
+	# Training only ever plays seat 1 (see ARENAS/training.gd) - hide the
+	# other three seats entirely rather than just disabling them, and force
+	# them inactive so a seat that joined on an earlier, non-training visit
+	# doesn't linger active and get spawned into the training scene.
+	for i in range(1, 4):
+		_seat_containers[i].visible = not training
+	if training:
+		for seat in range(2, 5):
+			GameSettings.set_seat_active(seat, false)
+
 	# Remember whatever was picked last time (a previous visit to this
 	# screen, or just the game's defaults), so reopening this screen - via
 	# Back-then-Start-again, quitting a match back to a menu and returning
@@ -95,6 +123,8 @@ func _ready() -> void:
 	# a standing preference this screen should keep honoring, not a one-time
 	# roll that quietly turns into a fixed class the instant you leave.
 	for i in range(4):
+		if training and i > 0:
+			continue
 		if i < GameSettings.was_random_pick.size() and GameSettings.was_random_pick[i]:
 			_class_index[i] = CLASSES.size()
 			continue
@@ -105,12 +135,23 @@ func _ready() -> void:
 				_class_index[i] = idx
 
 	ready_button.grab_focus()
+	_update_summary()
+	GameSettings.settings_changed.connect(_update_summary)
 	for i in range(4):
+		if training and i > 0:
+			continue
 		_refresh_box(i)
 
 
+func _update_summary() -> void:
+	summary_label.text = GameSettings.summary_text()
+
+
 func _process(delta: float) -> void:
+	var training := _is_training()
 	for i in range(4):
+		if training and i > 0:
+			continue
 		var seat := i + 1
 		if not _active[i]:
 			if _seat_pressed_any_direction(seat):
@@ -260,6 +301,9 @@ func _resolve_random_picks() -> void:
 
 func _on_ready_pressed() -> void:
 	_resolve_random_picks()
+	if _is_training():
+		get_tree().change_scene_to_file("res://ARENAS/training.tscn")
+		return
 	match GameSettings.game_arena:
 		"tower":
 			get_tree().change_scene_to_file("res://ARENAS/tower.tscn")
@@ -267,6 +311,10 @@ func _on_ready_pressed() -> void:
 			get_tree().change_scene_to_file("res://ARENAS/yonder.tscn")
 		_:
 			get_tree().change_scene_to_file("res://ARENAS/arena.tscn")
+
+
+func _on_options_pressed() -> void:
+	get_tree().change_scene_to_file("res://MENUS/Mode_Menu.tscn")
 
 
 func _on_back_pressed() -> void:

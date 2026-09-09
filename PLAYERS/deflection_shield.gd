@@ -103,9 +103,37 @@ func deflect_ball(ball, direction):
 		# set_deferred"). Deferring both calls to the next idle frame avoids
 		# that entirely without changing what's visible: still stop-then-
 		# play, just a fraction of a frame later.
-		animation_player.call_deferred("stop")
-		animation_player.call_deferred("play", "deflect")
+		#
+		# Routed through one wrapper (_apply_deflect_animation(), below)
+		# instead of bare call_deferred("stop")/call_deferred("play",
+		# "deflect") calls: the `_is_fading` check up in _on_body_entered()
+		# only proves this barrier wasn't fading at the INSTANT the ball
+		# touched it, not at the instant this deferred call actually runs,
+		# a fraction of a frame later. start_fade() can still land in
+		# between - it's called synchronously from three places in
+		# wizard.gd (recasting a shield, ending a meteor barrier, despawning
+		# a blink clone) - and since it plays "fade" immediately while this
+		# deferred pair only flushes at the end of the frame, the old bare
+		# calls would still stop() the fresh "fade" clip and play "deflect"
+		# over it, which is exactly the "hit animation overrides the fade
+		# animation and it never queue_frees" bug reported: a ball clipping
+		# a barrier the same frame something else retires it. Re-checking
+		# `_is_fading` right before touching the AnimationPlayer, at the
+		# time the deferred call actually runs, closes that gap.
+		call_deferred("_apply_deflect_animation")
 		deflected.emit()
+
+## Deferred target for deflect_ball()'s animation replay - see the long
+## comment there for why this can't just be call_deferred("stop") +
+## call_deferred("play", "deflect") directly. Bails out if this barrier
+## started fading sometime between the ball touching it and this deferred
+## call actually running, leaving "fade" (and its pending queue_free() at
+## the end of that clip) completely uninterrupted.
+func _apply_deflect_animation() -> void:
+	if _is_fading:
+		return
+	animation_player.stop()
+	animation_player.play("deflect")
 
 ## Shoves this barrier's position `distance` pixels away from wherever it was
 ## hit from, eased back to a stop over a short fixed duration - not called by

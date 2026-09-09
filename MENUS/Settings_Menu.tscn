@@ -64,40 +64,18 @@ layout_mode = 0
 offset_right = 1152.0
 offset_bottom = 648.0
 
-[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer"]
+[node name="Layout" type="VBoxContainer" parent="CenterContainer"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/Layout"]
 layout_mode = 2
 
-[node name="BackCont" type="VBoxContainer" parent="CenterContainer/HBoxContainer"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="CenterContainer/HBoxContainer/BackCont"]
-layout_mode = 2
-
-[node name="Label2" type="Label" parent="CenterContainer/HBoxContainer/BackCont"]
-layout_mode = 2
-
-[node name="Label3" type="Label" parent="CenterContainer/HBoxContainer/BackCont"]
-layout_mode = 2
-
-[node name="Label4" type="Label" parent="CenterContainer/HBoxContainer/BackCont"]
-layout_mode = 2
-
-[node name="BackButton" type="Button" parent="CenterContainer/HBoxContainer/BackCont"]
-layout_mode = 2
-text = "back"
-
-[node name="Label" type="Label" parent="CenterContainer/HBoxContainer"]
-layout_mode = 2
-text = "      "
-
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/HBoxContainer"]
-layout_mode = 2
-
-[node name="SoundCont" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer"]
+[node name="SoundCont" type="VBoxContainer" parent="CenterContainer/Layout/VBoxContainer"]
 layout_mode = 2
 theme = ExtResource("1_iixn1")
 
-[node name="Sound" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer/SoundCont"]
+[node name="Sound" type="Label" parent="CenterContainer/Layout/VBoxContainer/SoundCont"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
@@ -105,33 +83,33 @@ theme_override_constants/outline_size = 7
 text = "Sound"
 horizontal_alignment = 1
 
-[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer/SoundCont"]
+[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/Layout/VBoxContainer/SoundCont"]
 visible = false
 layout_mode = 2
 
-[node name="Master" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer/SoundCont/HBoxContainer"]
+[node name="Master" type="Label" parent="CenterContainer/Layout/VBoxContainer/SoundCont/HBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.388235, 0.388235, 0.388235, 1)
 theme_override_font_sizes/font_size = 30
 text = "MASTER"
 
-[node name="MasterSlide" type="HSlider" parent="CenterContainer/HBoxContainer/VBoxContainer/SoundCont/HBoxContainer"]
+[node name="MasterSlide" type="HSlider" parent="CenterContainer/Layout/VBoxContainer/SoundCont/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 max_value = 1.0
 step = 0.01
 value = 0.8
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer/SoundCont"]
+[node name="HBoxContainer2" type="HBoxContainer" parent="CenterContainer/Layout/VBoxContainer/SoundCont"]
 layout_mode = 2
 
-[node name="BGM" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer/SoundCont/HBoxContainer2"]
+[node name="BGM" type="Label" parent="CenterContainer/Layout/VBoxContainer/SoundCont/HBoxContainer2"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.388235, 0.388235, 0.388235, 1)
 theme_override_font_sizes/font_size = 30
 text = "MUSIC      "
 
-[node name="BGMSlide" type="HSlider" parent="CenterContainer/HBoxContainer/VBoxContainer/SoundCont/HBoxContainer2"]
+[node name="BGMSlide" type="HSlider" parent="CenterContainer/Layout/VBoxContainer/SoundCont/HBoxContainer2"]
 layout_mode = 2
 size_flags_horizontal = 3
 max_value = 1.0
@@ -140,16 +118,16 @@ value = 0.8
 script = ExtResource("4_dn4fw")
 bus_name = "Music"
 
-[node name="HBoxContainer3" type="HBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer/SoundCont"]
+[node name="HBoxContainer3" type="HBoxContainer" parent="CenterContainer/Layout/VBoxContainer/SoundCont"]
 layout_mode = 2
 
-[node name="SFX" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer/SoundCont/HBoxContainer3"]
+[node name="SFX" type="Label" parent="CenterContainer/Layout/VBoxContainer/SoundCont/HBoxContainer3"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.388235, 0.388235, 0.388235, 1)
 theme_override_font_sizes/font_size = 30
 text = "EFFECTS "
 
-[node name="SFXSlide" type="HSlider" parent="CenterContainer/HBoxContainer/VBoxContainer/SoundCont/HBoxContainer3"]
+[node name="SFXSlide" type="HSlider" parent="CenterContainer/Layout/VBoxContainer/SoundCont/HBoxContainer3"]
 layout_mode = 2
 size_flags_horizontal = 3
 max_value = 1.0
@@ -158,13 +136,13 @@ value = 0.8
 script = ExtResource("4_dn4fw")
 bus_name = "SFX"
 
-[node name="ScreenCont" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer"]
+[node name="ScreenCont" type="VBoxContainer" parent="CenterContainer/Layout/VBoxContainer"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer/ScreenCont"]
+[node name="Label" type="Label" parent="CenterContainer/Layout/VBoxContainer/ScreenCont"]
 layout_mode = 2
 
-[node name="Screen" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer/ScreenCont"]
+[node name="Screen" type="Label" parent="CenterContainer/Layout/VBoxContainer/ScreenCont"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
@@ -172,28 +150,28 @@ theme_override_constants/outline_size = 7
 text = "Screen"
 horizontal_alignment = 1
 
-[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer/ScreenCont"]
+[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/Layout/VBoxContainer/ScreenCont"]
 layout_mode = 2
 alignment = 1
 
-[node name="WindowedButton" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer/ScreenCont/HBoxContainer"]
+[node name="WindowedButton" type="Button" parent="CenterContainer/Layout/VBoxContainer/ScreenCont/HBoxContainer"]
 layout_mode = 2
 toggle_mode = true
 text = "WINDOWED"
 
-[node name="FullButton" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer/ScreenCont/HBoxContainer"]
+[node name="FullButton" type="Button" parent="CenterContainer/Layout/VBoxContainer/ScreenCont/HBoxContainer"]
 layout_mode = 2
 toggle_mode = true
 button_pressed = true
 text = "FULL"
 
-[node name="ControlCont" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer"]
+[node name="ControlCont" type="VBoxContainer" parent="CenterContainer/Layout/VBoxContainer"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont"]
+[node name="Label" type="Label" parent="CenterContainer/Layout/VBoxContainer/ControlCont"]
 layout_mode = 2
 
-[node name="Controls" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont"]
+[node name="Controls" type="Label" parent="CenterContainer/Layout/VBoxContainer/ControlCont"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
@@ -201,87 +179,77 @@ theme_override_constants/outline_size = 7
 text = "Controls"
 horizontal_alignment = 1
 
-[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont"]
+[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/Layout/VBoxContainer/ControlCont"]
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/Layout/VBoxContainer/ControlCont/HBoxContainer"]
 layout_mode = 2
 
-[node name="P1C" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer"]
+[node name="P1C" type="Button" parent="CenterContainer/Layout/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 toggle_mode = true
 text = "p1"
 
-[node name="Label" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer"]
+[node name="Label" type="Label" parent="CenterContainer/Layout/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 text = "p1      "
 
-[node name="VBoxContainer2" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer"]
+[node name="VBoxContainer2" type="VBoxContainer" parent="CenterContainer/Layout/VBoxContainer/ControlCont/HBoxContainer"]
 layout_mode = 2
 
-[node name="P2C" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer2"]
+[node name="P2C" type="Button" parent="CenterContainer/Layout/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer2"]
 layout_mode = 2
 toggle_mode = true
 text = "p2"
 
-[node name="Label2" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer2"]
+[node name="Label2" type="Label" parent="CenterContainer/Layout/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer2"]
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 text = "      p2"
 horizontal_alignment = 2
 
-[node name="VBoxContainer3" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer"]
+[node name="VBoxContainer3" type="VBoxContainer" parent="CenterContainer/Layout/VBoxContainer/ControlCont/HBoxContainer"]
 layout_mode = 2
 
-[node name="P2C" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer3"]
+[node name="P2C" type="Button" parent="CenterContainer/Layout/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer3"]
 layout_mode = 2
 toggle_mode = true
 text = "p3"
 
-[node name="Label2" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer3"]
+[node name="Label2" type="Label" parent="CenterContainer/Layout/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer3"]
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 text = "      p3"
 horizontal_alignment = 2
 
-[node name="VBoxContainer4" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer"]
+[node name="VBoxContainer4" type="VBoxContainer" parent="CenterContainer/Layout/VBoxContainer/ControlCont/HBoxContainer"]
 layout_mode = 2
 
-[node name="P2C" type="Button" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer4"]
+[node name="P2C" type="Button" parent="CenterContainer/Layout/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer4"]
 layout_mode = 2
 toggle_mode = true
 text = "p4"
 
-[node name="Label2" type="Label" parent="CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer4"]
+[node name="Label2" type="Label" parent="CenterContainer/Layout/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer4"]
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 text = "      p4"
 horizontal_alignment = 2
 
-[node name="Label2" type="Label" parent="CenterContainer/HBoxContainer"]
+[node name="BottomButtons" type="VBoxContainer" parent="CenterContainer/Layout"]
 layout_mode = 2
-text = "     "
+theme_override_constants/separation = 8
+alignment = 1
 
-[node name="ResetCont" type="VBoxContainer" parent="CenterContainer/HBoxContainer"]
+[node name="BackButton" type="Button" parent="CenterContainer/Layout/BottomButtons"]
 layout_mode = 2
+text = "back"
 
-[node name="Label" type="Label" parent="CenterContainer/HBoxContainer/ResetCont"]
-layout_mode = 2
-
-[node name="Label2" type="Label" parent="CenterContainer/HBoxContainer/ResetCont"]
-layout_mode = 2
-
-[node name="Label3" type="Label" parent="CenterContainer/HBoxContainer/ResetCont"]
-layout_mode = 2
-
-[node name="Label4" type="Label" parent="CenterContainer/HBoxContainer/ResetCont"]
-layout_mode = 2
-
-[node name="ResetButton" type="Button" parent="CenterContainer/HBoxContainer/ResetCont"]
+[node name="ResetButton" type="Button" parent="CenterContainer/Layout/BottomButtons"]
 layout_mode = 2
 text = "RESET"
 
@@ -294,7 +262,7 @@ bus = &"SFX"
 stream = ExtResource("5_dn4fw")
 bus = &"SFX"
 
-[connection signal="pressed" from="CenterContainer/HBoxContainer/BackCont/BackButton" to="." method="_on_back_button_pressed"]
-[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer/ScreenCont/HBoxContainer/WindowedButton" to="." method="_on_windowed_button_pressed"]
-[connection signal="pressed" from="CenterContainer/HBoxContainer/VBoxContainer/ScreenCont/HBoxContainer/FullButton" to="." method="_on_full_button_pressed"]
-[connection signal="pressed" from="CenterContainer/HBoxContainer/ResetCont/ResetButton" to="." method="_on_reset_button_pressed"]
+[connection signal="pressed" from="CenterContainer/Layout/VBoxContainer/ScreenCont/HBoxContainer/WindowedButton" to="." method="_on_windowed_button_pressed"]
+[connection signal="pressed" from="CenterContainer/Layout/VBoxContainer/ScreenCont/HBoxContainer/FullButton" to="." method="_on_full_button_pressed"]
+[connection signal="pressed" from="CenterContainer/Layout/BottomButtons/BackButton" to="." method="_on_back_button_pressed"]
+[connection signal="pressed" from="CenterContainer/Layout/BottomButtons/ResetButton" to="." method="_on_reset_button_pressed"]

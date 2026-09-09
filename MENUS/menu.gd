@@ -19,7 +19,7 @@ func _on_begin_pressed() -> void:
 	GameSettings.go_to_character_select("res://MENUS/Menu.tscn")
 
 func _on_options_pressed() -> void:
-	get_tree().change_scene_to_file("res://MENUS/Mode_Menu.tscn")
+	GameSettings.go_to_settings("res://MENUS/Menu.tscn")
 
 func _on_quit_pressed() -> void:
 	get_tree().quit()

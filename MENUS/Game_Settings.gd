@@ -2,9 +2,46 @@ extends Node
 
 signal settings_changed # Signal to notify when any setting changes
 # Variables to store selected game mode and map
-var game_mode = "pure" # "pure" or "random"
+var game_mode = "pure" # "pure", "random", "hot", or "training"
 var game_arena = "arena" # "arena", "tower", or "yonder"
 var game_magic = "on" # "stock" or "time"
+
+## Player-facing names for each game_mode/game_arena value above - keyed by
+## the internal string values, used only to build the Lobby's non-interactive
+## summary line (see summary_text() below). Button labels on the Options
+## screen are separate, hand-set text on those Button nodes.
+const MOD_DISPLAY_NAMES := {
+	"pure": "Pure",
+	"random": "Hydra",
+	"hot": "Zones",
+	"training": "Training",
+}
+const ARENA_DISPLAY_NAMES := {
+	"arena": "Arena",
+	"tower": "Tower",
+	"yonder": "Yonder",
+}
+
+## The Lobby's non-interactive summary line: "<mod> <map>" (e.g. "pure
+## arena", "hydra tower"), or just "<mod>" alone while Training is the
+## active mod, since a map choice is meaningless there. Always lowercase,
+## regardless of the Title-Case names above - this is flavor text, not a
+## button label.
+func summary_text() -> String:
+	var mod_word: String = MOD_DISPLAY_NAMES.get(game_mode, game_mode).to_lower()
+	if game_mode == "training":
+		return mod_word
+	var map_word: String = ARENA_DISPLAY_NAMES.get(game_arena, game_arena).to_lower()
+	return "%s %s" % [mod_word, map_word]
+
+## The Options screen's "Reset Options" button - restores the map/mod
+## choice to its default. Deliberately separate from Settings' own "Reset"
+## (see settings_menu.gd's _on_reset_button_pressed(), which only ever
+## touches display/volume/keybinds) so the two stay distinct, as requested.
+func reset_game_options() -> void:
+	game_mode = "pure"
+	game_arena = "arena"
+	emit_signal("settings_changed")
 
 # Which class each seat is currently wearing - index 0..3 for seats 1..4.
 # Defaults match what every arena scene already hardcoded before character
@@ -45,6 +82,13 @@ var was_random_pick: Array = [false, false, false, false]
 # Which menu sent the player to character select, so its Back button can
 # return them to wherever they actually came from.
 var character_select_origin: String = "res://MENUS/Menu.tscn"
+
+# Which menu sent the player to Settings, so ITS Back button can return them
+# to wherever they actually came from - Settings is reachable both directly
+# from the Title screen's own "SETTINGS" button and from the Options screen's
+# "Settings" button, same two-origins situation character_select_origin above
+# already solves for the Lobby.
+var settings_origin: String = "res://MENUS/Menu.tscn"
 
 # Whether each seat joined on the character select screen - index 0..3 for
 # seats 1..4. P1/P2 are always true (they're always active there); P3/P4
@@ -170,3 +214,10 @@ func reroll_random_seats() -> void:
 func go_to_character_select(origin_scene: String) -> void:
 	character_select_origin = origin_scene
 	get_tree().change_scene_to_file("res://MENUS/Character_Select.tscn")
+
+## Both "Settings" buttons (Title screen and the Options screen) call this
+## instead of switching scenes directly, so Settings_Menu.tscn's Back button
+## always knows which one to return to.
+func go_to_settings(origin_scene: String) -> void:
+	settings_origin = origin_scene
+	get_tree().change_scene_to_file("res://MENUS/Settings_Menu.tscn")

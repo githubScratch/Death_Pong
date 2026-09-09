@@ -4,16 +4,16 @@ const REBIND_MENU_SCENE := preload("res://MENUS/Rebind_Menu.tscn")
 
 @onready var select: AudioStreamPlayer2D = $select
 @onready var move: AudioStreamPlayer2D = $move
-@onready var back_button: Button = $CenterContainer/HBoxContainer/BackCont/BackButton
-@onready var windowed_button: Button = $CenterContainer/HBoxContainer/VBoxContainer/ScreenCont/HBoxContainer/WindowedButton
-@onready var full_button: Button = $CenterContainer/HBoxContainer/VBoxContainer/ScreenCont/HBoxContainer/FullButton
-@onready var bgm_slide: HSlider = $CenterContainer/HBoxContainer/VBoxContainer/SoundCont/HBoxContainer2/BGMSlide
-@onready var sfx_slide: HSlider = $CenterContainer/HBoxContainer/VBoxContainer/SoundCont/HBoxContainer3/SFXSlide
+@onready var back_button: Button = $CenterContainer/Layout/BottomButtons/BackButton
+@onready var windowed_button: Button = $CenterContainer/Layout/VBoxContainer/ScreenCont/HBoxContainer/WindowedButton
+@onready var full_button: Button = $CenterContainer/Layout/VBoxContainer/ScreenCont/HBoxContainer/FullButton
+@onready var bgm_slide: HSlider = $CenterContainer/Layout/VBoxContainer/SoundCont/HBoxContainer2/BGMSlide
+@onready var sfx_slide: HSlider = $CenterContainer/Layout/VBoxContainer/SoundCont/HBoxContainer3/SFXSlide
 
-@onready var p1_button: Button = $CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer/P1C
-@onready var p2_button: Button = $CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer2/P2C
-@onready var p3_button: Button = $CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer3/P2C
-@onready var p4_button: Button = $CenterContainer/HBoxContainer/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer4/P2C
+@onready var p1_button: Button = $CenterContainer/Layout/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer/P1C
+@onready var p2_button: Button = $CenterContainer/Layout/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer2/P2C
+@onready var p3_button: Button = $CenterContainer/Layout/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer3/P2C
+@onready var p4_button: Button = $CenterContainer/Layout/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer4/P2C
 
 var rebind_menu: Control
 
@@ -54,7 +54,7 @@ func _process(delta: float) -> void:
 
 
 func _on_back_button_pressed() -> void:
-	get_tree().change_scene_to_file("res://MENUS/Mode_Menu.tscn")
+	get_tree().change_scene_to_file(GameSettings.settings_origin)
 
 
 func _on_windowed_button_pressed() -> void:
