@@ -6,6 +6,8 @@ var player2_score = 0
 @onready var victory_screens: AnimationPlayer = $Victory_Screens
 @onready var rematch_1: Button = $Player_1_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch1
 @onready var rematch_2: Button = $Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch2
+@onready var victory_label_1: Label = $Player_1_Victory/CenterContainer/VBoxContainer/Label
+@onready var victory_label_2: Label = $Player_2_Victory/CenterContainer/VBoxContainer/Label
 @onready var player_1: Node2D = $player1
 @onready var player_2: Node2D = $player2
 @onready var continue_1: Button = $Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1
@@ -34,9 +36,24 @@ func _ready() -> void:
 	Engine.time_scale = 1.0
 	is_victory = false
 	ball_instances.clear()
+	_update_victory_text()
 
 	GameSettings.settings_changed.connect(_on_settings_changed)
 	_spawn_selected_extras()
+
+
+## Both Victory screens read "Victory! / Long be thy Beard(s)!" and
+## "Victory! / Floppy be thy Hat(s)!" - the same two team names
+## Character_Select.tscn's TeamRow shows over the seat bank (see
+## character_select.gd's _update_team_labels()), singular for a 2-seat
+## match and plural for 4, exactly matching the Lobby's own 2/4 split.
+## GameSettings.wizard_count is fixed for the whole match - only the
+## Lobby's WIZARDS: button changes it, and a rematch just reloads this
+## scene - so this only ever needs to run once, here in _ready().
+func _update_victory_text() -> void:
+	var plural := GameSettings.wizard_count == 4
+	victory_label_1.text = "Victory!\nLong be thy Beard%s!" % ("s" if plural else "")
+	victory_label_2.text = "Victory!\nFloppy be thy Hat%s!" % ("s" if plural else "")
 
 func _process(_delta: float) -> void:
 	# Pause/unpause itself is owned by pause_overlay.gd on the Pause node -

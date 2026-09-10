@@ -6,6 +6,8 @@ var player2_score = 0
 @onready var victory_screens: AnimationPlayer = $Victory_Screens
 @onready var rematch_1: Button = $Player_1_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch1
 @onready var rematch_2: Button = $Player_2_Victory/CenterContainer/VBoxContainer/HBoxContainer/Rematch2
+@onready var victory_label_1: Label = $Player_1_Victory/CenterContainer/VBoxContainer/Label
+@onready var victory_label_2: Label = $Player_2_Victory/CenterContainer/VBoxContainer/Label
 @onready var player_1: Node2D = $player1
 @onready var player_2: Node2D = $player2
 @onready var continue_1: Button = $Pause/CenterContainer/VBoxContainer/HBoxContainer/Continue1
@@ -39,9 +41,17 @@ func _ready() -> void:
 	Engine.time_scale = 1.0
 	is_victory = false
 	ball_instances.clear()
+	_update_victory_text()
 
 	GameSettings.settings_changed.connect(_on_settings_changed)
 	_spawn_selected_extras()
+
+## GameSettings.wizard_count is fixed for the whole match - only the
+## singular/plural wording needs to be set once, up front.
+func _update_victory_text() -> void:
+	var plural := GameSettings.wizard_count == 4
+	victory_label_1.text = "Victory!\nLong be thy Beard%s!" % ("s" if plural else "")
+	victory_label_2.text = "Victory!\nFloppy be thy Hat%s!" % ("s" if plural else "")
 
 func _process(_delta: float) -> void:
 	var keys_to_remove = []

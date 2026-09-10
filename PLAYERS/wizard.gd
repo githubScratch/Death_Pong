@@ -329,6 +329,15 @@ func _ready() -> void:
 	_action_down = InputRemap.action_for(seat, "down")
 	_action_left = InputRemap.action_for(seat, "left")
 	_action_right = InputRemap.action_for(seat, "right")
+
+	# Even with Outlines.gdshader's texture_region clamp, the engine's
+	# default Linear filtering still blends a fraction of a pixel across
+	# this frame's shared edge with its neighbor in the atlas on every
+	# texture sample - a much fainter version of the same underlying issue,
+	# independent of the outline shader itself. Nearest sampling reads
+	# exactly one texel with no blending, which closes that last gap - and
+	# is the correct filter for pixel art in general regardless.
+	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_apply_class()
 
 
@@ -342,8 +351,47 @@ func _apply_class() -> void:
 	if wizard_class.sprite_sheet:
 		sprite.sprite_frames = _build_sprite_frames(wizard_class.sprite_sheet)
 		sprite.play("default")
+	_apply_team_outline()
 	if wizard_class.abilities.is_empty():
 		push_warning("Wizard (seat %d)'s class '%s' has no abilities assigned." % [seat, wizard_class.display_name])
+
+
+## Team-colored outline (res://Shaders/Outlines.gdshader) around the sprite -
+## purple for "The Long Beards", green for "The Floppy Hats" (see
+## Game_Settings.gd's team_color_for_seat(), which owns the seat->team
+## split). One ShaderMaterial per wizard, created lazily here so re-calling
+## _apply_class() later (a live class change, say) never allocates a second
+## one - it just updates the existing material's color.
+const _OUTLINE_SHADER: Shader = preload("res://Shaders/Outlines.gdshader")
+
+func _apply_team_outline() -> void:
+	if not (sprite.material is ShaderMaterial):
+		var mat := ShaderMaterial.new()
+		mat.shader = _OUTLINE_SHADER
+		sprite.material = mat
+		if not sprite.frame_changed.is_connected(_on_sprite_frame_changed):
+			sprite.frame_changed.connect(_on_sprite_frame_changed)
+	sprite.material.set_shader_parameter("outline_color", GameSettings.team_color_for_seat(seat))
+	# sprite_frames was just (re)built above - frame_changed won't fire again
+	# on its own until the animation actually advances, so prime the region
+	# for whichever frame is showing right now too.
+	_on_sprite_frame_changed()
+
+
+## Keeps Outlines.gdshader's texture_region uniform matched to whichever
+## AtlasTexture frame is currently showing (see _build_sprite_frames()'s doc
+## comment: all 4 animation frames are cropped from ONE shared sheet, edge
+## to edge with no gap between them). Without this, the shader's "is there
+## opaque content nearby" check has no way to tell this frame's own pixels
+## apart from the frame packed right next to it in the sheet - see
+## Outlines.gdshader's own comment and godotengine/godot#61563.
+func _on_sprite_frame_changed() -> void:
+	if not (sprite.material is ShaderMaterial) or sprite.sprite_frames == null:
+		return
+	var tex := sprite.sprite_frames.get_frame_texture(sprite.animation, sprite.frame)
+	if tex is AtlasTexture:
+		var r: Rect2 = (tex as AtlasTexture).region
+		sprite.material.set_shader_parameter("texture_region", Vector4(r.position.x, r.position.y, r.size.x, r.size.y))
 
 
 ## Returns the ability this wizard casts right now. Called fresh on every

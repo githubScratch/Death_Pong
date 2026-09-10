@@ -57,13 +57,26 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("2_theme")
 
-[node name="Title" type="Label" parent="Layout"]
+[node name="TeamRow" type="HBoxContainer" parent="Layout"]
 layout_mode = 2
 size_flags_vertical = 6
+
+[node name="LongBeardLabel" type="Label" parent="Layout/TeamRow"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.639216, 0.00392157, 1, 1)
 theme_override_fonts/font = ExtResource("6_font")
-theme_override_font_sizes/font_size = 56
-text = " WHO ART THOU?"
+theme_override_font_sizes/font_size = 36
+text = "The Long Beard"
+horizontal_alignment = 1
+
+[node name="FloppyHatLabel" type="Label" parent="Layout/TeamRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0.698039, 0.101961, 1)
+theme_override_fonts/font = ExtResource("6_font")
+theme_override_font_sizes/font_size = 36
+text = "The Floppy Hat"
 horizontal_alignment = 1
 
 [node name="TopRow" type="HBoxContainer" parent="Layout"]
@@ -177,7 +190,7 @@ vertical_alignment = 1
 autowrap_mode = 2
 
 [node name="P3" type="CenterContainer" parent="Layout/TopRow"]
-modulate = Color(1, 1, 1, 0.423529)
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 
@@ -232,7 +245,7 @@ vertical_alignment = 1
 autowrap_mode = 2
 
 [node name="P4" type="CenterContainer" parent="Layout/TopRow"]
-modulate = Color(1, 1, 1, 0.423529)
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 
@@ -307,6 +320,11 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "START"
 
+[node name="Wizards" type="Button" parent="Layout/Bottom/Buttons"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "WIZARDS: 2"
+
 [node name="Options" type="Button" parent="Layout/Bottom/Buttons"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
@@ -337,5 +355,6 @@ stream = ExtResource("5_move")
 bus = &"SFX"
 
 [connection signal="pressed" from="Layout/Bottom/Buttons/Ready" to="." method="_on_ready_pressed"]
+[connection signal="pressed" from="Layout/Bottom/Buttons/Wizards" to="." method="_on_wizards_pressed"]
 [connection signal="pressed" from="Layout/Bottom/Buttons/Options" to="." method="_on_options_pressed"]
 [connection signal="pressed" from="Layout/Bottom/Buttons/Back" to="." method="_on_back_pressed"]

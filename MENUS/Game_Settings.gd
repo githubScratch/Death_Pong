@@ -98,6 +98,15 @@ var settings_origin: String = "res://MENUS/Menu.tscn"
 # see character_select.gd's _refresh_box() for where this gets written.
 var seat_active: Array = [true, true, false, false]
 
+# How many wizard seats the Lobby's bank shows/accepts joins for - 2 or 4,
+# toggled there via the WIZARDS: button (see character_select.gd's
+# _on_wizards_pressed()). Not consulted at all while game_mode is
+# "training" (that mode always plays a single scene-baked seat regardless -
+# see character_select.gd's _active_seat_count()), and persists across
+# visits the same way selected_classes/seat_active above do, so reopening
+# the Lobby doesn't reset the bank back to 2 for no reason.
+var wizard_count: int = 2
+
 # Per-seat identity color - index 0..3 for seats 1..4, same convention as
 # every other per-seat array in this file. Currently only consumed by
 # wizard.gd's _apply_class() to tint a wizard's outline sprite (see
@@ -123,6 +132,24 @@ func color_for_seat(seat: int) -> Color:
 	if seat < 1 or seat > SEAT_COLORS.size():
 		return Color.WHITE
 	return SEAT_COLORS[seat - 1]
+
+# The two named teams (see arena.gd's victory text and character_select.gd's
+# _update_team_labels()): "The Long Beards" over the first half of the seat
+# bank, "The Floppy Hats" over the second half. Used to tint wizard.gd's
+# outline shader (res://Shaders/Outlines.gdshader) per-team rather than
+# per-seat.
+const TEAM_COLOR_LONG_BEARDS: Color = Color(0.55, 0.25, 0.85) # purple
+const TEAM_COLOR_FLOPPY_HATS: Color = Color(0.25, 0.85, 0.35) # green
+
+# Returns which team's color a seat's outline should use, splitting the
+# active wizard_count bank the same way _update_team_labels() does: first
+# half is Long Beards, second half is Floppy Hats. wizard_count is always
+# 2 or 4, so half is always >= 1 - a seat past that half falls on the
+# Floppy Hats side. Training's single scene-baked seat (always seat 1)
+# lands on Long Beards, same as P1 always does in a real match.
+func team_color_for_seat(seat: int) -> Color:
+	var half := maxi(wizard_count / 2, 1)
+	return TEAM_COLOR_LONG_BEARDS if seat <= half else TEAM_COLOR_FLOPPY_HATS
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -192,6 +219,9 @@ func set_seat_active(seat: int, active: bool) -> void:
 	if seat < 1 or seat > seat_active.size():
 		return
 	seat_active[seat - 1] = active
+
+func set_wizard_count(count: int) -> void:
+	wizard_count = count
 
 ## Re-rolls a fresh random class for every active seat whose CURRENT class
 ## came from a "Random" pick (see was_random_pick above) - called by each

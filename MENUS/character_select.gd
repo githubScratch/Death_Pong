@@ -4,25 +4,41 @@ extends Control
 ## both stash which one sent them here via GameSettings.go_to_character_select()
 ## before switching to this scene, so Back can return to the right place.
 ##
-## Four boxes across the top, one per seat. P1/P2 are always active. P3/P4
-## sit on a "press any button to join" prompt until that seat's own controls
-## are touched, matching the same "any input" feel the in-match P3/P4 summon
-## already uses - joining here doesn't force them to also join the match;
-## it just means whichever class they land on here is what they'll be
-## wearing *if* they get summoned later.
+## Up to four boxes across the top, one per seat - but only as many as the
+## WIZARDS: button's current count actually show. That count starts at 2
+## (just P1/P2) and the button cycles it between 2 and 4; going to 4 reveals
+## P3/P4's boxes, going back to 2 hides them again and drops anything they'd
+## picked. Every seat in the bank is active the instant it's shown - there's
+## no separate "press any button to join" step for P3/P4 anymore now that
+## WIZARDS: is what decides whether they're playing at all; joining here
+## still doesn't force them to also join the match, though - it just means
+## whichever class a seat lands on here is what it'll be wearing *if* it
+## gets summoned later. GameSettings.wizard_count remembers the button's
+## setting across visits, same as every other choice on this screen.
 ##
 ## Left/right cycles a seat's class using THAT SEAT'S OWN controls only
 ## (InputRemap.action_for(seat, "left"/"right")), never the shared ui_left/
-## ui_right - those stay reserved for moving focus between Ready/Back like
-## every other menu. Whatever a seat lands on is written live into
+## ui_right - those stay reserved for moving focus between Wizards/Ready/
+## Back like every other menu. Whatever a seat lands on is written live into
 ## GameSettings.selected_classes, which wizard.gd's _ready() prefers over
 ## an arena scene's baked-in default class - see that file for the other
 ## half of this wiring.
 ##
 ## While GameSettings.game_mode is "training" (chosen on the Options
 ## screen), only seat 1 gets a class choice here - seats 2-4 are hidden
-## entirely and forced inactive, matching training.tscn's single scene-baked
-## P1 plus its own separate P2/P3/P4 join mechanics (see ARENAS/training.gd).
+## entirely and forced inactive (the WIZARDS: button itself is hidden too,
+## since a bank size is meaningless with a single seat), matching
+## training.tscn's single scene-baked P1 plus its own separate P2/P3/P4 join
+## mechanics (see ARENAS/training.gd). _active_seat_count() below is the one
+## number the training case and the WIZARDS: count both collapse into, so
+## the rest of this file only ever has to ask "is seat i in the bank".
+##
+## A TeamRow sits where the old "WHO ART THOU?" title used to, naming
+## whichever seats are on each half of the bank - "The Long Beard(s)" over
+## P1 (plus P2 at a 4-seat bank) and "The Floppy Hat(s)" over the other
+## half (see _update_team_labels()). The same two names carry over to
+## whichever arena the match ends in - see arena.gd's own
+## _update_victory_text() for that half of the wiring.
 
 const CLASSES: Array[WizardClass] = [
 	preload("res://PLAYERS/classes/class_1.tres"),
@@ -78,6 +94,20 @@ const REGIONS := [
 	$Layout/TopRow/P3/Box/Prompt, $Layout/TopRow/P4/Box/Prompt,
 ]
 
+## Replaces the old single "WHO ART THOU?" title - one team name per half
+## of the seat bank (see _update_team_labels()). Each Label is half the
+## TeamRow's width (same size_flags_horizontal=3 every seat box already
+## uses), and TeamRow itself is exactly as wide as TopRow below it, so a
+## 50/50 split always lines up with the right seats without any extra
+## layout math: at a 2-seat bank that's P1 alone under Long Beard and P2
+## alone under Floppy Hat, and at 4 it's P1+P2 under Long Beard and P3+P4
+## under Floppy Hat - both cases are just "two equal halves" either way.
+@onready var team_row: HBoxContainer = $Layout/TeamRow
+@onready var long_beard_label: Label = $Layout/TeamRow/LongBeardLabel
+@onready var floppy_hat_label: Label = $Layout/TeamRow/FloppyHatLabel
+## Top of the button stack - cycles the seat bank between 2 and 4 (see
+## _on_wizards_pressed()); its label always mirrors _wizard_count.
+@onready var wizards_button: Button = $Layout/Bottom/Buttons/Wizards
 ## Beneath the seat row - non-interactive readout of the currently chosen
 ## mod/map (see GameSettings.summary_text()), kept in sync with Options via
 ## GameSettings.settings_changed as well as refreshed on every visit here.
@@ -88,28 +118,70 @@ const REGIONS := [
 @onready var move_sfx: AudioStreamPlayer2D = $move
 
 # All four of these are indexed 0..3 for seats 1..4.
-var _active := [true, true, false, false]
 var _class_index := [0, 1, 2, 3]
 var _frame := [0, 0, 0, 0]
 var _frame_time := [0.0, 0.0, 0.0, 0.0]
+
+## How many seats are in the bank right now - 2 or 4, driven by the
+## WIZARDS: button (GameSettings.wizard_count remembers it across visits)
+## and ignored entirely during training, where _active_seat_count() below
+## always wins out with 1 regardless of this value.
+var _wizard_count := 2
 
 
 func _is_training() -> bool:
 	return GameSettings.game_mode == "training"
 
 
+## The one number training's "just seat 1" rule and the WIZARDS: button's
+## 2/4 both collapse into - every loop below that used to check
+## "training and i > 0" checks "i >= _active_seat_count()" instead, so
+## neither case needs its own special-cased skip logic.
+func _active_seat_count() -> int:
+	return 1 if _is_training() else _wizard_count
+
+
+## Pluralizes both team names to match the current bank size ("The Long
+## Beard"/"The Floppy Hat" at 2, "...Beards"/"...Hats" at 4) - see the
+## doc comment on long_beard_label above for why a plain 50/50 split is
+## all that's needed to keep them lined up with the right seats. Team
+## names are meaningless during training (a single scene-baked seat has
+## no "team" to name), so the whole row hides there instead, matching how
+## wizards_button and seats 2-4 are already hidden in that case.
+func _update_team_labels() -> void:
+	var training := _is_training()
+	team_row.visible = not training
+	if training:
+		return
+	var plural := _wizard_count == 4
+	long_beard_label.text = "The Long Beard%s" % ("s" if plural else "")
+	floppy_hat_label.text = "The Floppy Hat%s" % ("s" if plural else "")
+
+
 func _ready() -> void:
 	var training := _is_training()
 
-	# Training only ever plays seat 1 (see ARENAS/training.gd) - hide the
-	# other three seats entirely rather than just disabling them, and force
-	# them inactive so a seat that joined on an earlier, non-training visit
-	# doesn't linger active and get spawned into the training scene.
-	for i in range(1, 4):
-		_seat_containers[i].visible = not training
-	if training:
-		for seat in range(2, 5):
-			GameSettings.set_seat_active(seat, false)
+	# The WIZARDS: button only makes sense with a real bank to resize -
+	# training always plays exactly one scene-baked seat (see
+	# ARENAS/training.gd), so the button is hidden there entirely rather
+	# than shown disabled. Outside training, pick up wherever the button was
+	# left last visit (GameSettings.wizard_count) instead of always
+	# resetting the bank back to 2.
+	wizards_button.visible = not training
+	if not training:
+		_wizard_count = GameSettings.wizard_count
+		wizards_button.text = "WIZARDS: %d" % _wizard_count
+	_update_team_labels()
+
+	# Show only as many seat boxes as are actually in the bank right now,
+	# and force every seat outside it inactive so one that joined on an
+	# earlier, larger-bank or non-training visit doesn't linger active and
+	# get spawned into the match anyway.
+	var active_seats := _active_seat_count()
+	for i in range(4):
+		_seat_containers[i].visible = i < active_seats
+	for seat in range(active_seats + 1, 5):
+		GameSettings.set_seat_active(seat, false)
 
 	# Remember whatever was picked last time (a previous visit to this
 	# screen, or just the game's defaults), so reopening this screen - via
@@ -123,7 +195,7 @@ func _ready() -> void:
 	# a standing preference this screen should keep honoring, not a one-time
 	# roll that quietly turns into a fixed class the instant you leave.
 	for i in range(4):
-		if training and i > 0:
+		if i >= active_seats:
 			continue
 		if i < GameSettings.was_random_pick.size() and GameSettings.was_random_pick[i]:
 			_class_index[i] = CLASSES.size()
@@ -138,7 +210,7 @@ func _ready() -> void:
 	_update_summary()
 	GameSettings.settings_changed.connect(_update_summary)
 	for i in range(4):
-		if training and i > 0:
+		if i >= active_seats:
 			continue
 		_refresh_box(i)
 
@@ -148,19 +220,11 @@ func _update_summary() -> void:
 
 
 func _process(delta: float) -> void:
-	var training := _is_training()
+	var active_seats := _active_seat_count()
 	for i in range(4):
-		if training and i > 0:
+		if i >= active_seats:
 			continue
 		var seat := i + 1
-		if not _active[i]:
-			if _seat_pressed_any_direction(seat):
-				_active[i] = true
-				_refresh_box(i)
-				select_sfx.pitch_scale = randf_range(0.9, 1.1)
-				select_sfx.play()
-			continue
-
 		_advance_frame(i, delta)
 
 		if Input.is_action_just_pressed(InputRemap.action_for(seat, "left")):
@@ -182,18 +246,6 @@ func _process(delta: float) -> void:
 		select_sfx.play()
 	if Input.is_action_just_pressed("ui_back"):
 		_on_back_pressed()
-
-
-## Only the four directions count as "join" input, not pause_select -
-## pause_select is also forwarded into the shared ui_select (see
-## Game_Settings.gd), which would otherwise risk firing whatever's
-## currently focused (Ready, by default) the same moment a P3/P4 player
-## was just trying to join.
-func _seat_pressed_any_direction(seat: int) -> bool:
-	for dir in InputRemap.DIRECTIONS:
-		if Input.is_action_just_pressed(InputRemap.action_for(seat, dir)):
-			return true
-	return false
 
 
 ## Total selectable options - every real class, plus "Random" last. See the
@@ -241,45 +293,42 @@ func _make_frame_texture(sheet: Texture2D, frame: int) -> AtlasTexture:
 	return atlas
 
 
-## Redraws box i to match current state (active/waiting, whichever class
-## is selected) and, for an active seat, writes that class into
-## GameSettings so it's ready whenever the match needs it. Random is the one
-## exception to that last part - see the comment below.
+## Redraws box i to match whichever class is currently selected, and writes
+## that class into GameSettings so it's ready whenever the match needs it -
+## every seat _active_seat_count() counts as "in the bank" is always shown
+## and always active, so there's no waiting/joined split to draw here
+## anymore (see the doc comment at the top of this file). Random is the one
+## exception to the "writes into GameSettings" part - see the comment below.
 func _refresh_box(i: int) -> void:
 	var seat := i + 1
-	# _active is an untyped Array, so indexing it is a Variant as far as the
-	# static type checker is concerned - := can't infer a type from that, so
-	# this needs an explicit bool annotation instead.
-	var waiting: bool = seat >= 3 and not _active[i]
 	var random := _is_random(i)
 
-	_prompts[i].visible = waiting
-	_sprites[i].visible = not waiting and not random
-	_random_marks[i].visible = not waiting and random
-	_class_labels[i].visible = not waiting
+	_prompts[i].visible = false
+	_sprites[i].visible = not random
+	_random_marks[i].visible = random
+	_class_labels[i].visible = true
 
-	if not waiting:
-		_name_labels[i].text = "PLAYER %d" % seat
-		if random:
-			# Deliberately does NOT call GameSettings.set_selected_class()
-			# here - Random has no real WizardClass of its own to hand it,
-			# and rolling one now (then re-rolling every time _refresh_box()
-			# happens to run again, e.g. re-cycling past it) would leak the
-			# result early and reroll it for no reason. _on_ready_pressed()
-			# below does the actual roll, once, right before the match
-			# starts, for every seat still sitting on Random at that point.
-			_class_labels[i].text = "Random"
-		else:
-			var wclass := CLASSES[_class_index[i]]
-			_class_labels[i].text = wclass.display_name
-			_sprites[i].texture = _make_frame_texture(wclass.sprite_sheet, _frame[i])
-			GameSettings.set_selected_class(seat, wclass)
+	_name_labels[i].text = "PLAYER %d" % seat
+	if random:
+		# Deliberately does NOT call GameSettings.set_selected_class()
+		# here - Random has no real WizardClass of its own to hand it,
+		# and rolling one now (then re-rolling every time _refresh_box()
+		# happens to run again, e.g. re-cycling past it) would leak the
+		# result early and reroll it for no reason. _on_ready_pressed()
+		# below does the actual roll, once, right before the match
+		# starts, for every seat still sitting on Random at that point.
+		_class_labels[i].text = "Random"
+	else:
+		var wclass := CLASSES[_class_index[i]]
+		_class_labels[i].text = wclass.display_name
+		_sprites[i].texture = _make_frame_texture(wclass.sprite_sheet, _frame[i])
+		GameSettings.set_selected_class(seat, wclass)
 
 	# Drives each arena's match-start P3/P4 spawn (see arena.gd's
-	# _spawn_selected_extras()) - "not waiting" is exactly "this seat has
-	# joined", so this also naturally resets a seat back to inactive if this
-	# screen is ever reopened after Back without that seat re-joining.
-	GameSettings.set_seat_active(seat, not waiting)
+	# _spawn_selected_extras()) - true here is exactly "this seat is in the
+	# bank", so a seat the WIZARDS: count drops back out of still gets
+	# forced to false, by _on_wizards_pressed()/_ready() rather than here.
+	GameSettings.set_seat_active(seat, true)
 
 
 ## Rolls an actual class for every joined seat still sitting on "Random" -
@@ -291,12 +340,36 @@ func _refresh_box(i: int) -> void:
 ## every time that seat's box happens to redraw.
 func _resolve_random_picks() -> void:
 	for i in range(4):
-		if _active[i] and _is_random(i):
+		if i < _active_seat_count() and _is_random(i):
 			# was_random=true so a later rematch (see arena.gd's
 			# _on_rematch_N_pressed()/GameSettings.reroll_random_seats())
 			# knows this seat's class was rolled, not chosen, and gives it a
 			# fresh roll instead of just repeating this one.
 			GameSettings.set_selected_class(i + 1, CLASSES[randi() % CLASSES.size()], true)
+
+
+## WIZARDS: button handler - cycles the bank between 2 and 4 seats. Persists
+## the new count into GameSettings so it survives Back-then-Start-again the
+## same way every other pick on this screen does, then re-syncs P3/P4's
+## boxes and GameSettings.seat_active to match - the same seats
+## _active_seat_count() gates everywhere else, just applied immediately
+## instead of waiting for the next _ready().
+func _on_wizards_pressed() -> void:
+	_wizard_count = 4 if _wizard_count == 2 else 2
+	GameSettings.set_wizard_count(_wizard_count)
+	wizards_button.text = "WIZARDS: %d" % _wizard_count
+	_update_team_labels()
+
+	var active_seats := _active_seat_count()
+	for i in range(2, 4):
+		var now_visible := i < active_seats
+		_seat_containers[i].visible = now_visible
+		if now_visible:
+			_refresh_box(i)
+		else:
+			# Dropped out of the bank - not in the match unless/until the
+			# bank grows back to include this seat again.
+			GameSettings.set_seat_active(i + 1, false)
 
 
 func _on_ready_pressed() -> void:

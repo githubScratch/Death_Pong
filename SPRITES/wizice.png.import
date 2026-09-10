@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ccugvtcqx2fea"
-path="res://.godot/imported/New Piskel.png-d33a6a6cf40523e67b93fe777a31b56f.ctex"
+uid="uid://bs330p05m2alf"
+path="res://.godot/imported/wizice.png-95a2622d34a06ab2b3c6b98d648bcaf7.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://SPRITES/New Piskel.png"
-dest_files=["res://.godot/imported/New Piskel.png-d33a6a6cf40523e67b93fe777a31b56f.ctex"]
+source_file="res://SPRITES/wizice.png"
+dest_files=["res://.godot/imported/wizice.png-95a2622d34a06ab2b3c6b98d648bcaf7.ctex"]
 
 [params]
 

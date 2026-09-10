@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://bcgkim38ay6n4" path="res://PLAYERS/wizard_ability.gd" id="1_nvbr3"]
 [ext_resource type="Script" uid="uid://btlir36dinbo3" path="res://PLAYERS/wizard_class.gd" id="1_script"]
-[ext_resource type="Texture2D" uid="uid://bs330p05m2alf" path="res://SPRITES/New Piskel (3).png" id="2_sheet"]
+[ext_resource type="Texture2D" uid="uid://bs330p05m2alf" path="res://SPRITES/wizice.png" id="2_sheet"]
 [ext_resource type="Resource" uid="uid://besnobikd1ub7" path="res://PLAYERS/abilities/ability_3.tres" id="3_ability"]
 
 [resource]

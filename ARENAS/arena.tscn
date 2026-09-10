@@ -365,6 +365,323 @@ size = Vector2(192, 32)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_uo83q"]
 size = Vector2(192, 32)
 
+[sub_resource type="Animation" id="Animation_55po1"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Arena/walls/left:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Arena/walls/right:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Arena/Left Plat Assembly/LeftLeft:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 0)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Arena/Left Plat Assembly/LeftLeft2:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(64, 0)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Arena/Left Plat Assembly/LeftRight:position")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(128, 0)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Arena/Left Plat Assembly/LeftLeft:rotation")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.57079]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Arena/Left Plat Assembly/LeftLeft2:rotation")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.5708]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("Arena/Left Plat Assembly/LeftRight:rotation")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.5708]
+}
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("Arena/Left_Plat:rotation")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/9/type = "value"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("Arena/Right_Plat:rotation")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/10/type = "value"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("Arena/Left_Plat:position")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(416, 400)]
+}
+tracks/11/type = "value"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("Arena/Right_Plat:position")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(736, 400)]
+}
+
+[sub_resource type="Animation" id="Animation_jjff5"]
+resource_name = "platform assemblies"
+length = 20.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Arena/Left Plat Assembly/LeftLeft:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.333333, 1, 3.73333, 5.16667, 6, 7.03333, 11.9, 13.2, 14.9667, 17.1333),
+"transitions": PackedFloat32Array(10, 10, 10, 10, 1, 10, 1, 10, 1, 10, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(0, 0), Vector2(-192, -2), Vector2(-192, -2), Vector2(64, 0), Vector2(64, 0), Vector2(-160, -256), Vector2(-160, -256), Vector2(-160, -62), Vector2(-160, -62), Vector2(0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Arena/Left Plat Assembly/LeftLeft2:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.333333, 1.73333, 3.7, 4.63333, 6.96667, 7.7, 11.1667, 12.6333, 14.4, 16.5),
+"transitions": PackedFloat32Array(10, 10, 10, 10, 1, 10, 1, 10, 1, 10, 1),
+"update": 0,
+"values": [Vector2(64, 0), Vector2(64, 0), Vector2(-128, -2), Vector2(-128, -2), Vector2(128, 0), Vector2(128, 0), Vector2(-160, -192), Vector2(-160, -192), Vector2(-160, 0), Vector2(-160, 0), Vector2(64, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Arena/Left Plat Assembly/LeftRight:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.333333, 2, 3.7, 7.7, 8.36667, 10.3033, 11.8667, 13.932, 15.7333),
+"transitions": PackedFloat32Array(10, 1, 10, 10, 1, 1, 1, 10, 1, 10, 1),
+"update": 0,
+"values": [Vector2(128, 0), Vector2(128, 0), Vector2(128, 0), Vector2(-64, -2), Vector2(192, 0), Vector2(192, 0), Vector2(-160, -128), Vector2(-160, -128), Vector2(-160, 64), Vector2(-160, 64), Vector2(128, 0)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Arena/Left Plat Assembly/LeftLeft:rotation")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0.333333, 6.03333, 7.03333, 11.9, 13.1667, 14.9333, 17.2),
+"transitions": PackedFloat32Array(1, 10, 1, 10, 1, 10, 1),
+"update": 0,
+"values": [0.0, 0.0, 1.57079, 1.57079, 1.57079, 1.57079, 0.0]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Arena/Left Plat Assembly/LeftLeft2:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0.333333, 6.98333, 7.7, 11.1667, 12.6667, 14.4333, 16.5333),
+"transitions": PackedFloat32Array(1, 10, 1, 10, 1, 10, 1),
+"update": 0,
+"values": [0.0, 0.0, 1.57079, 1.57079, 1.57079, 1.57079, 0.0]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Arena/Left Plat Assembly/LeftRight:rotation")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0.333333, 7.7, 8.36667, 10.3033, 11.8667, 13.932, 15.7667),
+"transitions": PackedFloat32Array(1, 10, 1, 10, 1, 10, 1),
+"update": 0,
+"values": [0.0, 0.0, 1.57079, 1.57079, 1.57079, 1.57079, 0.0]
+}
+
+[sub_resource type="Animation" id="Animation_2udws"]
+resource_name = "platforms"
+length = 32.0
+loop_mode = 1
+markers = [{
+"color": Color(0.277458, 0.607044, 0.670572, 1),
+"name": &"horizontal",
+"time": 27.8333
+}, {
+"color": Color(0.132734, 0.666332, 0.93393, 1),
+"name": &"vertical",
+"time": 12.0333
+}]
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Arena/walls/left:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 2.03333, 3.96667, 5.9, 7.96667, 9.96667, 12.0667, 14.0333, 16.1333, 18.1333, 20.0667, 22, 24.0667, 26.0667, 28.1667, 30.1333),
+"transitions": PackedFloat32Array(5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(0, 0), Vector2(0, -164), Vector2(0, -164), Vector2(0, 0), Vector2(0, 0), Vector2(0, 164), Vector2(0, 164), Vector2(0, 0), Vector2(0, 0), Vector2(0, -164), Vector2(0, -164), Vector2(0, 0), Vector2(0, 0), Vector2(0, 164), Vector2(0, 164)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Arena/walls/right:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 2.03333, 4, 5.93333, 7.93333, 9.96667, 12.0333, 14.0667, 16.1, 18.1333, 20.1, 22.0333, 24.0333, 26.0667, 28.1333, 30.2),
+"transitions": PackedFloat32Array(5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(0, 0), Vector2(0, -164), Vector2(0, -164), Vector2(0, 0), Vector2(0, 0), Vector2(0, 164), Vector2(0, 164), Vector2(0, 0), Vector2(0, 0), Vector2(0, -164), Vector2(0, -164), Vector2(0, 0), Vector2(0, 0), Vector2(0, 164), Vector2(0, 164)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Arena/Left_Plat:rotation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 14.2, 14.9333, 25.5333, 26.4, 31.9),
+"transitions": PackedFloat32Array(1, 0.5, 1, 0.5, 1, 1),
+"update": 0,
+"values": [0.0, 0.0, 1.5708, 1.5708, 0.0, 0.0]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Arena/Right_Plat:rotation")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 31.9),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 0.0]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Arena/Right_Plat:position")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 32),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(736, 400), Vector2(736, 400)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Arena/Left_Plat:position")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0.1, 2, 3.96667, 5.93333, 7.96667, 10.1667, 12, 14.5333, 28.5667, 32.1),
+"transitions": PackedFloat32Array(10, 10, 10, 10, 10, 10, 10, 10, 1, 1),
+"update": 0,
+"values": [Vector2(416, 400), Vector2(416, 400), Vector2(224, 400), Vector2(224, 400), Vector2(480, 400), Vector2(480, 400), Vector2(224, 400), Vector2(224, 400), Vector2(416, 400), Vector2(416, 400)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_a13du"]
+_data = {
+&"RESET": SubResource("Animation_55po1"),
+&"platform assemblies": SubResource("Animation_jjff5"),
+&"platforms": SubResource("Animation_2udws")
+}
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hu6o2"]
 size = Vector2(64, 32)
 
@@ -404,323 +721,6 @@ shader_parameter/warp_amount = 1.0
 shader_parameter/clip_warp = false
 shader_parameter/vignette_intensity = 0.4
 shader_parameter/vignette_opacity = 0.5
-
-[sub_resource type="Animation" id="Animation_55po1"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Arena/Left_Plat:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(320, 384)]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("Arena/Right_Plat:position")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(640, 384)]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("Arena/walls/left:position")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(0, 0)]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("Arena/walls/right:position")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(0, 0)]
-}
-tracks/4/type = "value"
-tracks/4/imported = false
-tracks/4/enabled = true
-tracks/4/path = NodePath("Arena/Left_Plat:scale")
-tracks/4/interp = 1
-tracks/4/loop_wrap = true
-tracks/4/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(1, 1)]
-}
-tracks/5/type = "value"
-tracks/5/imported = false
-tracks/5/enabled = true
-tracks/5/path = NodePath("Arena/Right_Plat:scale")
-tracks/5/interp = 1
-tracks/5/loop_wrap = true
-tracks/5/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(1, 1)]
-}
-tracks/6/type = "value"
-tracks/6/imported = false
-tracks/6/enabled = true
-tracks/6/path = NodePath("Arena/Left Plat Assembly/LeftLeft:position")
-tracks/6/interp = 1
-tracks/6/loop_wrap = true
-tracks/6/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(0, 0)]
-}
-tracks/7/type = "value"
-tracks/7/imported = false
-tracks/7/enabled = true
-tracks/7/path = NodePath("Arena/Left Plat Assembly/LeftMid:position")
-tracks/7/interp = 1
-tracks/7/loop_wrap = true
-tracks/7/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(64, 0)]
-}
-tracks/8/type = "value"
-tracks/8/imported = false
-tracks/8/enabled = true
-tracks/8/path = NodePath("Arena/Left Plat Assembly/LeftRight:position")
-tracks/8/interp = 1
-tracks/8/loop_wrap = true
-tracks/8/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(128, 0)]
-}
-tracks/9/type = "value"
-tracks/9/imported = false
-tracks/9/enabled = true
-tracks/9/path = NodePath("Arena/Left Plat Assembly/LeftLeft:rotation")
-tracks/9/interp = 1
-tracks/9/loop_wrap = true
-tracks/9/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [1.57079]
-}
-tracks/10/type = "value"
-tracks/10/imported = false
-tracks/10/enabled = true
-tracks/10/path = NodePath("Arena/Left Plat Assembly/LeftMid:rotation")
-tracks/10/interp = 1
-tracks/10/loop_wrap = true
-tracks/10/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [1.5708]
-}
-tracks/11/type = "value"
-tracks/11/imported = false
-tracks/11/enabled = true
-tracks/11/path = NodePath("Arena/Left Plat Assembly/LeftRight:rotation")
-tracks/11/interp = 1
-tracks/11/loop_wrap = true
-tracks/11/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [1.5708]
-}
-
-[sub_resource type="Animation" id="Animation_jjff5"]
-resource_name = "platform assemblies"
-length = 20.0
-loop_mode = 1
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Arena/Left Plat Assembly/LeftLeft:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.333333, 1, 5, 6.01333, 7.03333, 11.9, 13.2, 14.9667, 17.1333),
-"transitions": PackedFloat32Array(10, 10, 10, 10, 10, 1, 10, 1, 10, 1),
-"update": 0,
-"values": [Vector2(0, 0), Vector2(0, 0), Vector2(-192, -2), Vector2(0, 0), Vector2(0, 0), Vector2(-160, -256), Vector2(-160, -256), Vector2(-160, -62), Vector2(-160, -62), Vector2(0, 0)]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("Arena/Left Plat Assembly/LeftMid:position")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.333333, 1.46667, 4.5, 6.98333, 7.7, 11.1667, 12.6333, 14.4, 16.5),
-"transitions": PackedFloat32Array(10, 10, 10, 10, 10, 1, 10, 1, 10, 1),
-"update": 0,
-"values": [Vector2(64, 0), Vector2(64, 0), Vector2(-128, -2), Vector2(64, 0), Vector2(64, 0), Vector2(-160, -192), Vector2(-160, -192), Vector2(-160, 0), Vector2(-160, 0), Vector2(64, 0)]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("Arena/Left Plat Assembly/LeftRight:position")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.333333, 2, 4, 7.68333, 8.36667, 10.3033, 11.8667, 13.932, 15.7333),
-"transitions": PackedFloat32Array(10, 1, 10, 10, 1, 10, 1, 10, 1, 10, 1),
-"update": 0,
-"values": [Vector2(128, 0), Vector2(128, 0), Vector2(128, 0), Vector2(-64, -2), Vector2(128, 0), Vector2(128, 0), Vector2(-160, -128), Vector2(-160, -128), Vector2(-160, 64), Vector2(-160, 64), Vector2(128, 0)]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("Arena/Left Plat Assembly/LeftLeft:rotation")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"times": PackedFloat32Array(0.333333, 6.03333, 7.03333, 11.9, 13.1667, 14.9333, 17.2),
-"transitions": PackedFloat32Array(1, 10, 1, 10, 1, 10, 1),
-"update": 0,
-"values": [0.0, 0.0, 1.57079, 1.57079, 1.57079, 1.57079, 0.0]
-}
-tracks/4/type = "value"
-tracks/4/imported = false
-tracks/4/enabled = true
-tracks/4/path = NodePath("Arena/Left Plat Assembly/LeftMid:rotation")
-tracks/4/interp = 1
-tracks/4/loop_wrap = true
-tracks/4/keys = {
-"times": PackedFloat32Array(0.333333, 6.98333, 7.7, 11.1667, 12.6667, 14.4333, 16.5333),
-"transitions": PackedFloat32Array(1, 10, 1, 10, 1, 10, 1),
-"update": 0,
-"values": [0.0, 0.0, 1.57079, 1.57079, 1.57079, 1.57079, 0.0]
-}
-tracks/5/type = "value"
-tracks/5/imported = false
-tracks/5/enabled = true
-tracks/5/path = NodePath("Arena/Left Plat Assembly/LeftRight:rotation")
-tracks/5/interp = 1
-tracks/5/loop_wrap = true
-tracks/5/keys = {
-"times": PackedFloat32Array(0.333333, 7.7, 8.36667, 10.3033, 11.8667, 13.932, 15.7667),
-"transitions": PackedFloat32Array(1, 10, 1, 10, 1, 10, 1),
-"update": 0,
-"values": [0.0, 0.0, 1.57079, 1.57079, 1.57079, 1.57079, 0.0]
-}
-
-[sub_resource type="Animation" id="Animation_2udws"]
-resource_name = "platforms"
-length = 32.0
-loop_mode = 1
-markers = [{
-"color": Color(0.132734, 0.666332, 0.93393, 1),
-"name": &"vertical",
-"time": 18.0162
-}, {
-"color": Color(0.277458, 0.607044, 0.670572, 1),
-"name": &"horizontal",
-"time": 27.8333
-}]
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Arena/Left_Plat:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 2, 3.9, 5.86667, 7.9, 9.9, 10.9, 12.9, 13.9, 16, 18.0667, 20.1333, 22.2667, 23.9667, 25.9333, 27.9667, 30.1333),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0.5, 0.5, 0.5, 0.5, 0.5, 1),
-"update": 0,
-"values": [Vector2(320, 384), Vector2(320, 384), Vector2(128, 384), Vector2(128, 384), Vector2(320, 384), Vector2(320, 384), Vector2(384, 384), Vector2(384, 384), Vector2(320, 384), Vector2(128, 384), Vector2(128, 384), Vector2(168, 384), Vector2(168, 64), Vector2(168, 256), Vector2(168, 384), Vector2(168, 256), Vector2(128, 384)]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("Arena/Right_Plat:position")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 2.03333, 3.9, 5.86667, 7.93333, 9.9, 11.0333, 12.9, 13.9, 16.0333, 18.1667, 20.2333, 22.3, 24.0667, 25.9333, 28.1, 30.1, 32.1333),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0.5, 0.5, 0.5, 0.5, 0.5, 1, 1),
-"update": 0,
-"values": [Vector2(640, 384), Vector2(640, 384), Vector2(832, 384), Vector2(832, 384), Vector2(640, 384), Vector2(640, 384), Vector2(576, 384), Vector2(576, 384), Vector2(640, 384), Vector2(832, 384), Vector2(832, 384), Vector2(960, 384), Vector2(960, 64), Vector2(960, 256), Vector2(960, 384), Vector2(960, 256), Vector2(832, 384), Vector2(640, 384)]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("Arena/walls/left:position")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0.0666667, 2.03333, 3.96667, 5.9, 7.96667, 9.96667, 12.0667, 14.0333, 16.1333, 18.1333, 20.0667, 22, 24.0667, 26.0667, 28.1667, 30.1333),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
-"update": 0,
-"values": [Vector2(0, 0), Vector2(0, 0), Vector2(0, -164), Vector2(0, -164), Vector2(0, 0), Vector2(0, 0), Vector2(0, 164), Vector2(0, 164), Vector2(0, 0), Vector2(0, 0), Vector2(0, -164), Vector2(0, -164), Vector2(0, 0), Vector2(0, 0), Vector2(0, 164), Vector2(0, 164)]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("Arena/walls/right:position")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"times": PackedFloat32Array(0, 2.03333, 4, 5.93333, 7.93333, 9.96667, 12.0333, 14.0667, 16.1, 18.1333, 20.1, 22.0333, 24.0333, 26.0667, 28.1333, 30.2),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
-"update": 0,
-"values": [Vector2(0, 0), Vector2(0, 0), Vector2(0, -164), Vector2(0, -164), Vector2(0, 0), Vector2(0, 0), Vector2(0, 164), Vector2(0, 164), Vector2(0, 0), Vector2(0, 0), Vector2(0, -164), Vector2(0, -164), Vector2(0, 0), Vector2(0, 0), Vector2(0, 164), Vector2(0, 164)]
-}
-tracks/4/type = "value"
-tracks/4/imported = false
-tracks/4/enabled = true
-tracks/4/path = NodePath("Arena/Left_Plat:scale")
-tracks/4/interp = 1
-tracks/4/loop_wrap = true
-tracks/4/keys = {
-"times": PackedFloat32Array(0.0333333, 18.0333, 20.1333, 27.9333, 30.0667),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
-"update": 0,
-"values": [Vector2(1, 1), Vector2(1, 1), Vector2(0.25, 4), Vector2(0.25, 4), Vector2(1, 1)]
-}
-tracks/5/type = "value"
-tracks/5/imported = false
-tracks/5/enabled = true
-tracks/5/path = NodePath("Arena/Right_Plat:scale")
-tracks/5/interp = 1
-tracks/5/loop_wrap = true
-tracks/5/keys = {
-"times": PackedFloat32Array(0.1, 18.1, 20.2, 28, 30.1333),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
-"update": 0,
-"values": [Vector2(1, 1), Vector2(1, 1), Vector2(0.25, 4), Vector2(0.25, 4), Vector2(1, 1)]
-}
-
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_a13du"]
-_data = {
-&"RESET": SubResource("Animation_55po1"),
-&"platform assemblies": SubResource("Animation_jjff5"),
-&"platforms": SubResource("Animation_2udws")
-}
 
 [sub_resource type="Animation" id="Animation_bbeva"]
 resource_name = "Clear"
@@ -1378,60 +1378,69 @@ scale = Vector2(3.28, 2.88)
 texture = ExtResource("8_6dkjy")
 
 [node name="Right_Plat" type="StaticBody2D" parent="Arena"]
-visible = false
 z_index = -1
-position = Vector2(640, 384)
-collision_layer = 0
-collision_mask = 0
+position = Vector2(736, 400)
+collision_layer = 2
+collision_mask = 7
 
 [node name="ColorRect9" type="ColorRect" parent="Arena/Right_Plat"]
 z_index = 1
-offset_right = 192.0
-offset_bottom = 32.0
+offset_left = -96.0
+offset_top = -16.0
+offset_right = 96.0
+offset_bottom = 16.0
 color = Color(0, 0, 0, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Arena/Right_Plat"]
-position = Vector2(96, 16)
 shape = SubResource("RectangleShape2D_qslgg")
 
 [node name="TileMapLayer7" type="TileMapLayer" parent="Arena/Right_Plat"]
 z_index = 2
-position = Vector2(-640, -384)
+position = Vector2(-736, -400)
 scale = Vector2(2, 2)
 tile_map_data = PackedByteArray("AAAUAAwAAgADAAEAAAAVAAwAAgAEAAEAAAAWAAwAAgADAAEAAAAXAAwAAgAEAAEAAAAYAAwAAgADAAEAAAAZAAwAAgAEAAEAAAA=")
 tile_set = SubResource("TileSet_w4q3b")
 
 [node name="Left_Plat" type="StaticBody2D" parent="Arena"]
-visible = false
 z_index = -1
-position = Vector2(320, 384)
-collision_layer = 0
-collision_mask = 0
+position = Vector2(416, 400)
+collision_layer = 2
+collision_mask = 7
 
 [node name="ColorRect8" type="ColorRect" parent="Arena/Left_Plat"]
 z_index = 1
-offset_right = 192.0
-offset_bottom = 32.0
+offset_left = -96.0
+offset_top = -16.0
+offset_right = 96.0
+offset_bottom = 16.0
 color = Color(0, 0, 0, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Arena/Left_Plat"]
-position = Vector2(96, 16)
 shape = SubResource("RectangleShape2D_uo83q")
 
 [node name="TileMapLayer7" type="TileMapLayer" parent="Arena/Left_Plat"]
 z_index = 2
-position = Vector2(-640, -384)
+position = Vector2(-736, -400)
 scale = Vector2(2, 2)
 tile_map_data = PackedByteArray("AAAUAAwAAgADAAEAAAAVAAwAAgAEAAEAAAAWAAwAAgADAAEAAAAXAAwAAgAEAAEAAAAYAAwAAgADAAEAAAAZAAwAAgAEAAEAAAA=")
 tile_set = SubResource("TileSet_w4q3b")
 
+[node name="Platforms" type="AnimationPlayer" parent="Arena"]
+root_node = NodePath("../..")
+libraries = {
+&"": SubResource("AnimationLibrary_a13du")
+}
+autoplay = "platforms"
+speed_scale = 0.75
+
 [node name="Left Plat Assembly" type="Node2D" parent="Arena"]
+visible = false
 position = Vector2(320, 384)
 
 [node name="LeftLeft" type="StaticBody2D" parent="Arena/Left Plat Assembly"]
 rotation = 1.57079
-collision_layer = 2
-collision_mask = 7
+collision_layer = 0
+collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Arena/Left Plat Assembly/LeftLeft"]
 position = Vector2(32, 16)
@@ -1448,32 +1457,32 @@ tile_set = SubResource("TileSet_w4q3b")
 position = Vector2(32, 16)
 texture = SubResource("GradientTexture2D_qslgg")
 
-[node name="LeftMid" type="StaticBody2D" parent="Arena/Left Plat Assembly"]
+[node name="LeftLeft2" type="StaticBody2D" parent="Arena/Left Plat Assembly"]
 position = Vector2(64, 0)
 rotation = 1.5708
-collision_layer = 2
-collision_mask = 7
+collision_layer = 0
+collision_mask = 0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Arena/Left Plat Assembly/LeftMid"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Arena/Left Plat Assembly/LeftLeft2"]
 position = Vector2(32, 16)
 shape = SubResource("RectangleShape2D_hu6o2")
 
-[node name="TileMapLayer7" type="TileMapLayer" parent="Arena/Left Plat Assembly/LeftMid"]
+[node name="TileMapLayer7" type="TileMapLayer" parent="Arena/Left Plat Assembly/LeftLeft2"]
 z_index = 2
 position = Vector2(-640, -384)
 scale = Vector2(2, 2)
 tile_map_data = PackedByteArray("AAAUAAwAAgADAAEAAAAVAAwAAgAEAAEAAAA=")
 tile_set = SubResource("TileSet_w4q3b")
 
-[node name="GlowLM" type="Sprite2D" parent="Arena/Left Plat Assembly/LeftMid"]
+[node name="GlowLM" type="Sprite2D" parent="Arena/Left Plat Assembly/LeftLeft2"]
 position = Vector2(32, 16)
 texture = SubResource("GradientTexture2D_qslgg")
 
 [node name="LeftRight" type="StaticBody2D" parent="Arena/Left Plat Assembly"]
 position = Vector2(128, 0)
 rotation = 1.5708
-collision_layer = 2
-collision_mask = 7
+collision_layer = 0
+collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Arena/Left Plat Assembly/LeftRight"]
 position = Vector2(32, 16)
@@ -1491,11 +1500,12 @@ position = Vector2(32, 16)
 texture = SubResource("GradientTexture2D_qslgg")
 
 [node name="Right Plat Assembly" type="Node2D" parent="Arena"]
+visible = false
 position = Vector2(640, 384)
 
 [node name="RightLeft" type="StaticBody2D" parent="Arena/Right Plat Assembly"]
-collision_layer = 2
-collision_mask = 7
+collision_layer = 0
+collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Arena/Right Plat Assembly/RightLeft"]
 position = Vector2(32, 16)
@@ -1514,8 +1524,8 @@ texture = SubResource("GradientTexture2D_qslgg")
 
 [node name="RightMid" type="StaticBody2D" parent="Arena/Right Plat Assembly"]
 position = Vector2(64, 0)
-collision_layer = 2
-collision_mask = 7
+collision_layer = 0
+collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Arena/Right Plat Assembly/RightMid"]
 position = Vector2(32, 16)
@@ -1534,8 +1544,8 @@ texture = SubResource("GradientTexture2D_qslgg")
 
 [node name="RightRight" type="StaticBody2D" parent="Arena/Right Plat Assembly"]
 position = Vector2(128, 0)
-collision_layer = 2
-collision_mask = 7
+collision_layer = 0
+collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Arena/Right Plat Assembly/RightRight"]
 position = Vector2(32, 16)
@@ -1599,7 +1609,9 @@ layout_mode = 2
 layout_mode = 2
 theme = ExtResource("8_a13du")
 theme_override_colors/font_color = Color(0.639216, 0.00392157, 1, 1)
-text = "PURPLE WIZARD WINS"
+text = "Victory!
+Long be thy Beard!"
+horizontal_alignment = 1
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Player_1_Victory/CenterContainer/VBoxContainer"]
 modulate = Color(1, 1, 1, 0)
@@ -1642,7 +1654,9 @@ layout_mode = 2
 layout_mode = 2
 theme = ExtResource("8_a13du")
 theme_override_colors/font_color = Color(0, 0.698039, 0.101961, 1)
-text = "GREEN WIZARD WINS"
+text = "Victory!
+Floppy be thy Hat!"
+horizontal_alignment = 1
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Player_2_Victory/CenterContainer/VBoxContainer"]
 modulate = Color(1, 1, 1, 0)
@@ -1704,13 +1718,6 @@ text = "CONTINUE"
 layout_mode = 2
 theme = ExtResource("8_a13du")
 text = "QUIT"
-
-[node name="Platforms" type="AnimationPlayer" parent="."]
-libraries = {
-&"": SubResource("AnimationLibrary_a13du")
-}
-autoplay = "platform assemblies"
-speed_scale = 0.75
 
 [node name="Victory_Screens" type="AnimationPlayer" parent="."]
 process_mode = 3

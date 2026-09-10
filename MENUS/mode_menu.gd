@@ -9,7 +9,18 @@ extends Control
 ## Row of 3 map buttons, row of 4 mod buttons beneath (Pure/Hydra/Zones/
 ## Training), then a vertical stack of Ready/Settings/Reset Options/Back.
 ## Training isn't compatible with a map choice or the other three mods, so
-## picking it greys all of those out - see _update_button_states().
+## picking it dims all of those out (see _update_button_states()) - but
+## they're deliberately never actually .disabled while dimmed: pressing one
+## is how you leave Training. The three mod buttons already do that just by
+## being pressed (each sets game_mode to something other than "training" -
+## see their own handlers below); the three map buttons have no Training
+## equivalent of their own, so they route through _exit_training_mode()
+## first, which lands back on "pure" before applying the map.
+
+## Same faded-alpha treatment Character_Select.tscn already uses for an
+## un-joined P3/P4 box - shared here so "dimmed but still pressable" reads
+## the same way across menus.
+const DISABLED_TINT := Color(1, 1, 1, 0.423529)
 
 @onready var arena: Button = $CenterContainer/VBoxContainer/MapRow/Arena
 @onready var tower: Button = $CenterContainer/VBoxContainer/MapRow/Tower
@@ -88,20 +99,34 @@ func _on_training_pressed() -> void:
 
 
 func _on_arena_pressed() -> void:
+	_exit_training_mode()
 	arena.set_pressed_no_signal(true)
 	tower.set_pressed_no_signal(false)
 	yonder.set_pressed_no_signal(false)
 	GameSettings.set_game_arena("arena")
 func _on_tower_pressed() -> void:
+	_exit_training_mode()
 	arena.set_pressed_no_signal(false)
 	tower.set_pressed_no_signal(true)
 	yonder.set_pressed_no_signal(false)
 	GameSettings.set_game_arena("tower")
 func _on_yonder_pressed() -> void:
+	_exit_training_mode()
 	arena.set_pressed_no_signal(false)
 	tower.set_pressed_no_signal(false)
 	yonder.set_pressed_no_signal(true)
 	GameSettings.set_game_arena("yonder")
+
+
+## Maps have no Training equivalent, so pressing one while Training is
+## selected means "I want a map, take me out of Training" - lands on
+## "pure", the same default _on_reset_options_pressed() uses, rather than
+## trying to recall whatever mod was active before Training was picked.
+## A no-op the rest of the time - only touches game_mode when Training is
+## actually the current mode.
+func _exit_training_mode() -> void:
+	if GameSettings.game_mode == "training":
+		GameSettings.set_game_mode("pure")
 
 
 func _on_reset_options_pressed() -> void:
@@ -113,8 +138,10 @@ func _on_settings_pressed() -> void:
 
 ## Keeps every toggle button's pressed state in sync with GameSettings -
 ## called on load and whenever settings_changed fires (e.g. Reset Options) -
-## and greys out the map row and the other three mods while Training is
-## active, since none of them apply while it's selected.
+## and dims the map row and the other three mods while Training is active,
+## since none of them apply while it's selected. Dims rather than
+## .disable()s them - see the doc comment at the top of this file for why
+## they need to stay pressable.
 func _update_button_states() -> void:
 	pure.set_pressed_no_signal(GameSettings.game_mode == "pure")
 	random.set_pressed_no_signal(GameSettings.game_mode == "random")
@@ -126,9 +153,10 @@ func _update_button_states() -> void:
 	yonder.set_pressed_no_signal(GameSettings.game_arena == "yonder")
 
 	var training_active: bool = GameSettings.game_mode == "training"
-	arena.disabled = training_active
-	tower.disabled = training_active
-	yonder.disabled = training_active
-	pure.disabled = training_active
-	random.disabled = training_active
-	hot_potatoe.disabled = training_active
+	var tint := DISABLED_TINT if training_active else Color.WHITE
+	arena.modulate = tint
+	tower.modulate = tint
+	yonder.modulate = tint
+	pure.modulate = tint
+	random.modulate = tint
+	hot_potatoe.modulate = tint
