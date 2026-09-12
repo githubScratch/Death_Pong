@@ -170,6 +170,7 @@ p4_pause_select={
 
 [layer_names]
 
+2d_render/layer_2="Tiles"
 2d_render/layer_6="Glyphs"
 2d_physics/layer_1="Wizards"
 2d_physics/layer_2="Arena"

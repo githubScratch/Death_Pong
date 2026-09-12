@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://cn351poi4qur1"
-path="res://.godot/imported/alagard.ttf-c08505230e8ccfdb0462ee93aaab3ae9.fontdata"
+uid="uid://bqaumfd0tnld4"
+path="res://.godot/imported/PixelWarden.ttf-d55c416fe42a6d7a548268fcdb63e6a1.fontdata"
 
 [deps]
 
-source_file="res://UI Resources/alagard.ttf"
-dest_files=["res://.godot/imported/alagard.ttf-c08505230e8ccfdb0462ee93aaab3ae9.fontdata"]
+source_file="res://UI Resources/PixelWarden.ttf"
+dest_files=["res://.godot/imported/PixelWarden.ttf-d55c416fe42a6d7a548268fcdb63e6a1.fontdata"]
 
 [params]
 
