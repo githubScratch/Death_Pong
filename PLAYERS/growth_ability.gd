@@ -77,6 +77,29 @@ class_name GrowthAbility
 ## fallback fade and frees the vfx instantly instead.
 @export var vfx_fade_duration: float = 0.5
 
+## If true, the barrier a hold-to-grow channel enlarges is detached from
+## this wizard's normal "current barrier" bookkeeping the instant the
+## channel actually commits (see wizard.gd's _update_growth_channel()) -
+## with nothing spawned to take its place, so this wizard has no "current"
+## barrier at all for as long as the enlarging one is off on its own (no
+## second barrier appears alongside it the moment growth activates). Only a
+## LATER jump/cast brings the barrier count back up to one, the ordinary
+## way. Practically: the enlarged barrier can keep existing ALONGSIDE
+## whatever barrier that later jump/cast creates, instead of being replaced
+## (faded out) by it the way an ordinary grown barrier would be.
+## It still shrinks back down at its own normal pace either way (releasing
+## Up, or running out of strikes/tiers mid-hold, still ends the channel and
+## starts the usual shrink_duration-paced snap back to scale 1.0 - see
+## _end_growth_channel()) - but because nothing still calls it "the current
+## barrier", nothing would ever naturally retire it once it's back to
+## normal size. So instead, the moment it finishes shrinking back to 1.0,
+## it plays its own fade-out and removes itself, the same way any other
+## retired barrier does. False (the default) is the original behavior: the
+## enlarged barrier just IS this wizard's one standing barrier throughout,
+## shrinks back to 1.0 when the channel ends, and stays right there as an
+## ordinary barrier afterward, same as if it had never been grown at all.
+@export var unique_barrier_mode: bool = false
+
 ## True disables banking any NEW strikes for as long as this wizard is
 ## currently channeling growth (_is_channeling - covers active growing, the
 ## per-tier stutter pause, and the post-channel grace hover alike, since the

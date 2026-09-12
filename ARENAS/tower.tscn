@@ -1,4 +1,4 @@
-[gd_scene load_steps=70 format=4 uid="uid://cqdw4ave7lpj2"]
+[gd_scene load_steps=77 format=4 uid="uid://cqdw4ave7lpj2"]
 
 [ext_resource type="Script" uid="uid://bh1cqpcey1nhk" path="res://ARENAS/tower.gd" id="1_mwjt1"]
 [ext_resource type="Shader" uid="uid://c3fmb76te1444" path="res://ARENAS/VHS.gdshader" id="1_qj6pt"]
@@ -16,8 +16,11 @@
 [ext_resource type="AudioStream" uid="uid://d3rmk854uqt17" path="res://SFX/ui select.wav" id="11_k4jcv"]
 [ext_resource type="AudioStream" uid="uid://du6i7igev8i55" path="res://SFX/Menu_Select2.wav" id="12_ed6xj"]
 [ext_resource type="Theme" uid="uid://dka4pq4oxkc3b" path="res://MENUS/Menu_Theme.tres" id="13_ed6xj"]
+[ext_resource type="Texture2D" uid="uid://cstt2qv0ltc5r" path="res://TILESETS/Dungeon Tile Set.png" id="19_0vexm"]
 [ext_resource type="Texture2D" uid="uid://chsq20yfrdqcu" path="res://TILESETS/s4m_ur4i-2D-gothic-soulslike_tileset_rosy_42.png" id="19_tgyg7"]
 [ext_resource type="Texture2D" uid="uid://cn0rutk07cxj" path="res://TILESETS/main_lev_build.png" id="21_03878"]
+[ext_resource type="Texture2D" uid="uid://bi0iuq4u728dx" path="res://SPRITES/Decorations/DEglyphthin2.png" id="21_u7217"]
+[ext_resource type="Texture2D" uid="uid://b6ppqwvb11ubw" path="res://SPRITES/Decorations/DEglyphthin.png" id="22_nsywk"]
 [ext_resource type="Script" uid="uid://dk1jeq4bfobk" path="res://PLAYERS/pause_overlay.gd" id="99_pause_overlay"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_2t7hb"]
@@ -7652,6 +7655,142 @@ texture = ExtResource("21_03878")
 72:71/0 = 0
 73:71/0 = 0
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_uiowf"]
+texture = ExtResource("19_0vexm")
+1:1/0 = 0
+2:1/0 = 0
+3:1/0 = 0
+5:1/0 = 0
+6:1/0 = 0
+8:1/0 = 0
+9:1/0 = 0
+10:1/0 = 0
+11:1/0 = 0
+12:1/0 = 0
+13:1/0 = 0
+1:2/0 = 0
+2:2/0 = 0
+3:2/0 = 0
+5:2/0 = 0
+6:2/0 = 0
+8:2/0 = 0
+9:2/0 = 0
+10:2/0 = 0
+11:2/0 = 0
+12:2/0 = 0
+13:2/0 = 0
+1:3/0 = 0
+2:3/0 = 0
+3:3/0 = 0
+5:3/0 = 0
+6:3/0 = 0
+8:3/0 = 0
+9:3/0 = 0
+10:3/0 = 0
+11:3/0 = 0
+12:3/0 = 0
+13:3/0 = 0
+8:4/0 = 0
+9:4/0 = 0
+10:4/0 = 0
+11:4/0 = 0
+12:4/0 = 0
+1:5/0 = 0
+2:5/0 = 0
+3:5/0 = 0
+5:5/0 = 0
+6:5/0 = 0
+8:5/0 = 0
+9:5/0 = 0
+10:5/0 = 0
+11:5/0 = 0
+12:5/0 = 0
+1:6/0 = 0
+2:6/0 = 0
+3:6/0 = 0
+6:6/0 = 0
+7:6/0 = 0
+8:6/0 = 0
+9:6/0 = 0
+10:6/0 = 0
+11:6/0 = 0
+12:6/0 = 0
+1:7/0 = 0
+2:7/0 = 0
+3:7/0 = 0
+6:7/0 = 0
+7:7/0 = 0
+8:7/0 = 0
+9:7/0 = 0
+10:7/0 = 0
+11:7/0 = 0
+12:7/0 = 0
+5:8/0 = 0
+1:9/0 = 0
+2:9/0 = 0
+3:9/0 = 0
+5:9/0 = 0
+7:9/0 = 0
+8:9/0 = 0
+9:9/0 = 0
+10:9/0 = 0
+11:9/0 = 0
+12:9/0 = 0
+13:9/0 = 0
+1:10/0 = 0
+2:10/0 = 0
+3:10/0 = 0
+5:10/0 = 0
+7:10/0 = 0
+8:10/0 = 0
+10:10/0 = 0
+12:10/0 = 0
+13:10/0 = 0
+1:11/0 = 0
+2:11/0 = 0
+5:11/0 = 0
+7:11/0 = 0
+8:11/0 = 0
+9:11/0 = 0
+10:11/0 = 0
+12:11/0 = 0
+13:11/0 = 0
+1:12/0 = 0
+2:12/0 = 0
+3:12/0 = 0
+4:12/0 = 0
+5:12/0 = 0
+6:12/0 = 0
+7:12/0 = 0
+8:12/0 = 0
+9:12/0 = 0
+10:12/0 = 0
+11:12/0 = 0
+12:12/0 = 0
+2:13/0 = 0
+4:13/0 = 0
+5:13/0 = 0
+6:13/0 = 0
+7:13/0 = 0
+8:13/0 = 0
+9:13/0 = 0
+1:14/0 = 0
+2:14/0 = 0
+3:14/0 = 0
+4:14/0 = 0
+5:14/0 = 0
+6:14/0 = 0
+10:14/0 = 0
+11:14/0 = 0
+12:14/0 = 0
+13:14/0 = 0
+7:15/0 = 0
+8:15/0 = 0
+9:15/0 = 0
+10:15/0 = 0
+11:15/0 = 0
+12:15/0 = 0
+
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_u7217"]
 texture = ExtResource("19_tgyg7")
 0:0/0 = 0
@@ -8119,6 +8258,7 @@ texture = ExtResource("19_tgyg7")
 [sub_resource type="TileSet" id="TileSet_u7217"]
 sources/0 = SubResource("TileSetAtlasSource_03878")
 sources/2 = SubResource("TileSetAtlasSource_u7217")
+sources/1 = SubResource("TileSetAtlasSource_uiowf")
 
 [sub_resource type="Gradient" id="Gradient_kksn1"]
 offsets = PackedFloat32Array(0, 0.545455, 0.785714)
@@ -8160,6 +8300,116 @@ gradient = SubResource("Gradient_6dkjy")
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_b7gts"]
 size = Vector2(16.5, 2501)
 
+[sub_resource type="Animation" id="Animation_u7217"]
+resource_name = "rotations"
+length = 4.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 6.28319]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite2D2:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 6.28319]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Sprite2D3:rotation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 6.28319]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Sprite2D4:rotation")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, -6.28319]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Sprite2D5:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 6.28319]
+}
+
+[sub_resource type="Animation" id="Animation_nsywk"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite2D2:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Sprite2D3:rotation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_uiowf"]
+_data = {
+&"RESET": SubResource("Animation_nsywk"),
+&"rotations": SubResource("Animation_u7217")
+}
+
 [node name="Node2D2" type="Node2D"]
 script = ExtResource("1_mwjt1")
 instance_scene = ExtResource("3_0b2xv")
@@ -8176,6 +8426,7 @@ color = Color(0.454902, 0.00784314, 0.682353, 1)
 metadata/_edit_use_anchors_ = true
 
 [node name="StaticBody2D" type="StaticBody2D" parent="walls/left" groups=["map_wall_left"]]
+visible = false
 collision_layer = 2
 collision_mask = 7
 
@@ -8187,6 +8438,7 @@ shape = SubResource("RectangleShape2D_2t7hb")
 position = Vector2(1024, 1280)
 
 [node name="left wizard wall" type="StaticBody2D" parent="walls/left" groups=["map_wall_left"]]
+visible = false
 position = Vector2(16, 1280)
 collision_layer = 16
 collision_mask = 0
@@ -8216,6 +8468,7 @@ shape = SubResource("RectangleShape2D_yo2m1")
 position = Vector2(-1056, 1248)
 
 [node name="right wizard wall" type="StaticBody2D" parent="walls/right" groups=["map_wall_right"]]
+visible = false
 position = Vector2(16, 1279.5)
 collision_layer = 16
 collision_mask = 0
@@ -8738,6 +8991,7 @@ collision_layer = 2
 collision_mask = 7
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CameraPackage/roof/StaticBody2D"]
+visible = false
 position = Vector2(21, -205)
 shape = SubResource("RectangleShape2D_0b2xv")
 
@@ -8767,6 +9021,7 @@ collision_layer = 2
 collision_mask = 7
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CameraPackage/floor/StaticBody2D"]
+visible = false
 position = Vector2(585, 224.5)
 shape = SubResource("RectangleShape2D_x5lnl")
 
@@ -8834,7 +9089,7 @@ layout_mode = 2
 layout_mode = 2
 theme = ExtResource("13_ed6xj")
 theme_override_colors/font_color = Color(0.639216, 0.00392157, 1, 1)
-text = "PURPLE WIZARD WINS"
+text = "Victory!"
 
 [node name="HBoxContainer" type="HBoxContainer" parent="CameraPackage/Screens/Player_1_Victory/CenterContainer/VBoxContainer"]
 modulate = Color(1, 1, 1, 0)
@@ -8877,7 +9132,7 @@ layout_mode = 2
 layout_mode = 2
 theme = ExtResource("13_ed6xj")
 theme_override_colors/font_color = Color(0, 0.698039, 0.101961, 1)
-text = "GREEN WIZARD WINS"
+text = "Victory!"
 
 [node name="HBoxContainer" type="HBoxContainer" parent="CameraPackage/Screens/Player_2_Victory/CenterContainer/VBoxContainer"]
 modulate = Color(1, 1, 1, 0)
@@ -8992,7 +9247,6 @@ tile_map_data = PackedByteArray("AAAdAE0AAABkADYAAAAdAE4AAABkADcAAAAdAE8AAABkADg
 tile_set = SubResource("TileSet_u7217")
 
 [node name="darkness" type="CanvasModulate" parent="."]
-visible = false
 color = Color(0.18359, 0.18359, 0.18359, 1)
 
 [node name="fog" type="Parallax2D" parent="."]
@@ -9033,6 +9287,51 @@ collision_mask = 0
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Mid_Barrier/Mid_Collision"]
 position = Vector2(575.75, 1309.5)
 shape = SubResource("RectangleShape2D_b7gts")
+
+[node name="Decorations" type="Node2D" parent="."]
+light_mask = 32
+
+[node name="Sprite2D" type="Sprite2D" parent="Decorations"]
+modulate = Color(1, 1, 1, 0.215686)
+z_index = -1
+position = Vector2(568, 560)
+texture = ExtResource("21_u7217")
+
+[node name="Sprite2D2" type="Sprite2D" parent="Decorations"]
+modulate = Color(1, 1, 1, 0.215686)
+z_index = -1
+position = Vector2(343, 1224)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("22_nsywk")
+
+[node name="Sprite2D3" type="Sprite2D" parent="Decorations"]
+modulate = Color(1, 1, 1, 0.215686)
+z_index = -1
+position = Vector2(720, 1944)
+texture = ExtResource("21_u7217")
+
+[node name="Sprite2D4" type="Sprite2D" parent="Decorations"]
+modulate = Color(1, 1, 1, 0.215686)
+z_index = -1
+position = Vector2(120, 2856)
+rotation = -1.20555
+scale = Vector2(2, 2)
+texture = ExtResource("22_nsywk")
+
+[node name="Sprite2D5" type="Sprite2D" parent="Decorations"]
+modulate = Color(1, 1, 1, 0.215686)
+z_index = -1
+position = Vector2(904, 2424)
+rotation = 1.20555
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("21_u7217")
+
+[node name="Rotating glyphs" type="AnimationPlayer" parent="Decorations"]
+libraries = {
+&"": SubResource("AnimationLibrary_uiowf")
+}
+autoplay = "rotations"
+speed_scale = 0.05
 
 [connection signal="body_entered" from="zones/leftgoal" to="." method="_on_leftgoal_body_entered"]
 [connection signal="body_entered" from="zones/rightgoal" to="." method="_on_rightgoal_body_entered"]

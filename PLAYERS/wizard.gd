@@ -59,6 +59,18 @@ var _channel_tier: int = 0
 var _channel_hold_time: float = 0.0
 var _shield_scale_tween: Tween
 
+## The barrier this channel is actually growing/shrinking - set the instant
+## a channel commits (see _update_growth_channel()) and used everywhere a
+## channel touches a barrier's scale/vfx from that point on, INSTEAD OF
+## current_instance directly. For an ordinary channel this is just
+## current_instance itself, so nothing changes - but GrowthAbility.
+## unique_barrier_mode detaches the barrier being grown from current_instance
+## right at commit (current_instance is immediately replaced with a fresh
+## normal-scale barrier via _spawn_shield_instance() instead), so this is
+## the only remaining reference to the one actually enlarging. Cleared back
+## to null once the channel ends (_end_growth_channel()).
+var _growth_target: Node = null
+
 ## Seconds Up has been continuously held while otherwise eligible to grow,
 ## but not yet committed to an actual channel - see _update_growth_channel().
 ## Reset to 0 the moment Up is released or eligibility is lost.
@@ -831,14 +843,23 @@ func create_new_instance():
 		else:
 			current_instance.queue_free()
 
-	# Reset current instance reference before creating new one
-	current_instance = null
 	# Any growth VFX riding on the outgoing shield (see _start_growth_vfx())
 	# is a child of it, not of the wizard, so it keeps playing right through
 	# whatever fade/queue_free just happened above instead of being cut off
 	# here - just forget the reference so the next _start_growth_vfx() call
 	# doesn't try to stop/reuse a VFX that now belongs to a retired shield.
-	_growth_vfx = null
+	# Checked by actual parentage, not just "is a growth channel active" -
+	# GrowthAbility.unique_barrier_mode can leave _growth_vfx riding a
+	# barrier that was already detached from current_instance well before
+	# this call (see _update_growth_channel()), and that one is NOT what's
+	# being retired here - it keeps shrinking/fading on its own timeline
+	# (see _end_growth_channel()) completely untouched by whatever jump/cast
+	# just replaced current_instance.
+	if is_instance_valid(_growth_vfx) and _growth_vfx.get_parent() == current_instance:
+		_growth_vfx = null
+
+	# Reset current instance reference before creating new one
+	current_instance = null
 
 	# Immediately create new instance without delay
 	_spawn_shield_instance(_current_ability())
@@ -905,8 +926,13 @@ func _on_shield_deflected() -> void:
 	if cap >= 0 and strikes > cap:
 		strikes = cap
 	_update_strike_gauge()
-	if is_instance_valid(current_instance):
-		var gauge := current_instance.get_node_or_null("StrikeGauge") as StrikeGauge
+	# See _update_strike_gauge()'s own fallback comment - current_instance
+	# can be null mid-channel under GrowthAbility.unique_barrier_mode, with
+	# _growth_target the only barrier actually standing (and visible) right
+	# now.
+	var slosh_barrier := current_instance if is_instance_valid(current_instance) else _growth_target
+	if is_instance_valid(slosh_barrier):
+		var gauge := slosh_barrier.get_node_or_null("StrikeGauge") as StrikeGauge
 		if gauge != null:
 			gauge.slosh_from_impact()
 	# TEMP DEBUG - remove once strikes are confirmed working.
@@ -927,9 +953,17 @@ func _on_shield_deflected() -> void:
 ## that isn't a StrikeScaledAbility (no tiers to speak of) reports the gauge
 ## empty rather than showing a meaningless ratio.
 func _update_strike_gauge() -> void:
-	if not is_instance_valid(current_instance):
+	# Ordinarily just current_instance - but GrowthAbility.unique_barrier_mode
+	# leaves current_instance null for as long as a channel's own
+	# _growth_target barrier is detached and growing on its own (see
+	# _update_growth_channel()), even though that barrier is still right
+	# there on screen with its own StrikeGauge child. Falling back to it
+	# keeps that gauge live (still reflecting strikes as they're paid/
+	# banked) instead of just freezing the instant the channel commits.
+	var barrier := current_instance if is_instance_valid(current_instance) else _growth_target
+	if not is_instance_valid(barrier):
 		return
-	var gauge := current_instance.get_node_or_null("StrikeGauge") as StrikeGauge
+	var gauge := barrier.get_node_or_null("StrikeGauge") as StrikeGauge
 	if gauge == null:
 		return
 	var scaled_ability := _current_ability() as StrikeScaledAbility
@@ -991,7 +1025,17 @@ func _update_growth_channel(delta: float) -> void:
 		return
 
 	var ability := _current_ability() as GrowthAbility
-	var can_grow := ability != null and is_instance_valid(current_instance)
+	# Before a channel commits, "is there a barrier to grow" can only mean
+	# current_instance - that's the barrier this very Up-press's own
+	# _cast_and_jump() just summoned, and the one about to start growing.
+	# Once a channel HAS committed, the barrier actually at risk of
+	# disappearing out from under it is _growth_target - ordinarily the
+	# same node, but not under GrowthAbility.unique_barrier_mode, which
+	# detaches it from current_instance entirely (see the commit block
+	# below) - so checking current_instance here after that point would be
+	# watching the wrong (unrelated, freshly-replaced) barrier.
+	var growable := _growth_target if _is_channeling else current_instance
+	var can_grow := ability != null and is_instance_valid(growable)
 	if not can_grow or _channel_locked_out:
 		_candidate_hold_time = 0.0
 		if _is_channeling:
@@ -1025,6 +1069,29 @@ func _update_growth_channel(delta: float) -> void:
 		_candidate_hold_time = 0.0
 		if _shield_scale_tween:
 			_shield_scale_tween.kill()
+		# This channel's growth from here on always targets _growth_target,
+		# never current_instance directly - see that var's own doc comment.
+		# Unique Barrier Mode detaches the barrier that's ABOUT to start
+		# growing (current_instance, the one this very Up-press's own
+		# _cast_and_jump() just summoned) from current_instance right here,
+		# the instant growth actually commits - current_instance simply
+		# becomes null, with NO replacement barrier spawned to fill it. A
+		# replacement here would mean two barriers exist the moment growth
+		# activates (the one about to enlarge, plus a brand new ordinary one
+		# standing right on top of it) - not what this mode is for. Instead,
+		# this wizard is left with no "current" barrier at all for as long
+		# as the enlarging one is off on its own, exactly as if it had never
+		# cast one this press - so the barrier count only ever climbs back
+		# up to one again the normal way, whenever a LATER jump/cast calls
+		# create_new_instance() and finds current_instance already null
+		# (nothing to fade, it just spawns fresh). That's also exactly what
+		# stops the enlarging barrier from ever being faded out by a create_
+		# new_instance() call the normal way in the meantime - see
+		# _end_growth_channel() for how it retires itself instead, once it's
+		# done shrinking back down.
+		_growth_target = current_instance
+		if ability.unique_barrier_mode:
+			current_instance = null
 		# Pay for the very first step (base -> tier 1) right now, before any
 		# of it is shown - same rule every later step follows below.
 		strikes -= ability.strikes_per_tier
@@ -1083,7 +1150,8 @@ func _update_growth_channel(delta: float) -> void:
 	var t := clampf(_channel_hold_time / ability.growth_duration_per_tier, 0.0, 1.0)
 	if _channel_stutter_remaining > 0.0:
 		t = 0.0  # hold right at the tier we just reached during the stutter
-	current_instance.scale = Vector2.ONE * lerpf(base_scale, next_scale, t)
+	if is_instance_valid(_growth_target):
+		_growth_target.scale = Vector2.ONE * lerpf(base_scale, next_scale, t)
 
 
 ## Tries to pay for growing from the current tier to the next one, right as
@@ -1110,15 +1178,17 @@ func _try_pay_next_growth_step(ability: GrowthAbility) -> bool:
 	return true
 
 
-## Ends the current channel and snaps the shield back to its base scale -
-## called on release, and also when strikes run out mid-hold. Whatever
-## scale was reached is never kept; only the strikes already spent on fully
-## completed steps stay spent. Also kicks off _end_growth_vfx() so the vfx
-## itself fades out once that shrink finishes, instead of the old behavior
-## of leaving it riding current_instance indefinitely - fully visible, still
-## looping - until the shield was eventually replaced/faded out by an
-## entirely new cast (see _start_growth_vfx()'s doc comment for the other
-## half of this).
+## Ends the current channel and snaps the barrier that was actually growing
+## (_growth_target - see its own doc comment; ordinarily current_instance
+## itself, but not necessarily under GrowthAbility.unique_barrier_mode) back
+## to its base scale - called on release, and also when strikes run out
+## mid-hold. Whatever scale was reached is never kept; only the strikes
+## already spent on fully completed steps stay spent. Also kicks off
+## _end_growth_vfx() so the vfx itself fades out once that shrink finishes,
+## instead of the old behavior of leaving it riding the barrier indefinitely -
+## fully visible, still looping - until the shield was eventually replaced/
+## faded out by an entirely new cast (see _start_growth_vfx()'s doc comment
+## for the other half of this).
 func _end_growth_channel() -> void:
 	_is_channeling = false
 	_channel_tier = 0
@@ -1126,33 +1196,72 @@ func _end_growth_channel() -> void:
 	_channel_stutter_remaining = 0.0
 	_channel_growth_exhausted = false
 	_channel_grace_remaining = 0.0
-	if is_instance_valid(current_instance):
+	var barrier := _growth_target
+	_growth_target = null
+	if is_instance_valid(barrier):
 		var ability := _current_ability() as GrowthAbility
 		var shrink_time: float = ability.shrink_duration if ability != null else 0.1
 		if _shield_scale_tween:
 			_shield_scale_tween.kill()
 		_shield_scale_tween = create_tween()
-		_shield_scale_tween.tween_property(current_instance, "scale", Vector2.ONE, shrink_time)
+		_shield_scale_tween.tween_property(barrier, "scale", Vector2.ONE, shrink_time)
 		_end_growth_vfx(ability, shrink_time)
+		# Unique Barrier Mode: `barrier` was detached from current_instance
+		# the instant this channel committed (see _update_growth_channel()),
+		# with a fresh normal barrier already standing in as the new
+		# current_instance in its place. That means nothing will EVER fade
+		# or replace `barrier` the normal way - create_new_instance() only
+		# ever touches whatever current_instance currently is, and this
+		# isn't that anymore - so left alone it would just sit there forever
+		# as a permanent extra normal-sized barrier once it finishes
+		# shrinking. Retiring it here instead, the instant that shrink
+		# tween lands, is what actually makes it temporary: "shrinks back to
+		# normal, then fades away and removes itself" rather than "shrinks
+		# back to normal and stays". A barrier that WASN'T detached (either
+		# unique_barrier_mode is off, or ability resolved null some other
+		# way) is simply current_instance itself here and is deliberately
+		# left standing, exactly like before this mode existed.
+		if ability != null and ability.unique_barrier_mode and barrier != current_instance:
+			_shield_scale_tween.finished.connect(_retire_unique_growth_barrier.bind(barrier), CONNECT_ONE_SHOT)
 
 
-## Attaches ability.vfx_scene (if assigned) directly to current_instance
-## (the growing shield) the instant a growth channel commits - a continuous
-## ambient effect meant to last as long as channeling does, not a one-shot
-## burst like Blink's VFX, so it's parented to the shield itself (not the
-## wizard, not the top-level scene) to both follow its position for free AND
-## scale up/down along with it as it grows, rather than needing to be
-## repositioned or rescaled every frame. Plays the instanced scene's
-## AnimationPlayer "grow" animation if present. Purely cosmetic and entirely
-## opt-in, same shape as _spawn_blink_vfx(): an ability with no vfx_scene
-## assigned, or no live shield to attach to, does nothing. See
-## _stop_growth_vfx() for the other half of this.
+## Call Method target for Unique Barrier Mode's shrink-then-fade, connected
+## from _end_growth_channel() only when `barrier` was detached from
+## current_instance at commit (see that function's own doc comment). Retires
+## `barrier` the exact same way every other barrier teardown in this file
+## does (_despawn_clone(), _end_meteor_barrier()) - DeflectionShield's own
+## start_fade(), falling back to a bare queue_free() if it somehow has no
+## DeflectionShield to ask - rather than a fresh cast/jump's create_new_
+## instance() ever needing to know this barrier exists at all.
+func _retire_unique_growth_barrier(barrier: Node) -> void:
+	if not is_instance_valid(barrier):
+		return
+	var shield := barrier.get_node_or_null("Area2D") as DeflectionShield
+	if shield != null:
+		shield.start_fade()
+	else:
+		barrier.queue_free()
+
+
+## Attaches ability.vfx_scene (if assigned) directly to _growth_target (the
+## barrier actually growing this channel - ordinarily current_instance
+## itself, but not necessarily under GrowthAbility.unique_barrier_mode) the
+## instant a growth channel commits - a continuous ambient effect meant to
+## last as long as channeling does, not a one-shot burst like Blink's VFX,
+## so it's parented to the shield itself (not the wizard, not the top-level
+## scene) to both follow its position for free AND scale up/down along with
+## it as it grows, rather than needing to be repositioned or rescaled every
+## frame. Plays the instanced scene's AnimationPlayer "grow" animation if
+## present. Purely cosmetic and entirely opt-in, same shape as
+## _spawn_blink_vfx(): an ability with no vfx_scene assigned, or no live
+## shield to attach to, does nothing. See _stop_growth_vfx() for the other
+## half of this.
 func _start_growth_vfx(ability: GrowthAbility) -> void:
-	if not is_instance_valid(ability.vfx_scene) or not is_instance_valid(current_instance):
+	if not is_instance_valid(ability.vfx_scene) or not is_instance_valid(_growth_target):
 		return
 	_stop_growth_vfx()
 	var vfx: Node2D = ability.vfx_scene.instantiate()
-	current_instance.add_child(vfx)
+	_growth_target.add_child(vfx)
 	var anim := vfx.get_node_or_null("AnimationPlayer") as AnimationPlayer
 	if anim != null and anim.has_animation("grow"):
 		anim.play("grow")

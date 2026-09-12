@@ -3503,8 +3503,7 @@ layout_mode = 2
 layout_mode = 2
 theme = ExtResource("10_4whtw")
 theme_override_colors/font_color = Color(0.639216, 0.00392157, 1, 1)
-text = "Victory!
-Long be thy Beard!"
+text = "Victory!"
 horizontal_alignment = 1
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Player_1_Victory/CenterContainer/VBoxContainer"]
@@ -3552,8 +3551,7 @@ layout_mode = 2
 layout_mode = 2
 theme = ExtResource("10_4whtw")
 theme_override_colors/font_color = Color(0, 0.698039, 0.101961, 1)
-text = "Victory!
-Floppy be thy Hat!"
+text = "Victory!"
 horizontal_alignment = 1
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Player_2_Victory/CenterContainer/VBoxContainer"]

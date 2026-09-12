@@ -39,18 +39,15 @@ func _ready() -> void:
 	_spawn_selected_extras()
 
 
-## Both Victory screens read "Victory! / Long be thy Beard(s)!" and
-## "Victory! / Floppy be thy Hat(s)!" - the same two team names
-## Character_Select.tscn's TeamRow shows over the seat bank (see
-## character_select.gd's _update_team_labels()), singular for a 2-seat
-## match and plural for 4, exactly matching the Lobby's own 2/4 split.
-## GameSettings.wizard_count is fixed for the whole match - only the
-## Lobby's WIZARDS: button changes it, and a rematch just reloads this
-## scene - so this only ever needs to run once, here in _ready().
+## Both Victory screens just read "Victory!" now - the old per-team flavor
+## line ("Long be thy Beard(s)!" / "Floppy be thy Hat(s)!") has been
+## dropped. Kept as its own function (rather than inlined at the .tscn's
+## default Label text) so a rematch reload and this scene's own _ready()
+## still have one single place setting it, in case that flavor text - or
+## something else per-team - ever comes back.
 func _update_victory_text() -> void:
-	var plural := GameSettings.wizard_count == 4
-	victory_label_1.text = "Victory!\nLong be thy Beard%s!" % ("s" if plural else "")
-	victory_label_2.text = "Victory!\nFloppy be thy Hat%s!" % ("s" if plural else "")
+	victory_label_1.text = "Victory!"
+	victory_label_2.text = "Victory!"
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.

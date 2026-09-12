@@ -331,6 +331,7 @@ text = "Wizards: 2"
 
 [node name="Bots" type="Button" parent="Layout/Bottom/Buttons"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 32
 text = "Bots: 0"
 
 [node name="Options" type="Button" parent="Layout/Bottom/Buttons"]

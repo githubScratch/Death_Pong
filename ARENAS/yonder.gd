@@ -46,12 +46,15 @@ func _ready() -> void:
 	GameSettings.settings_changed.connect(_on_settings_changed)
 	_spawn_selected_extras()
 
-## GameSettings.wizard_count is fixed for the whole match - only the
-## singular/plural wording needs to be set once, up front.
+## Both Victory screens just read "Victory!" now - the old per-team flavor
+## line ("Long be thy Beard(s)!" / "Floppy be thy Hat(s)!") has been
+## dropped. Kept as its own function (rather than inlined at the .tscn's
+## default Label text) so a rematch reload and this scene's own _ready()
+## still have one single place setting it, in case that flavor text - or
+## something else per-team - ever comes back.
 func _update_victory_text() -> void:
-	var plural := GameSettings.wizard_count == 4
-	victory_label_1.text = "Victory!\nLong be thy Beard%s!" % ("s" if plural else "")
-	victory_label_2.text = "Victory!\nFloppy be thy Hat%s!" % ("s" if plural else "")
+	victory_label_1.text = "Victory!"
+	victory_label_2.text = "Victory!"
 
 func _process(_delta: float) -> void:
 	var keys_to_remove = []
