@@ -1,6 +1,6 @@
-[gd_resource type="Theme" load_steps=9 format=3 uid="uid://dka4pq4oxkc3b"]
+[gd_resource type="Theme" load_steps=10 format=3 uid="uid://dka4pq4oxkc3b"]
 
-[ext_resource type="FontFile" uid="uid://dg8i0skfgpb02" path="res://SPRITES/Vermin Vibes 1989.ttf" id="1_m34gy"]
+[ext_resource type="FontFile" uid="uid://dg8i0skfgpb02" path="res://UI Resources/Vermin Vibes 1989.ttf" id="3_311xa"]
 [ext_resource type="Texture2D" uid="uid://lovia63fg07t" path="res://SPRITES/75.png" id="3_y4sy7"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_kikyh"]
@@ -72,6 +72,8 @@ corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 corner_detail = 5
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wxb7e"]
+
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_kikyh"]
 
 [resource]
@@ -88,7 +90,7 @@ Button/constants/h_separation = 4
 Button/constants/icon_max_width = 0
 Button/constants/outline_size = 0
 Button/font_sizes/font_size = 40
-Button/fonts/font = ExtResource("1_m34gy")
+Button/fonts/font = ExtResource("3_311xa")
 Button/styles/disabled = SubResource("StyleBoxFlat_kikyh")
 Button/styles/focus = SubResource("StyleBoxFlat_y4sy7")
 Button/styles/hover = SubResource("StyleBoxFlat_311xa")
@@ -96,8 +98,17 @@ Button/styles/normal = SubResource("StyleBoxFlat_wxb7e")
 Button/styles/pressed = SubResource("StyleBoxFlat_5ln7t")
 HSlider/icons/grabber = ExtResource("3_y4sy7")
 HSlider/icons/grabber_highlight = ExtResource("3_y4sy7")
+Label/colors/font_color = Color(1, 1, 1, 1)
+Label/colors/font_outline_color = Color(0, 0, 0, 1)
+Label/colors/font_shadow_color = Color(0, 0, 0, 0)
+Label/constants/line_spacing = 3
+Label/constants/outline_size = 0
+Label/constants/shadow_offset_x = 1
+Label/constants/shadow_offset_y = 1
+Label/constants/shadow_outline_size = 1
 Label/font_sizes/font_size = 60
-Label/fonts/font = ExtResource("1_m34gy")
-OptionButton/fonts/font = ExtResource("1_m34gy")
+Label/fonts/font = ExtResource("3_311xa")
+Label/styles/normal = SubResource("StyleBoxEmpty_wxb7e")
+OptionButton/fonts/font = ExtResource("3_311xa")
 OptionButton/styles/focus = SubResource("StyleBoxEmpty_kikyh")
-Tree/fonts/font = ExtResource("1_m34gy")
+Tree/fonts/font = ExtResource("3_311xa")

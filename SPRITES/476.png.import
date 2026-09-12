@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dq675x0o5y23p"
-path="res://.godot/imported/wizfire2.png-e78d044f0732ac784496935350189c5c.ctex"
+uid="uid://cvc5hygfwjjnx"
+path="res://.godot/imported/476.png-d5532d06a6f33452e121d44c39a12597.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://SPRITES/wizfire2.png"
-dest_files=["res://.godot/imported/wizfire2.png-e78d044f0732ac784496935350189c5c.ctex"]
+source_file="res://SPRITES/476.png"
+dest_files=["res://.godot/imported/476.png-d5532d06a6f33452e121d44c39a12597.ctex"]
 
 [params]
 

@@ -610,7 +610,7 @@ tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
 "times": PackedFloat32Array(0, 2.03333, 3.96667, 5.9, 7.96667, 9.96667, 12.0667, 14.0333, 16.1333, 18.1333, 20.0667, 22, 24.0667, 26.0667, 28.1667, 30.1333),
-"transitions": PackedFloat32Array(5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5),
+"transitions": PackedFloat32Array(0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4),
 "update": 0,
 "values": [Vector2(0, 0), Vector2(0, 0), Vector2(0, -164), Vector2(0, -164), Vector2(0, 0), Vector2(0, 0), Vector2(0, 164), Vector2(0, 164), Vector2(0, 0), Vector2(0, 0), Vector2(0, -164), Vector2(0, -164), Vector2(0, 0), Vector2(0, 0), Vector2(0, 164), Vector2(0, 164)]
 }
@@ -622,7 +622,7 @@ tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
 "times": PackedFloat32Array(0, 2.03333, 4, 5.93333, 7.93333, 9.96667, 12.0333, 14.0667, 16.1, 18.1333, 20.1, 22.0333, 24.0333, 26.0667, 28.1333, 30.2),
-"transitions": PackedFloat32Array(5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5),
+"transitions": PackedFloat32Array(0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4),
 "update": 0,
 "values": [Vector2(0, 0), Vector2(0, 0), Vector2(0, -164), Vector2(0, -164), Vector2(0, 0), Vector2(0, 0), Vector2(0, 164), Vector2(0, 164), Vector2(0, 0), Vector2(0, 0), Vector2(0, -164), Vector2(0, -164), Vector2(0, 0), Vector2(0, 0), Vector2(0, 164), Vector2(0, 164)]
 }

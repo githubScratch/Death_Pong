@@ -154,8 +154,8 @@ func _update_team_labels() -> void:
 	if training:
 		return
 	var plural := _wizard_count == 4
-	long_beard_label.text = "The Long Beard%s" % ("s" if plural else "")
-	floppy_hat_label.text = "The Floppy Hat%s" % ("s" if plural else "")
+	long_beard_label.text = "Long Beard%s" % ("s" if plural else "")
+	floppy_hat_label.text = "Floppy Hat%s" % ("s" if plural else "")
 
 
 func _ready() -> void:

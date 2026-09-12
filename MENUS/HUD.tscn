@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=3 uid="uid://cjh86iplxrtmc"]
 
-[ext_resource type="FontFile" uid="uid://dg8i0skfgpb02" path="res://SPRITES/Vermin Vibes 1989.ttf" id="1_6vvky"]
+[ext_resource type="FontFile" uid="uid://dg8i0skfgpb02" path="res://UI Resources/Vermin Vibes 1989.ttf" id="1_6vvky"]
 [ext_resource type="Script" uid="uid://wsqvvw12o0gy" path="res://MENUS/HUD.gd" id="1_mmi4x"]
 
 [sub_resource type="Animation" id="Animation_5kxw0"]

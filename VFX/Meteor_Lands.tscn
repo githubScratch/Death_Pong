@@ -1,8 +1,9 @@
-[gd_scene load_steps=30 format=3 uid="uid://i3bvuytjx3hs"]
+[gd_scene load_steps=31 format=3 uid="uid://i3bvuytjx3hs"]
 
 [ext_resource type="Texture2D" uid="uid://bogvgise61ytb" path="res://SPRITES/323.png" id="1_1jjip"]
 [ext_resource type="Texture2D" uid="uid://byu5lbal0oa8r" path="res://SPRITES/276.png" id="2_ythb1"]
 [ext_resource type="AudioStream" uid="uid://cthpejl3omq3t" path="res://SFX/yodguard-earth-magic-1-378599.mp3" id="3_ythb1"]
+[ext_resource type="Script" path="res://VFX/random_pitch_audio.gd" id="9_rndpx"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_baled"]
 atlas = ExtResource("1_1jjip")
@@ -214,7 +215,9 @@ libraries = {
 }
 
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("9_rndpx")
 stream = ExtResource("3_ythb1")
 volume_db = 6.0
 pitch_scale = 0.8
 autoplay = true
+bus = &"SFX"

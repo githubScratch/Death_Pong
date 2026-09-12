@@ -1,7 +1,8 @@
-[gd_scene load_steps=20 format=3 uid="uid://cv43lodum4ina"]
+[gd_scene load_steps=21 format=3 uid="uid://cv43lodum4ina"]
 
 [ext_resource type="Texture2D" uid="uid://duqxarkp6afgp" path="res://SPRITES/04.png" id="1_b1h1i"]
 [ext_resource type="AudioStream" uid="uid://oldksaf648xi" path="res://SFX/yodguard-fire-magic-6-378641.mp3" id="2_1iwq3"]
+[ext_resource type="Script" path="res://VFX/random_pitch_audio.gd" id="9_rndpx"]
 
 [sub_resource type="Animation" id="Animation_upiuv"]
 length = 0.001
@@ -173,9 +174,11 @@ autoplay = "default"
 frame_progress = 0.339168
 
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+script = ExtResource("9_rndpx")
 stream = ExtResource("2_1iwq3")
 pitch_scale = 1.2
 autoplay = true
+bus = &"SFX"
 
 [node name="PointLight2D2" type="PointLight2D" parent="."]
 color = Color(0.941118, 0.265901, 0.313075, 1)

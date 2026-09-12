@@ -1,7 +1,8 @@
-[gd_resource type="Resource" script_class="BlinkAbility" load_steps=4 format=3 uid="uid://bwr6n0i8gyqc5"]
+[gd_resource type="Resource" script_class="BlinkAbility" load_steps=5 format=3 uid="uid://bwr6n0i8gyqc5"]
 
 [ext_resource type="Script" uid="uid://o0g4qpy0c3w6" path="res://PLAYERS/blink_ability.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://b8nh7yxds3rl1" path="res://PLAYERS/spell_1.tscn" id="2_shield"]
+[ext_resource type="PackedScene" uid="uid://b0ngciqdalkvh" path="res://VFX/Blink2_VFX.tscn" id="3_ddgcq"]
 [ext_resource type="PackedScene" uid="uid://bxu8vuum73ohd" path="res://VFX/Blink_VFX.tscn" id="3_vfx"]
 
 [resource]
@@ -10,13 +11,19 @@ blink_distance = 300.0
 double_tap_window = 0.25
 blink_delay = 0.01
 cast_on_blink = false
+jump_on_blink = true
+jump_on_blink_strength = 0.1
 vfx_scene = ExtResource("3_vfx")
+vertical_vfx_scene = ExtResource("3_ddgcq")
 wrap_on_slam = true
 slam_wrap_requires_double_tap = false
 wrap_activation_distance = 80.0
 clone_on_max_tier = true
 clone_duration = 5.0
 clone_transparency = 0.35
+clone_fade_duration = 0.5
+clone_fade_trans = 0
+clone_fade_ease = 0
 clone_strikes_count_for_player = false
 strikes_per_tier = 1
 max_tiers = 3

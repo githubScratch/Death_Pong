@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://bcgkim38ay6n4" path="res://PLAYERS/wizard_ability.gd" id="1_fu2na"]
 [ext_resource type="Script" uid="uid://btlir36dinbo3" path="res://PLAYERS/wizard_class.gd" id="1_script"]
 [ext_resource type="Resource" uid="uid://1lvhq21a3pr0" path="res://PLAYERS/abilities/ability_4.tres" id="3_ability"]
-[ext_resource type="Texture2D" uid="uid://dq675x0o5y23p" path="res://SPRITES/wizfire2.png" id="4_fu2na"]
+[ext_resource type="Texture2D" uid="uid://nfoexejpo7wi" path="res://SPRITES/wizfire.png" id="4_fu2na"]
 
 [resource]
 script = ExtResource("1_script")

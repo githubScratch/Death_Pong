@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://qqmfym3vvv4s"
+path="res://.godot/imported/magic jump.mp3-f024c85f46dc2e7c1b9f38ee986704fb.mp3str"
+
+[deps]
+
+source_file="res://SFX/magic jump.mp3"
+dest_files=["res://.godot/imported/magic jump.mp3-f024c85f46dc2e7c1b9f38ee986704fb.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

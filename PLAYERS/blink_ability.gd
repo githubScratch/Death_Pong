@@ -49,8 +49,29 @@ class_name BlinkAbility
 ## instant the teleport lands. Lets a blink double as a re-cast/repositioning
 ## tool (drop the old shield and put a new one up somewhere else in one
 ## motion) instead of needing a separate Up press right after. See
-## wizard.gd's _execute_blink()/_cast_and_jump().
+## wizard.gd's _execute_blink()/_cast_and_jump(). Takes priority over
+## jump_on_blink just below when both are somehow on, since this already
+## includes the jump that one adds on its own.
 @export var cast_on_blink: bool = false
+
+## If true, landing from a LEFT/RIGHT blink (not the ceiling-wrap slam
+## wrap - see _execute_blink() vs _try_slam_wrap()) immediately applies a
+## jump impulse, same feel as an Up press or cast_on_blink's own jump - but
+## WITHOUT summoning a fresh shield the way cast_on_blink does. For a class
+## that wants blink to double as an aerial repositioning/extra-jump tool
+## without also forcing a shield recast (and the strike-gauge reset that
+## comes with dropping the old one) every time. Ignored outright while
+## cast_on_blink is true, since that already jumps as part of its own,
+## bigger effect - see wizard.gd's _execute_blink()/_apply_jump_impulse().
+@export var jump_on_blink: bool = false
+
+## Scales the jump impulse jump_on_blink applies above - 1.0 is full
+## strength, exactly as strong as an ordinary jump; 0.5 is a half-height
+## hop. Only touches jump_on_blink's own jump: cast_on_blink's jump (and a
+## normal Up press) always jump at full strength regardless of this knob,
+## and this is read-but-unused while jump_on_blink is false. See wizard.gd's
+## _apply_jump_impulse().
+@export_range(0.0, 2.0, 0.05) var jump_on_blink_strength: float = 1.0
 
 ## Optional VFX scene dropped at the CAST point (where the wizard blinked
 ## from, not where it lands) the instant a blink commits in wizard.gd's
@@ -58,8 +79,18 @@ class_name BlinkAbility
 ## spot the player left rather than trailing behind the teleport. Null/unset
 ## skips this entirely (see _spawn_blink_vfx()) - same opt-in shape as
 ## shield_scene on WizardAbility, no class is forced to carry a VFX it
-## doesn't have yet.
+## doesn't have yet. Only covers the ordinary left/right blink - the
+## ceiling-wrap slam wrap (see wrap_on_slam below) uses its own
+## vertical_vfx_scene instead, not this one.
 @export var vfx_scene: PackedScene
+
+## Optional VFX scene ("blink2vfx") dropped at BOTH ends of a slam-wrap's
+## ground-to-ceiling teleport (see wizard.gd's _try_slam_wrap()) in place of
+## vfx_scene above - the vertical teleport reads better with its own effect
+## than reusing the plain left/right blink's, since that one's art is
+## oriented for a horizontal read. Same opt-in shape as vfx_scene: null/
+## unset skips this entirely (see _spawn_blink_vfx()).
+@export var vertical_vfx_scene: PackedScene
 
 ## If true, double-tapping Down and continuing to HOLD it on that second
 ## press - same gesture MeteorAbility's own double-tap-and-hold uses, see

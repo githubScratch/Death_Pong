@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://dg8i0skfgpb02"
-path="res://.godot/imported/Vermin Vibes 1989.ttf-929be6e4b49826032e4ab56aa0e738fb.fontdata"
+uid="uid://cn351poi4qur1"
+path="res://.godot/imported/alagard.ttf-c08505230e8ccfdb0462ee93aaab3ae9.fontdata"
 
 [deps]
 
-source_file="res://SPRITES/Vermin Vibes 1989.ttf"
-dest_files=["res://.godot/imported/Vermin Vibes 1989.ttf-929be6e4b49826032e4ab56aa0e738fb.fontdata"]
+source_file="res://UI Resources/alagard.ttf"
+dest_files=["res://.godot/imported/alagard.ttf-c08505230e8ccfdb0462ee93aaab3ae9.fontdata"]
 
 [params]
 

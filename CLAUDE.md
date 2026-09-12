@@ -30,24 +30,24 @@ inspector:
   ability, whenever a new class's ability spends banked strikes in chunks.
 - `GrowthAbility` (`PLAYERS/growth_ability.gd`) extends `StrikeScaledAbility`
   - Nature's hold-to-grow barrier (`tier_scale_step`,
-    `growth_duration_per_tier`, `shrink_duration`, `hold_confirm_time`,
-    `tier_stutter_time`, `post_channel_hold_time`, plus a computed
-    `growth_tier_scales()`). Continuous hold-and-spend: pays for each tier
-    the instant its growth window starts, one tier at a time, while Up is
-    held.
+	`growth_duration_per_tier`, `shrink_duration`, `hold_confirm_time`,
+	`tier_stutter_time`, `post_channel_hold_time`, plus a computed
+	`growth_tier_scales()`). Continuous hold-and-spend: pays for each tier
+	the instant its growth window starts, one tier at a time, while Up is
+	held.
 - `BlinkAbility` (`PLAYERS/blink_ability.gd`) extends `StrikeScaledAbility`
   - class 1's double-tap-to-teleport (`blink_distance`,
-    `double_tap_window`). Instant and discrete instead of continuous: each
-    activation spends exactly one tier's worth of strikes all at once, and
-    unspent tiers just stay banked as charges rather than being forced out
-    the way growth's are - see `wizard.gd`'s `_update_blink()` /
-    `_try_blink()`. Cashing in a blink OR a slam-wrap landing (see below)
-    while already sitting on a full `max_tiers` bank spends EVERYTHING
-    banked instead of the usual flat one-tier cost, and - if
-    `clone_on_max_tier` is true - spawns a temporary input-mirroring clone
-    (`wizard.gd`'s `_spawn_blink_clone()`/`_despawn_clone()`, gated by the
-    new `class_name Wizard`/`class_name WizardSeat` declarations added for
-    it - see "Blink max-tier clone" below).
+	`double_tap_window`). Instant and discrete instead of continuous: each
+	activation spends exactly one tier's worth of strikes all at once, and
+	unspent tiers just stay banked as charges rather than being forced out
+	the way growth's are - see `wizard.gd`'s `_update_blink()` /
+	`_try_blink()`. Cashing in a blink OR a slam-wrap landing (see below)
+	while already sitting on a full `max_tiers` bank spends EVERYTHING
+	banked instead of the usual flat one-tier cost, and - if
+	`clone_on_max_tier` is true - spawns a temporary input-mirroring clone
+	(`wizard.gd`'s `_spawn_blink_clone()`/`_despawn_clone()`, gated by the
+	new `class_name Wizard`/`class_name WizardSeat` declarations added for
+	it - see "Blink max-tier clone" below).
 
 `wizard.gd` checks ability type with `is`/`as` (e.g. `ability is
 GrowthAbility`), never a boolean flag on the shared base - that's the
@@ -1032,41 +1032,41 @@ will resurface the moment anyone (human or Claude) tries this again:
   rim from the sprite's own alpha channel instead of separate art) went
   through four drafts, each catching a real bug the last one had:
   1. Averaging alpha over a filled disk of samples via a nested 13x13
-     for-loop (up to 169 dependent `texture()` calls per fragment) failed
-     to compile in-game outright ("Shader compilation failed",
-     `renderer_canvas_render_rd.cpp` - a driver/codegen-level rejection
-     with no line number, not a GDScript-style parse error, which points at
-     the loop's sheer size). Godot fell back to drawing the outline sprite
-     with no shader logic at all - a flat, fully opaque copy of the body
-     art, multiplied by `modulate`, which is why the in-game result looked
-     like a solid seat-colored recolor of the whole wizard rather than a
-     rim: the shader had simply never run.
+	 for-loop (up to 169 dependent `texture()` calls per fragment) failed
+	 to compile in-game outright ("Shader compilation failed",
+	 `renderer_canvas_render_rd.cpp` - a driver/codegen-level rejection
+	 with no line number, not a GDScript-style parse error, which points at
+	 the loop's sheer size). Godot fell back to drawing the outline sprite
+	 with no shader logic at all - a flat, fully opaque copy of the body
+	 art, multiplied by `modulate`, which is why the in-game result looked
+	 like a solid seat-colored recolor of the whole wizard rather than a
+	 rim: the shader had simply never run.
   2. Dropping the loop for a hand-unrolled fixed 8-sample ring and a hard
-     0-or-1 alpha cutoff compiled and drew an actual edge, but every seat
-     rendered pure white regardless of `GameSettings.color_for_seat()`, and
-     the hard binary edge read as harsh/aliased at this sprite's small
-     on-screen size.
+	 0-or-1 alpha cutoff compiled and drew an actual edge, but every seat
+	 rendered pure white regardless of `GameSettings.color_for_seat()`, and
+	 the hard binary edge read as harsh/aliased at this sprite's small
+	 on-screen size.
   3. Fixing the harshness (a continuous soft-edged falloff via three
-     weighted sample rings - near/mid/far, 8 directions each, 24
-     `texture()` calls total, no loop - averaged rather than maxed) worked
-     and stuck. Fixing the white-regardless-of-seat bug did not: both
-     earlier drafts read/wrote only the `COLOR` built-in, which by the time
-     `fragment()` runs already has `TEXTURE` sampled and multiplied into
-     it - overwriting `COLOR` outright, as both did, throws the modulate
-     tint away entirely. This draft tried reading a `MODULATE` built-in
-     instead, believing Godot exposes a CanvasItem's modulate tint that way
-     separate from the texture-multiplied `COLOR` - it doesn't, at least
-     not in this project's Godot version: `MODULATE` is not a real
-     identifier here, and using it is a hard shader compile failure
-     ("Unknown identifier in expression: 'MODULATE'"), not a silent no-op.
+	 weighted sample rings - near/mid/far, 8 directions each, 24
+	 `texture()` calls total, no loop - averaged rather than maxed) worked
+	 and stuck. Fixing the white-regardless-of-seat bug did not: both
+	 earlier drafts read/wrote only the `COLOR` built-in, which by the time
+	 `fragment()` runs already has `TEXTURE` sampled and multiplied into
+	 it - overwriting `COLOR` outright, as both did, throws the modulate
+	 tint away entirely. This draft tried reading a `MODULATE` built-in
+	 instead, believing Godot exposes a CanvasItem's modulate tint that way
+	 separate from the texture-multiplied `COLOR` - it doesn't, at least
+	 not in this project's Godot version: `MODULATE` is not a real
+	 identifier here, and using it is a hard shader compile failure
+	 ("Unknown identifier in expression: 'MODULATE'"), not a silent no-op.
   4. Final draft sidestepped modulate-inside-a-shader entirely: since the
-     fragment shader always has to fully overwrite `COLOR`, and Godot never
-     re-applies `modulate` afterward, the seat color was instead passed in
-     directly as a shader uniform, set from script
-     (`set_shader_parameter("outline_base_color", ...)`), no node-level
-     `modulate` involved at all. This version actually worked (compiled,
-     colored correctly per seat, soft edge) - it just didn't look good
-     enough in practice once seen running to be worth keeping.
+	 fragment shader always has to fully overwrite `COLOR`, and Godot never
+	 re-applies `modulate` afterward, the seat color was instead passed in
+	 directly as a shader uniform, set from script
+	 (`set_shader_parameter("outline_base_color", ...)`), no node-level
+	 `modulate` involved at all. This version actually worked (compiled,
+	 colored correctly per seat, soft edge) - it just didn't look good
+	 enough in practice once seen running to be worth keeping.
 
 What got reverted, for anyone picking this back up: `wizard.tscn`'s
 `outline` child node, its `ShaderMaterial` sub-resource, and the shader's
@@ -1134,10 +1134,10 @@ Current sites, all confirmed following this shape:
   or a 1s fallback timer if the scene has no such child.
 - `wizard.gd` `_start_growth_vfx()`/`_stop_growth_vfx()`/`_end_growth_vfx()`
   - continuous, attached to the shield itself; always ends in a stop-and-free
-    or a fade-then-free.
+	or a fade-then-free.
 - `wizard.gd` `_spawn_meteor_vfx()`/`_clear_meteor_vfx()`/`_end_meteor_vfx()`
   - the falling-meteor vfx attached to the wizard; same stop-and-free/
-    fade-then-free shape, plus a despawn-delay knob.
+	fade-then-free shape, plus a despawn-delay knob.
 - `wizard.gd` `_play_dropped_vfx()` - Meteor's landing splash, a generic
   drop-and-forget-with-a-lifetime-timer helper (same shape as
   `_spawn_blink_vfx()`, minus the flip).

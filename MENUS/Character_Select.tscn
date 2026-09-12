@@ -5,7 +5,7 @@
 [ext_resource type="Shader" uid="uid://c3fmb76te1444" path="res://ARENAS/VHS.gdshader" id="3_shader"]
 [ext_resource type="AudioStream" uid="uid://d3rmk854uqt17" path="res://SFX/ui select.wav" id="4_select"]
 [ext_resource type="AudioStream" uid="uid://du6i7igev8i55" path="res://SFX/Menu_Select2.wav" id="5_move"]
-[ext_resource type="FontFile" uid="uid://dg8i0skfgpb02" path="res://SPRITES/Vermin Vibes 1989.ttf" id="6_font"]
+[ext_resource type="FontFile" uid="uid://dg8i0skfgpb02" path="res://UI Resources/Vermin Vibes 1989.ttf" id="6_font"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_cs1"]
 shader = ExtResource("3_shader")
@@ -57,6 +57,15 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("2_theme")
 
+[node name="Summary" type="Label" parent="Layout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 60
+text = "pure arena"
+horizontal_alignment = 1
+
 [node name="TeamRow" type="HBoxContainer" parent="Layout"]
 layout_mode = 2
 size_flags_vertical = 6
@@ -67,7 +76,7 @@ size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.639216, 0.00392157, 1, 1)
 theme_override_fonts/font = ExtResource("6_font")
 theme_override_font_sizes/font_size = 36
-text = "The Long Beard"
+text = " Long Beard"
 horizontal_alignment = 1
 
 [node name="FloppyHatLabel" type="Label" parent="Layout/TeamRow"]
@@ -76,7 +85,7 @@ size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0, 0.698039, 0.101961, 1)
 theme_override_fonts/font = ExtResource("6_font")
 theme_override_font_sizes/font_size = 36
-text = "The Floppy Hat"
+text = "Floppy Hat"
 horizontal_alignment = 1
 
 [node name="TopRow" type="HBoxContainer" parent="Layout"]
@@ -298,15 +307,6 @@ BUTTON
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
-
-[node name="Summary" type="Label" parent="Layout"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
-theme_override_constants/outline_size = 5
-theme_override_font_sizes/font_size = 24
-text = "pure arena"
-horizontal_alignment = 1
 
 [node name="Bottom" type="CenterContainer" parent="Layout"]
 layout_mode = 2

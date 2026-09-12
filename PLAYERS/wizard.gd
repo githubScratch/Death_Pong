@@ -719,23 +719,42 @@ func _end_meteor_barrier() -> void:
 		barrier_root.queue_free()
 
 
+## Just the jump-impulse half of _cast_and_jump() below, with no shield cast
+## and no "spell" chime attached to it - split out so BlinkAbility's
+## jump_on_blink can reuse the exact same impulse (and the same "jump" sfx
+## a normal grounded jump gets) without cast_on_blink's shield-summon half
+## tagging along uninvited. Same velocity rules as an Up press: a double
+## jump while already airborne, a normal jump off the floor.
+##
+## `strength` scales whichever velocity gets applied - 1.0 (every caller but
+## jump_on_blink's own) is full, ordinary-jump strength; BlinkAbility.
+## jump_on_blink_strength can dial its own call down (or up) from there. The
+## "jump" sfx still plays at its normal, un-scaled pitch either way - only
+## the impulse itself is affected.
+func _apply_jump_impulse(strength: float = 1.0) -> void:
+	if not is_on_floor():
+		velocity.y = DBL_JUMP_VELOCITY * strength
+	else:
+		velocity.y = JUMP_VELOCITY * strength
+		jump.pitch_scale = randf_range(0.9, 1.1)
+		jump.play()
+
+
 ## Casts a fresh shield and applies a jump impulse - exactly what pressing Up
 ## normally does (see _physics_process()). Pulled out into its own function
 ## so BlinkAbility's cast_on_blink can reuse the identical behavior from
 ## _execute_blink() instead of duplicating it - same cast, same jump impulse,
-## same sounds, whether it's triggered by an Up press or a landed blink.
+## same sounds, whether it's triggered by an Up press or a landed blink. The
+## jump impulse itself is _apply_jump_impulse() above; this just adds the
+## shield cast and its own "spell" chime around it, played once regardless
+## of which velocity branch that ends up taking - same as before this was
+## split in two, where "spell" played in both the airborne and grounded
+## branches unconditionally.
 func _cast_and_jump() -> void:
 	create_new_instance()
-	if not is_on_floor():
-		velocity.y = DBL_JUMP_VELOCITY
-		spell.pitch_scale = randf_range(0.9, 1.1)
-		spell.play()
-	if is_on_floor():
-		velocity.y = JUMP_VELOCITY
-		spell.pitch_scale = randf_range(0.9, 1.1)
-		spell.play()
-		jump.pitch_scale = randf_range(0.9, 1.1)
-		jump.play()
+	spell.pitch_scale = randf_range(0.9, 1.1)
+	spell.play()
+	_apply_jump_impulse()
 
 
 ## Instantiates ability.shield_scene, drops it at this wizard's current
@@ -1498,7 +1517,7 @@ func _try_blink(ability: BlinkAbility, direction: float) -> void:
 	else:
 		strikes -= ability.strikes_per_tier
 		_update_strike_gauge()
-	_spawn_blink_vfx(ability, direction)
+	_spawn_blink_vfx(ability.vfx_scene, Vector2(direction, 0.0), true)
 	if ability.blink_delay <= 0.0:
 		_execute_blink(ability, direction)
 		return
@@ -1606,36 +1625,82 @@ func _despawn_clone() -> void:
 		queue_free()
 
 
-## Drops ability.vfx_scene (if assigned) at the wizard's CURRENT position -
-## whatever that is at the moment this is called, so where it ends up
-## depends entirely on the caller and when in its flow it calls this.
-## Every blink now spawns one at each end of the teleport: _try_blink()
-## calls it at the CAST point (before blink_delay's wind-up even starts),
-## _execute_blink() calls it again once global_position is fully settled
-## (the landing point, wrapped or not), and _try_slam_wrap() calls it twice
-## the same way for its own vertical teleport (ground strike point, then
-## the ceiling). Purely cosmetic and entirely opt-in, same shape as
-## _update_strike_gauge(): an ability with no vfx_scene assigned skips this
-## silently. Plays the instanced scene's AnimatedSprite2D once (flipped to
-## face `direction` - pass 0.0 for no flip, e.g. a vertical teleport with no
-## left/right equivalent) and frees the instance itself the moment that
-## animation ends - or after a fallback timeout if the scene doesn't have
-## one - so drop-and-forget VFX never pile up as clutter.
-func _spawn_blink_vfx(ability: BlinkAbility, direction: float) -> void:
-	if not is_instance_valid(ability.vfx_scene):
+## Drops `scene` (if assigned) at the wizard's CURRENT position - whatever
+## that is at the moment this is called, so where it ends up depends
+## entirely on the caller and when in its flow it calls this. Every
+## teleport spawns one at each end: _try_blink() calls it at the CAST point
+## with ability.vfx_scene (before blink_delay's wind-up even starts,
+## is_exit=true), _execute_blink() calls it again once global_position is
+## fully settled with the same ability.vfx_scene (the landing point,
+## wrapped or not, is_exit=false), and _try_slam_wrap() calls it twice the
+## same way for its own vertical teleport, but with ability.
+## vertical_vfx_scene instead - a separate, dedicated scene for that
+## teleport rather than reusing the left/right blink's own art (the ground
+## strike point as the exit, then the ceiling as the entry). Purely
+## cosmetic and entirely opt-in, same shape as _update_strike_gauge(): a
+## null/unset scene skips this silently.
+##
+## `direction` is the direction of TRAVEL, not necessarily how this
+## particular instance should visually face - see is_exit just below -
+## e.g. Vector2(-1, 0)/Vector2(1, 0) for a left/right blink or
+## Vector2(0, -1) for the ground-to-ceiling slam wrap (Godot's y axis
+## increases downward, so "up" is negative y). `is_exit` is true for the
+## vfx dropped where the wizard is LEAVING FROM (the cast point / the
+## ground strike point) and false for the one dropped where it ARRIVES
+## (the landing point / the ceiling): the exit-side vfx faces the
+## direction of travel, as if it's the wake of the wizard already moving
+## off that way, while the entry-side one faces the OPPOSITE way, as if
+## it's the portal the wizard is stepping out of - so the two ends of the
+## same teleport read as a matched pair instead of two identical copies
+## pointing the same way. Plays the instanced scene's AnimatedSprite2D
+## once, flipped per-axis (flip_h off the horizontal component, flip_v off
+## the vertical one, independently - so a diagonal-reading direction flips
+## both at once and a purely horizontal or vertical one only flips its own
+## axis) and frees the instance itself the moment that animation ends - or
+## after a fallback timeout if the scene doesn't have one - so
+## drop-and-forget VFX never pile up as clutter.
+##
+## `flip_h_override`, when true, forces flip_h on regardless of what
+## `direction`/`is_exit` would otherwise compute - for a vfx whose art
+## needs a fixed horizontal mirror at one particular spawn point rather
+## than one driven by travel direction (see _try_slam_wrap()'s exit-point
+## call, whose direction has no horizontal component to flip off of in the
+## first place).
+##
+## Cleanup is wired as a direct signal connection on the vfx's own
+## AnimatedSprite2D (or the fallback timer) rather than an `await
+## anim.animation_finished` sitting right here before the queue_free()
+## call, which is what this used to be. That await's continuation belongs
+## to THIS WIZARD's script instance - but vfx is deliberately parented to
+## the top-level scene, not to this wizard, specifically so it outlives a
+## wizard that dies/despawns mid-blink. Those two facts don't mix: if this
+## wizard is freed before the animation finishes (a match ending, a
+## respawn, or - built right into this very ability - a maxed-tier clone
+## despawning after clone_duration), the awaited continuation dies with
+## it and the queue_free() after it simply never runs, leaving vfx
+## orphaned in the scene forever - the exact "blink vfx never
+## queue_frees" symptom this was rewritten to fix. Connecting the cleanup
+## on vfx/the timer themselves instead of awaiting on self makes it fully
+## self-contained: it fires no matter what happens to whichever wizard
+## happened to spawn it.
+func _spawn_blink_vfx(scene: PackedScene, direction: Vector2, is_exit: bool, flip_h_override: bool = false) -> void:
+	if not is_instance_valid(scene):
 		return
-	var vfx: Node2D = ability.vfx_scene.instantiate()
+	var vfx: Node2D = scene.instantiate()
 	vfx.global_position = global_position
 	get_tree().current_scene.add_child(vfx)
 	var anim := vfx.get_node_or_null("AnimatedSprite2D") as AnimatedSprite2D
 	if anim != null:
-		anim.flip_h = direction < 0.0
+		# The exit-side vfx faces the direction of travel; the entry-side
+		# one faces back the opposite way - see this function's own doc
+		# comment for why - so negate on entry rather than exit.
+		var facing := direction if is_exit else -direction
+		anim.flip_h = flip_h_override or facing.x < 0.0
+		anim.flip_v = facing.y < 0.0
 		anim.play()
-		await anim.animation_finished
+		anim.animation_finished.connect(vfx.queue_free, CONNECT_ONE_SHOT)
 	else:
-		await get_tree().create_timer(1.0).timeout
-	if is_instance_valid(vfx):
-		vfx.queue_free()
+		get_tree().create_timer(1.0).timeout.connect(vfx.queue_free, CONNECT_ONE_SHOT)
 
 
 ## Actually performs the teleport - immediately from _try_blink() if
@@ -1650,12 +1715,16 @@ func _spawn_blink_vfx(ability: BlinkAbility, direction: float) -> void:
 ## has width, so a ray down the center could clear a wall's edge that the
 ## wizard's shoulders would still clip - test_move() checks the real shape,
 ## not a point, so no separate collision geometry is needed for this.
-## Also handles landing feel: if ability.cast_on_blink is true, lands exactly
-## like an Up press - a fresh shield plus the normal jump impulse, via
-## _cast_and_jump() - letting a blink double as a re-cast/repositioning move
-## in one motion. Otherwise (the default) just zeroes vertical velocity, so
-## the wizard doesn't land in the new spot still carrying whatever fall speed
-## it had built up right before blinking - a clean reset instead of
+## Also handles landing feel, in order of precedence: if ability.cast_on_blink
+## is true, lands exactly like an Up press - a fresh shield plus the normal
+## jump impulse, via _cast_and_jump() - letting a blink double as a
+## re-cast/repositioning move in one motion. Otherwise, if ability.
+## jump_on_blink is true, applies just the jump impulse via
+## _apply_jump_impulse(), scaled by ability.jump_on_blink_strength (1.0 =
+## full jump, 0.5 = a half-height hop) - same feel, but without summoning a
+## shield. Otherwise (the default, with neither on) just zeroes vertical velocity,
+## so the wizard doesn't land in the new spot still carrying whatever fall
+## speed it had built up right before blinking - a clean reset instead of
 ## instantly resuming a fast fall that visually has nothing to do with the
 ## teleport that just happened.
 func _execute_blink(ability: BlinkAbility, direction: float) -> void:
@@ -1703,10 +1772,14 @@ func _execute_blink(ability: BlinkAbility, direction: float) -> void:
 	# _spawn_blink_vfx() reads it live, so calling it here drops a second
 	# VFX at wherever the wizard actually ended up (the landing point),
 	# matching _try_blink()'s existing spawn at the cast point - same
-	# "one at each end" treatment _try_slam_wrap() uses.
-	_spawn_blink_vfx(ability, direction)
+	# "one at each end" treatment _try_slam_wrap() uses. is_exit=false: this
+	# is the arrival end, so it faces back the opposite way from the
+	# cast-point one, which faces the direction of travel.
+	_spawn_blink_vfx(ability.vfx_scene, Vector2(direction, 0.0), false)
 	if ability.cast_on_blink:
 		_cast_and_jump()
+	elif ability.jump_on_blink:
+		_apply_jump_impulse(ability.jump_on_blink_strength)
 	else:
 		velocity.y = 0.0
 	# TEMP DEBUG - remove once blink charges are confirmed working.
@@ -1858,14 +1931,22 @@ func _try_slam_wrap() -> void:
 		_update_strike_gauge()
 	# _spawn_blink_vfx() reads global_position at call time, so calling it
 	# once here (before moving global_position) drops a VFX at the ground
-	# strike point, and once more below (after the teleport) drops a
-	# second one at the landing point - the ceiling. direction is passed
-	# as 0.0 (no flip) both times: the flip is a left/right thing and
-	# doesn't have an equivalent for a vertical teleport.
-	_spawn_blink_vfx(ability, 0.0)
+	# strike point (is_exit=true - this is where the wizard is leaving
+	# from), and once more below (after the teleport) drops a second one
+	# at the landing point - the ceiling (is_exit=false - where it
+	# arrives). Both use ability.vertical_vfx_scene ("blink2vfx") rather
+	# than the plain left/right blink's own vfx_scene, and pass the same
+	# upward travel direction, Vector2(0, -1) (Godot's y axis increases
+	# downward, so "up" is negative y) - _spawn_blink_vfx() itself takes
+	# care of flipping the entry-point (ceiling) one to face back the
+	# opposite way. The exit-point (ground) call also forces flip_h on:
+	# a purely vertical direction has no horizontal component to flip off
+	# of, but blink2vfx's art still needs a horizontal mirror at that one
+	# spawn point.
+	_spawn_blink_vfx(ability.vertical_vfx_scene, Vector2(0.0, -1.0), true, true)
 	global_position.y = wrap_target.global_position.y
 	velocity.y = 0.0
-	_spawn_blink_vfx(ability, 0.0)
+	_spawn_blink_vfx(ability.vertical_vfx_scene, Vector2(0.0, -1.0), false)
 	# TEMP DEBUG - remove once slam wrap is confirmed working.
 	print("[DEBUG seat %d] slam-wrapped floor to ceiling - %d strikes remain" % [seat, strikes])
 
@@ -2114,6 +2195,14 @@ func _end_meteor_vfx(ability: MeteorAbility) -> void:
 ## `lifetime` rather than hardcoded to meteor_lands_vfx_scene specifically in
 ## case a future landing-style vfx ever wants the same drop-and-forget
 ## treatment.
+##
+## Same fix as _spawn_blink_vfx(): the lifetime timer's timeout is connected
+## directly rather than awaited here, so cleanup doesn't depend on THIS
+## wizard still being alive when the timer fires. vfx is parented to the
+## top-level scene, not to this wizard, so a wizard that dies/despawns
+## mid-wait (match end, respawn) used to silently orphan it - the await's
+## continuation belonged to this wizard's own coroutine and simply never
+## resumed, leaving the queue_free() after it unreachable.
 func _play_dropped_vfx(scene: PackedScene, lifetime: float) -> void:
 	if not is_instance_valid(scene):
 		return
@@ -2124,8 +2213,8 @@ func _play_dropped_vfx(scene: PackedScene, lifetime: float) -> void:
 	if anim != null:
 		anim.play()
 	if lifetime > 0.0:
-		await get_tree().create_timer(lifetime).timeout
-	if is_instance_valid(vfx):
+		get_tree().create_timer(lifetime).timeout.connect(vfx.queue_free, CONNECT_ONE_SHOT)
+	else:
 		vfx.queue_free()
 
 
