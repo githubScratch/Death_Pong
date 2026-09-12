@@ -1201,11 +1201,6 @@ func _end_growth_channel() -> void:
 	if is_instance_valid(barrier):
 		var ability := _current_ability() as GrowthAbility
 		var shrink_time: float = ability.shrink_duration if ability != null else 0.1
-		if _shield_scale_tween:
-			_shield_scale_tween.kill()
-		_shield_scale_tween = create_tween()
-		_shield_scale_tween.tween_property(barrier, "scale", Vector2.ONE, shrink_time)
-		_end_growth_vfx(ability, shrink_time)
 		# Unique Barrier Mode: `barrier` was detached from current_instance
 		# the instant this channel committed (see _update_growth_channel()),
 		# with a fresh normal barrier already standing in as the new
@@ -1221,8 +1216,33 @@ func _end_growth_channel() -> void:
 		# unique_barrier_mode is off, or ability resolved null some other
 		# way) is simply current_instance itself here and is deliberately
 		# left standing, exactly like before this mode existed.
-		if ability != null and ability.unique_barrier_mode and barrier != current_instance:
-			_shield_scale_tween.finished.connect(_retire_unique_growth_barrier.bind(barrier), CONNECT_ONE_SHOT)
+		var detached := ability != null and ability.unique_barrier_mode and barrier != current_instance
+		var shrink_tween: Tween
+		if detached:
+			# A detached barrier's shrink-then-retire runs on its OWN Tween,
+			# never _shield_scale_tween - that field is reserved for whichever
+			# barrier is (or is about to become) current_instance's own
+			# growth target, and gets killed and replaced the instant the
+			# NEXT channel commits (see _update_growth_channel()) to cancel
+			# any leftover shrink on THAT target. Routing a detached barrier's
+			# shrink through it too used to mean firing this ability again
+			# while an earlier unique barrier was still shrinking would kill
+			# THIS barrier's tween first - Tween.kill() never fires
+			# "finished" - so _retire_unique_growth_barrier() below never got
+			# called and the barrier just froze mid-shrink and sat there
+			# forever. A plain unshared Tween has no such collision: any
+			# number of detached barriers can be shrinking-then-retiring at
+			# once, each entirely on its own.
+			shrink_tween = create_tween()
+		else:
+			if _shield_scale_tween:
+				_shield_scale_tween.kill()
+			_shield_scale_tween = create_tween()
+			shrink_tween = _shield_scale_tween
+		shrink_tween.tween_property(barrier, "scale", Vector2.ONE, shrink_time)
+		_end_growth_vfx(ability, shrink_time)
+		if detached:
+			shrink_tween.finished.connect(_retire_unique_growth_barrier.bind(barrier), CONNECT_ONE_SHOT)
 
 
 ## Call Method target for Unique Barrier Mode's shrink-then-fade, connected

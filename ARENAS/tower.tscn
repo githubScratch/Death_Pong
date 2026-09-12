@@ -8300,6 +8300,45 @@ gradient = SubResource("Gradient_6dkjy")
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_b7gts"]
 size = Vector2(16.5, 2501)
 
+[sub_resource type="Animation" id="Animation_nsywk"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite2D2:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Sprite2D3:rotation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+
 [sub_resource type="Animation" id="Animation_u7217"]
 resource_name = "rotations"
 length = 4.0
@@ -8363,45 +8402,6 @@ tracks/4/keys = {
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
 "values": [0.0, 6.28319]
-}
-
-[sub_resource type="Animation" id="Animation_nsywk"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Sprite2D:rotation")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [0.0]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("Sprite2D2:rotation")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [0.0]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("Sprite2D3:rotation")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [0.0]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_uiowf"]
@@ -9247,6 +9247,7 @@ tile_map_data = PackedByteArray("AAAdAE0AAABkADYAAAAdAE4AAABkADcAAAAdAE8AAABkADg
 tile_set = SubResource("TileSet_u7217")
 
 [node name="darkness" type="CanvasModulate" parent="."]
+visible = false
 color = Color(0.18359, 0.18359, 0.18359, 1)
 
 [node name="fog" type="Parallax2D" parent="."]
@@ -9293,12 +9294,16 @@ light_mask = 32
 
 [node name="Sprite2D" type="Sprite2D" parent="Decorations"]
 modulate = Color(1, 1, 1, 0.215686)
+light_mask = 32
+visibility_layer = 32
 z_index = -1
 position = Vector2(568, 560)
 texture = ExtResource("21_u7217")
 
 [node name="Sprite2D2" type="Sprite2D" parent="Decorations"]
 modulate = Color(1, 1, 1, 0.215686)
+light_mask = 32
+visibility_layer = 32
 z_index = -1
 position = Vector2(343, 1224)
 scale = Vector2(0.5, 0.5)
@@ -9306,12 +9311,16 @@ texture = ExtResource("22_nsywk")
 
 [node name="Sprite2D3" type="Sprite2D" parent="Decorations"]
 modulate = Color(1, 1, 1, 0.215686)
+light_mask = 32
+visibility_layer = 32
 z_index = -1
 position = Vector2(720, 1944)
 texture = ExtResource("21_u7217")
 
 [node name="Sprite2D4" type="Sprite2D" parent="Decorations"]
 modulate = Color(1, 1, 1, 0.215686)
+light_mask = 32
+visibility_layer = 32
 z_index = -1
 position = Vector2(120, 2856)
 rotation = -1.20555
@@ -9320,6 +9329,8 @@ texture = ExtResource("22_nsywk")
 
 [node name="Sprite2D5" type="Sprite2D" parent="Decorations"]
 modulate = Color(1, 1, 1, 0.215686)
+light_mask = 32
+visibility_layer = 32
 z_index = -1
 position = Vector2(904, 2424)
 rotation = 1.20555

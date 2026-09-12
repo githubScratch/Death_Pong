@@ -153,8 +153,10 @@ libraries = {
 
 [node name="Glyph Light" type="PointLight2D" parent="RigidBody2D"]
 light_mask = 32
-visibility_layer = 0
-energy = 2.0
+visibility_layer = 32
+energy = 5.0
+blend_mode = 1
+range_item_cull_mask = 32
 texture = ExtResource("5_bc5wg")
 
 [node name="wall_impact" type="AudioStreamPlayer2D" parent="."]
