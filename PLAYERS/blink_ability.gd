@@ -165,6 +165,17 @@ class_name BlinkAbility
 ## copy of the real player. 1.0 makes it fully opaque/identical.
 @export var clone_transparency: float = 0.5
 
+## Optional alternate sprite sheet for the clone only - same 2x2, 192x192-
+## per-frame layout every wizard_class.sprite_sheet already uses (see
+## wizard.gd's _build_sprite_frames()), just a different texture. Lets a
+## clone read as visually distinct from the real wizard at a glance (on top
+## of clone_transparency above) instead of only differing by opacity - a
+## ghostly/desaturated recolor of the class's sheet, say. Null/unset (the
+## default) skips this entirely and the clone just uses the same
+## wizard_class.sprite_sheet as the real wizard, exactly like before this
+## knob existed. See wizard.gd's _spawn_blink_clone().
+@export var clone_sprite_sheet: Texture2D
+
 ## Seconds spent tweening the clone's modulate.a from clone_transparency
 ## down to 0 right before its chassis is freed - see wizard.gd's
 ## _despawn_clone(). 0 skips the tween and frees the clone immediately, the

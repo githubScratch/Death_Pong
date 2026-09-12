@@ -1545,8 +1545,33 @@ func _try_blink(ability: BlinkAbility, direction: float) -> void:
 ##
 ## modulate.a is set to ability.clone_transparency so the clone reads as a
 ## clone at a glance rather than an indistinguishable second copy of the
-## real player. A timer for ability.clone_duration seconds schedules
-## _despawn_clone() on the clone itself once its time is up.
+## real player - but modulate.a ALONE only actually dims the clone's plain,
+## unshaded children (PointLight2D's glow). The sprite itself is shaded by
+## Outlines.gdshader (see _apply_team_outline()), and canvas_item shaders
+## have no way to read a CanvasItem's modulate back out once fragment()
+## runs (see that shader's own fade_alpha uniform doc comment and
+## _despawn_clone()'s, which hit this same gap on the way OUT) - so without
+## also pushing clone_transparency into that shader's fade_alpha uniform
+## directly here, the sprite itself would render fully opaque the entire
+## time the clone is up, transparent everywhere else. Setting both here
+## means the clone actually LOOKS translucent from the instant it spawns,
+## and it also gives _despawn_clone()'s fade tween the correct starting
+## point to read back (via get_shader_parameter("fade_alpha")) instead of
+## the uniform's unset default of 1.0, so the fade-out doesn't visibly pop
+## from opaque to clone_transparency the moment despawn begins.
+##
+## If ability.clone_sprite_sheet is set, the clone's sprite is swapped to it
+## right here, AFTER add_child() above has already let the clone's own
+## _ready()->_apply_class() build it from wizard_class.sprite_sheet like
+## normal - this simply overrides that result on the clone alone, never
+## touching wizard_class itself (so the real wizard, and any FUTURE non-
+## clone spawned from the same class, are completely unaffected).
+## _on_sprite_frame_changed() is re-run right after so the outline shader's
+## texture_region uniform (see Outlines.gdshader) matches the newly-built
+## frames instead of whatever the old sheet last left it at.
+##
+## A timer for ability.clone_duration seconds schedules _despawn_clone() on
+## the clone itself once its time is up.
 func _spawn_blink_clone(ability: BlinkAbility) -> void:
 	var clone_root := _WIZARD_SCENE.instantiate() as WizardSeat
 	if clone_root == null:
@@ -1561,6 +1586,12 @@ func _spawn_blink_clone(ability: BlinkAbility) -> void:
 	clone._is_clone = true
 	clone._clone_source = self
 	clone.modulate.a = ability.clone_transparency
+	if clone.sprite.material is ShaderMaterial:
+		(clone.sprite.material as ShaderMaterial).set_shader_parameter("fade_alpha", ability.clone_transparency)
+	if ability.clone_sprite_sheet:
+		clone.sprite.sprite_frames = clone._build_sprite_frames(ability.clone_sprite_sheet)
+		clone.sprite.play("default")
+		clone._on_sprite_frame_changed()
 	get_tree().create_timer(ability.clone_duration).timeout.connect(clone._despawn_clone)
 
 
@@ -1588,6 +1619,16 @@ func _spawn_blink_clone(ability: BlinkAbility) -> void:
 ## the old immediate-queue_free() behavior. Frees the whole clone chassis
 ## (this CharacterBody2D's parent WizardSeat root, not just this node)
 ## either way, not just this script's own node.
+##
+## Runs a SECOND tween alongside the modulate:a one, driving the outline
+## shader's own fade_alpha uniform (see Outlines.gdshader) down to 0 over
+## the exact same curve. modulate:a alone doesn't fade the sprite - Godot's
+## canvas_item shaders have no way to read a CanvasItem's modulate back out
+## once fragment() runs, so a custom-shaded sprite (every wizard, via
+## _apply_team_outline()) ignores modulate entirely and needs this uniform
+## driven directly instead. modulate:a is left in place too since it still
+## does fade this chassis's OTHER children (PointLight2D's glow, most
+## notably) that have no shader of their own to worry about.
 func _despawn_clone() -> void:
 	# Must be the very first thing this function does - see _despawning's own
 	# doc comment. Everything below this line, including the await further
@@ -1607,8 +1648,28 @@ func _despawn_clone() -> void:
 	var ability := _current_ability() as BlinkAbility
 	if ability != null and ability.clone_fade_duration > 0.0:
 		var fade_tween := create_tween()
+		fade_tween.set_parallel(true)
 		fade_tween.tween_property(self, "modulate:a", 0.0, ability.clone_fade_duration) \
 			.set_trans(ability.clone_fade_trans).set_ease(ability.clone_fade_ease)
+		if sprite.material is ShaderMaterial:
+			# tween_method(), not tween_property() - tween_property() validates
+			# "shader_parameter/fade_alpha" against the CURRENT shader's
+			# already-compiled parameter list and throws a hard engine error
+			# if that hasn't caught up yet (e.g. a scene still running from
+			# before Outlines.gdshader picked up this uniform, or any other
+			# moment the editor hasn't reloaded/recompiled it) - exactly the
+			# "does not exist in object" error this replaced.
+			# set_shader_parameter() is a plain method call with no such
+			# validation, so driving it through a lambda here can never throw
+			# that error, whatever state the compiled shader happens to be in.
+			var outline_mat := sprite.material as ShaderMaterial
+			var start_alpha: Variant = outline_mat.get_shader_parameter("fade_alpha")
+			fade_tween.tween_method(
+				func(v: float) -> void: outline_mat.set_shader_parameter("fade_alpha", v),
+				1.0 if start_alpha == null else start_alpha,
+				0.0,
+				ability.clone_fade_duration
+			).set_trans(ability.clone_fade_trans).set_ease(ability.clone_fade_ease)
 		await fade_tween.finished
 	# Defensive re-check: _despawning already forbids any NEW cast for the
 	# whole fade, so this should always be null by now - but if anything ever

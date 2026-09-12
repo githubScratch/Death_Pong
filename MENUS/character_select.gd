@@ -170,7 +170,7 @@ func _ready() -> void:
 	wizards_button.visible = not training
 	if not training:
 		_wizard_count = GameSettings.wizard_count
-		wizards_button.text = "WIZARDS: %d" % _wizard_count
+		wizards_button.text = "Wizards: %d" % _wizard_count
 	_update_team_labels()
 
 	# Show only as many seat boxes as are actually in the bank right now,
@@ -308,7 +308,7 @@ func _refresh_box(i: int) -> void:
 	_random_marks[i].visible = random
 	_class_labels[i].visible = true
 
-	_name_labels[i].text = "PLAYER %d" % seat
+	_name_labels[i].text = "Player %d" % seat
 	if random:
 		# Deliberately does NOT call GameSettings.set_selected_class()
 		# here - Random has no real WizardClass of its own to hand it,
@@ -357,7 +357,7 @@ func _resolve_random_picks() -> void:
 func _on_wizards_pressed() -> void:
 	_wizard_count = 4 if _wizard_count == 2 else 2
 	GameSettings.set_wizard_count(_wizard_count)
-	wizards_button.text = "WIZARDS: %d" % _wizard_count
+	wizards_button.text = "Wizards: %d" % _wizard_count
 	_update_team_labels()
 
 	var active_seats := _active_seat_count()

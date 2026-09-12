@@ -136,7 +136,7 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
-text = "                       "
+text = "     "
 
 [node name="ButtonStack" type="VBoxContainer" parent="CenterContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
@@ -145,19 +145,19 @@ alignment = 1
 
 [node name="Ready" type="Button" parent="CenterContainer/VBoxContainer/HBoxContainer/ButtonStack"]
 layout_mode = 2
-text = "READY"
+text = "Ready"
 
 [node name="Settings" type="Button" parent="CenterContainer/VBoxContainer/HBoxContainer/ButtonStack"]
 layout_mode = 2
-text = "SETTINGS"
+text = "Settings"
 
 [node name="ResetOptions" type="Button" parent="CenterContainer/VBoxContainer/HBoxContainer/ButtonStack"]
 layout_mode = 2
-text = "RESET OPTIONS"
+text = "Reset Options"
 
 [node name="Back" type="Button" parent="CenterContainer/VBoxContainer/HBoxContainer/ButtonStack"]
 layout_mode = 2
-text = "BACK"
+text = "Back"
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 

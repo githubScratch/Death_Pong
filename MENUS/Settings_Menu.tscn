@@ -107,7 +107,7 @@ layout_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.388235, 0.388235, 0.388235, 1)
 theme_override_font_sizes/font_size = 30
-text = "MUSIC      "
+text = "MUSIC   "
 
 [node name="BGMSlide" type="HSlider" parent="CenterContainer/Layout/VBoxContainer/SoundCont/HBoxContainer2"]
 layout_mode = 2
@@ -157,13 +157,13 @@ alignment = 1
 [node name="WindowedButton" type="Button" parent="CenterContainer/Layout/VBoxContainer/ScreenCont/HBoxContainer"]
 layout_mode = 2
 toggle_mode = true
-text = "WINDOWED"
+text = "Windowed  "
 
 [node name="FullButton" type="Button" parent="CenterContainer/Layout/VBoxContainer/ScreenCont/HBoxContainer"]
 layout_mode = 2
 toggle_mode = true
 button_pressed = true
-text = "FULL"
+text = "Full"
 
 [node name="ControlCont" type="VBoxContainer" parent="CenterContainer/Layout/VBoxContainer"]
 layout_mode = 2
@@ -193,7 +193,7 @@ text = "p1"
 [node name="Label" type="Label" parent="CenterContainer/Layout/VBoxContainer/ControlCont/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
-text = "p1      "
+text = "p1   "
 
 [node name="VBoxContainer2" type="VBoxContainer" parent="CenterContainer/Layout/VBoxContainer/ControlCont/HBoxContainer"]
 layout_mode = 2
@@ -207,7 +207,7 @@ text = "p2"
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_colors/font_color = Color(0, 0, 0, 1)
-text = "      p2"
+text = "   p2"
 horizontal_alignment = 2
 
 [node name="VBoxContainer3" type="VBoxContainer" parent="CenterContainer/Layout/VBoxContainer/ControlCont/HBoxContainer"]
@@ -222,7 +222,7 @@ text = "p3"
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_colors/font_color = Color(0, 0, 0, 1)
-text = "      p3"
+text = "   p3"
 horizontal_alignment = 2
 
 [node name="VBoxContainer4" type="VBoxContainer" parent="CenterContainer/Layout/VBoxContainer/ControlCont/HBoxContainer"]
@@ -237,7 +237,7 @@ text = "p4"
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_colors/font_color = Color(0, 0, 0, 1)
-text = "      p4"
+text = "   p4"
 horizontal_alignment = 2
 
 [node name="BottomButtons" type="VBoxContainer" parent="CenterContainer/Layout"]
@@ -247,11 +247,11 @@ alignment = 1
 
 [node name="BackButton" type="Button" parent="CenterContainer/Layout/BottomButtons"]
 layout_mode = 2
-text = "back"
+text = "Back"
 
 [node name="ResetButton" type="Button" parent="CenterContainer/Layout/BottomButtons"]
 layout_mode = 2
-text = "RESET"
+text = "Reset"
 
 [node name="select" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("4_t0xyb")

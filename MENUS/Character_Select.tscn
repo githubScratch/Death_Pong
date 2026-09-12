@@ -1,11 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://b8m02rc6u4cg"]
+[gd_scene load_steps=7 format=3 uid="uid://b8m02rc6u4cg"]
 
 [ext_resource type="Script" uid="uid://cp0djvqxn5ldw" path="res://MENUS/character_select.gd" id="1_script"]
 [ext_resource type="Theme" uid="uid://dka4pq4oxkc3b" path="res://MENUS/Menu_Theme.tres" id="2_theme"]
 [ext_resource type="Shader" uid="uid://c3fmb76te1444" path="res://ARENAS/VHS.gdshader" id="3_shader"]
 [ext_resource type="AudioStream" uid="uid://d3rmk854uqt17" path="res://SFX/ui select.wav" id="4_select"]
 [ext_resource type="AudioStream" uid="uid://du6i7igev8i55" path="res://SFX/Menu_Select2.wav" id="5_move"]
-[ext_resource type="FontFile" uid="uid://dg8i0skfgpb02" path="res://UI Resources/Vermin Vibes 1989.ttf" id="6_font"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_cs1"]
 shader = ExtResource("3_shader")
@@ -57,36 +56,38 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("2_theme")
 
-[node name="Summary" type="Label" parent="Layout"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
-theme_override_constants/outline_size = 5
-theme_override_font_sizes/font_size = 60
-text = "pure arena"
-horizontal_alignment = 1
-
 [node name="TeamRow" type="HBoxContainer" parent="Layout"]
+visible = false
 layout_mode = 2
 size_flags_vertical = 6
 
 [node name="LongBeardLabel" type="Label" parent="Layout/TeamRow"]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.639216, 0.00392157, 1, 1)
-theme_override_fonts/font = ExtResource("6_font")
 theme_override_font_sizes/font_size = 36
 text = " Long Beard"
 horizontal_alignment = 1
 
 [node name="FloppyHatLabel" type="Label" parent="Layout/TeamRow"]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0, 0.698039, 0.101961, 1)
-theme_override_fonts/font = ExtResource("6_font")
 theme_override_font_sizes/font_size = 36
 text = "Floppy Hat"
 horizontal_alignment = 1
+
+[node name="Summary" type="Label" parent="Layout"]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 60
+text = "pure arena"
+horizontal_alignment = 1
+
+[node name="Label" type="Label" parent="Layout"]
+layout_mode = 2
 
 [node name="TopRow" type="HBoxContainer" parent="Layout"]
 layout_mode = 2
@@ -106,7 +107,7 @@ theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 7
 theme_override_font_sizes/font_size = 28
-text = "PLAYER 1"
+text = "Player 1"
 horizontal_alignment = 1
 
 [node name="Sprite" type="TextureRect" parent="Layout/TopRow/P1/Box"]
@@ -130,7 +131,7 @@ vertical_alignment = 1
 
 [node name="ClassLabel" type="Label" parent="Layout/TopRow/P1/Box"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 40
+theme_override_font_sizes/font_size = 30
 text = "Class 1"
 horizontal_alignment = 1
 
@@ -159,7 +160,7 @@ theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 7
 theme_override_font_sizes/font_size = 28
-text = "PLAYER 2"
+text = "Player 2"
 horizontal_alignment = 1
 
 [node name="Sprite" type="TextureRect" parent="Layout/TopRow/P2/Box"]
@@ -183,7 +184,7 @@ vertical_alignment = 1
 
 [node name="ClassLabel" type="Label" parent="Layout/TopRow/P2/Box"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 40
+theme_override_font_sizes/font_size = 30
 text = "Class 2"
 horizontal_alignment = 1
 
@@ -213,7 +214,7 @@ theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 7
 theme_override_font_sizes/font_size = 28
-text = "PLAYER 3"
+text = "Player 3"
 horizontal_alignment = 1
 
 [node name="Sprite" type="TextureRect" parent="Layout/TopRow/P3/Box"]
@@ -239,7 +240,7 @@ vertical_alignment = 1
 [node name="ClassLabel" type="Label" parent="Layout/TopRow/P3/Box"]
 visible = false
 layout_mode = 2
-theme_override_font_sizes/font_size = 40
+theme_override_font_sizes/font_size = 30
 text = "Class 3"
 horizontal_alignment = 1
 
@@ -268,7 +269,7 @@ theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 7
 theme_override_font_sizes/font_size = 28
-text = "PLAYER 4"
+text = "Player 4"
 horizontal_alignment = 1
 
 [node name="Sprite" type="TextureRect" parent="Layout/TopRow/P4/Box"]
@@ -294,7 +295,7 @@ vertical_alignment = 1
 [node name="ClassLabel" type="Label" parent="Layout/TopRow/P4/Box"]
 visible = false
 layout_mode = 2
-theme_override_font_sizes/font_size = 40
+theme_override_font_sizes/font_size = 30
 text = "Class 4"
 horizontal_alignment = 1
 
@@ -315,25 +316,32 @@ size_flags_vertical = 3
 [node name="Buttons" type="VBoxContainer" parent="Layout/Bottom"]
 layout_mode = 2
 
+[node name="Label" type="Label" parent="Layout/Bottom/Buttons"]
+layout_mode = 2
+
 [node name="Ready" type="Button" parent="Layout/Bottom/Buttons"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
-text = "START"
+text = "Start"
 
 [node name="Wizards" type="Button" parent="Layout/Bottom/Buttons"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
-text = "WIZARDS: 2"
+text = "Wizards: 2"
+
+[node name="Bots" type="Button" parent="Layout/Bottom/Buttons"]
+layout_mode = 2
+text = "Bots: 0"
 
 [node name="Options" type="Button" parent="Layout/Bottom/Buttons"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
-text = "OPTIONS"
+text = "Options"
 
 [node name="Back" type="Button" parent="Layout/Bottom/Buttons"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
-text = "BACK"
+text = "Back"
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 

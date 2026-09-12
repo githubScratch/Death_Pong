@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="BlinkAbility" load_steps=5 format=3 uid="uid://bwr6n0i8gyqc5"]
+[gd_resource type="Resource" script_class="BlinkAbility" load_steps=6 format=3 uid="uid://bwr6n0i8gyqc5"]
 
+[ext_resource type="Texture2D" uid="uid://bwugeg67ivce3" path="res://SPRITES/fulloutline.png" id="1_odwrn"]
 [ext_resource type="Script" uid="uid://o0g4qpy0c3w6" path="res://PLAYERS/blink_ability.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://b8nh7yxds3rl1" path="res://PLAYERS/spell_1.tscn" id="2_shield"]
 [ext_resource type="PackedScene" uid="uid://b0ngciqdalkvh" path="res://VFX/Blink2_VFX.tscn" id="3_ddgcq"]
@@ -20,7 +21,8 @@ slam_wrap_requires_double_tap = false
 wrap_activation_distance = 80.0
 clone_on_max_tier = true
 clone_duration = 5.0
-clone_transparency = 0.35
+clone_transparency = 0.4
+clone_sprite_sheet = ExtResource("1_odwrn")
 clone_fade_duration = 0.5
 clone_fade_trans = 0
 clone_fade_ease = 0

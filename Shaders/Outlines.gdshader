@@ -27,6 +27,21 @@ uniform float outline_width : hint_range(0.0, 8.0, 0.1) = 3.0;
 // disable region clamping for a sprite that isn't cut from a shared atlas.
 uniform vec4 texture_region = vec4(0.0);
 
+// A fade-out knob driven directly from script (see wizard.gd's
+// _despawn_clone(), which tweens this instead of the node's own
+// modulate:a) rather than relying on this CanvasItem's modulate/
+// self_modulate. Godot's canvas_item shaders have no way to read those back
+// out once execution reaches fragment(): the COLOR this function receives
+// on entry already comes out as modulate/self_modulate multiplied by the
+// TEXTURE sample, fused into one value - there's no clean way to divide
+// that apart again (a transparent or near-black texel makes the division
+// blow up or return garbage), which is exactly what an earlier version of
+// this shader tried and why fading briefly looked broken (the outline
+// disappeared and the whole sprite just looked darkened/tinted instead).
+// Defaulting to 1.0 keeps every other user of this shader completely
+// unaffected.
+uniform float fade_alpha : hint_range(0.0, 1.0) = 1.0;
+
 void fragment() {
 	vec4 tex = texture(TEXTURE, UV);
 	COLOR = tex;
@@ -79,4 +94,8 @@ void fragment() {
 		neighbor_alpha = clamp(neighbor_alpha, 0.0, 1.0);
 		COLOR = mix(tex, outline_color, neighbor_alpha);
 	}
+
+	// Only alpha is scaled (not the full color) so this can only ever fade
+	// the sprite out, never re-tint it - see fade_alpha's own doc comment.
+	COLOR.a *= fade_alpha;
 }

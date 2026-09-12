@@ -1,7 +1,6 @@
-[gd_scene load_steps=8 format=3 uid="uid://dydubtl8r07gj"]
+[gd_scene load_steps=7 format=3 uid="uid://dydubtl8r07gj"]
 
 [ext_resource type="Script" uid="uid://dr1jkq8sdnvhx" path="res://MENUS/Menu.gd" id="1_11dfe"]
-[ext_resource type="FontFile" uid="uid://dg8i0skfgpb02" path="res://UI Resources/Vermin Vibes 1989.ttf" id="1_phoou"]
 [ext_resource type="Shader" uid="uid://c3fmb76te1444" path="res://ARENAS/VHS.gdshader" id="3_g8rpa"]
 [ext_resource type="Theme" uid="uid://dka4pq4oxkc3b" path="res://MENUS/Menu_Theme.tres" id="3_m17v8"]
 [ext_resource type="AudioStream" uid="uid://d3rmk854uqt17" path="res://SFX/ui select.wav" id="5_rlwtf"]
@@ -55,16 +54,14 @@ theme = ExtResource("3_m17v8")
 [node name="Label" type="Label" parent="CenterContainer/VBoxContainer/HBoxContainer"]
 z_index = 1
 layout_mode = 2
-theme_override_colors/font_color = Color(0.639216, 0.00392157, 1, 1)
-theme_override_fonts/font = ExtResource("1_phoou")
-theme_override_font_sizes/font_size = 140
+theme = ExtResource("3_m17v8")
+theme_override_font_sizes/font_size = 80
 text = "WIZARD"
 
 [node name="Label2" type="Label" parent="CenterContainer/VBoxContainer/HBoxContainer"]
 z_index = 1
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0.698039, 0.101961, 1)
-theme_override_fonts/font = ExtResource("1_phoou")
+theme = ExtResource("3_m17v8")
 theme_override_font_sizes/font_size = 140
 text = "BALLS"
 horizontal_alignment = 1
@@ -72,24 +69,23 @@ horizontal_alignment = 1
 [node name="Begin" type="Button" parent="CenterContainer/VBoxContainer"]
 z_index = 1
 layout_mode = 2
+size_flags_horizontal = 0
 theme = ExtResource("3_m17v8")
-theme_override_fonts/font = ExtResource("1_phoou")
-theme_override_font_sizes/font_size = 40
 text = "START"
 
 [node name="Options" type="Button" parent="CenterContainer/VBoxContainer"]
 z_index = 1
 layout_mode = 2
+size_flags_horizontal = 0
 theme = ExtResource("3_m17v8")
-theme_override_fonts/font = ExtResource("1_phoou")
 theme_override_font_sizes/font_size = 40
 text = "SETTINGS"
 
 [node name="Quit" type="Button" parent="CenterContainer/VBoxContainer"]
 z_index = 1
 layout_mode = 2
+size_flags_horizontal = 0
 theme = ExtResource("3_m17v8")
-theme_override_fonts/font = ExtResource("1_phoou")
 theme_override_font_sizes/font_size = 40
 text = "QUIT"
 
