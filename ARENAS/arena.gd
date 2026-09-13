@@ -40,6 +40,7 @@ func _ready() -> void:
 
 	GameSettings.settings_changed.connect(_on_settings_changed)
 	_spawn_selected_extras()
+	_maybe_attach_bots()
 
 
 ## Both Victory screens just read "Victory!" now - the old per-team flavor
@@ -262,3 +263,31 @@ func _spawn_selected_extras() -> void:
 		get_tree().current_scene.add_child(p4_instance)
 		spawn_ball.pitch_scale = randf_range(1.4, 1.6)
 		spawn_ball.play()
+
+
+## Bot AI rollout (see the project's bot-implementation-roadmap doc): attaches
+## a BotController (PLAYERS/bots/bot_controller.gd) to seat 2's WizardSeat
+## (player_2, already placed in this scene with seat = 2) when Character
+## Select's "Bots" toggle marked that seat bot-controlled - see
+## GameSettings.bot_active's own doc comment for why the underlying array
+## already covers all four seats even though only seat 2 is reachable from
+## the menu today. Deliberately hardcoded to seat 2/player_2 for now,
+## matching that same single-seat scope; extending this to seats 3/4 (inside
+## _spawn_selected_extras() above, once those exist) or to training.gd's own
+## single seat is future work, not done here.
+##
+## Defaults to the Hard starter BotProfile (see PLAYERS/bots/profiles/) -
+## BotController itself falls back to a perfect/zero-error profile if none
+## is assigned at all, which is useful for isolated testing but not what a
+## real match should default to (see bot_profile.gd's own note on why the
+## imperfection knobs matter). Picking a difficulty from the menu is Phase 8
+## work; swap the .tres path below (or load it conditionally on a real
+## selection once that exists) to change what a fresh match gets by default -
+## see the roadmap doc for how to hand-tune the three starter profiles
+## in the meantime.
+func _maybe_attach_bots() -> void:
+	if GameSettings.bot_active.size() > 1 and GameSettings.bot_active[1]:
+		var bot := BotController.new()
+		bot.seat = 2
+		bot.profile = load("res://PLAYERS/bots/profiles/bot_profile_hard.tres")
+		player_2.add_child(bot)

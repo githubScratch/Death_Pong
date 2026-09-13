@@ -134,6 +134,16 @@ var seat_active: Array = [true, true, false, false]
 # the Lobby doesn't reset the bank back to 2 for no reason.
 var wizard_count: int = 2
 
+# Whether each seat is currently bot-controlled - index 0..3 for seats 1..4.
+# Toggled today only for seat 2, via Character Select's "Bots" button (see
+# character_select.gd's _on_bots_pressed()) - kept as a full 4-seat array
+# anyway, matching every other per-seat array in this file, so extending bot
+# support to more seats later is a UI change only, never a data-model change.
+# Read by each arena's own _maybe_attach_bots() at match start (see arena.gd)
+# to decide whether to attach a PLAYERS/bots/bot_controller.gd to that seat
+# instead of leaving it waiting on hardware input that will never come.
+var bot_active: Array = [false, false, false, false]
+
 # Per-seat identity color - index 0..3 for seats 1..4, same convention as
 # every other per-seat array in this file. Currently only consumed by
 # wizard.gd's _apply_class() to tint a wizard's outline sprite (see
@@ -249,6 +259,11 @@ func set_seat_active(seat: int, active: bool) -> void:
 
 func set_wizard_count(count: int) -> void:
 	wizard_count = count
+
+func set_bot_active(seat: int, active: bool) -> void:
+	if seat < 1 or seat > bot_active.size():
+		return
+	bot_active[seat - 1] = active
 
 ## Re-rolls a fresh random class for every active seat whose CURRENT class
 ## came from a "Random" pick (see was_random_pick above) - called by each

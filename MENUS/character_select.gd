@@ -108,6 +108,10 @@ const REGIONS := [
 ## Top of the button stack - cycles the seat bank between 2 and 4 (see
 ## _on_wizards_pressed()); its label always mirrors _wizard_count.
 @onready var wizards_button: Button = $Layout/Bottom/Buttons/Wizards
+## Toggles seat 2 between a human Player 2 and a bot-controlled "Bot 1" (see
+## _on_bots_pressed()/GameSettings.bot_active) - only seat 2 for now, same
+## "start narrow, widen later" spirit as everything else on this screen.
+@onready var bots_button: Button = $Layout/Bottom/Buttons/Bots
 ## Beneath the seat row - non-interactive readout of the currently chosen
 ## mod/map (see GameSettings.summary_text()), kept in sync with Options via
 ## GameSettings.settings_changed as well as refreshed on every visit here.
@@ -131,6 +135,30 @@ var _wizard_count := 2
 
 func _is_training() -> bool:
 	return GameSettings.game_mode == "training"
+
+
+## Total number of seats currently flagged bot-controlled - just seat 2 is
+## reachable from this screen today, so this is 0 or 1 for now, but written
+## as a count (not a bool) so the "Bots: %d" button label and _bot_display_name()
+## below don't need to change shape once more seats can toggle it.
+func _bot_count() -> int:
+	var count := 0
+	for active in GameSettings.bot_active:
+		if active:
+			count += 1
+	return count
+
+
+## "Bot 1", "Bot 2", etc. - numbered by bank order among bot-controlled seats
+## only (never by seat number itself), so seat 2 being the first seat that can
+## toggle bot control still reads as "Bot 1" rather than "Bot 2". Only call
+## this for a seat GameSettings.bot_active already marks true.
+func _bot_display_name(i: int) -> String:
+	var bot_number := 0
+	for j in range(i + 1):
+		if GameSettings.bot_active[j]:
+			bot_number += 1
+	return "Bot %d" % bot_number
 
 
 ## The one number training's "just seat 1" rule and the WIZARDS: button's
@@ -171,6 +199,11 @@ func _ready() -> void:
 	if not training:
 		_wizard_count = GameSettings.wizard_count
 		wizards_button.text = "Wizards: %d" % _wizard_count
+	# Same reasoning as wizards_button just above - a bot toggle for seat 2
+	# is meaningless during training (that mode plays a single scene-baked
+	# seat 1 with its own separate join mechanics - see ARENAS/training.gd).
+	bots_button.visible = not training
+	bots_button.text = "Bots: %d" % _bot_count()
 	_update_team_labels()
 
 	# Show only as many seat boxes as are actually in the bank right now,
@@ -308,7 +341,7 @@ func _refresh_box(i: int) -> void:
 	_random_marks[i].visible = random
 	_class_labels[i].visible = true
 
-	_name_labels[i].text = "Player %d" % seat
+	_name_labels[i].text = _bot_display_name(i) if GameSettings.bot_active[i] else "Player %d" % seat
 	if random:
 		# Deliberately does NOT call GameSettings.set_selected_class()
 		# here - Random has no real WizardClass of its own to hand it,
@@ -370,6 +403,22 @@ func _on_wizards_pressed() -> void:
 			# Dropped out of the bank - not in the match unless/until the
 			# bank grows back to include this seat again.
 			GameSettings.set_seat_active(i + 1, false)
+
+
+## BOTS: button handler. First cut, seat 2 only (see bots_button's own doc
+## comment) - flips GameSettings.bot_active[1], relabels the button and seat
+## 2's own box immediately (same "apply live, don't wait for the next visit"
+## treatment _on_wizards_pressed() gives its own button/boxes), and leaves
+## seat 2's class/active state completely untouched. The actual effect - an
+## arena attaching a BotController to seat 2 instead of leaving it on human
+## input - only happens at match start; see ARENAS/arena.gd's own
+## _maybe_attach_bots().
+func _on_bots_pressed() -> void:
+	var seat := 2
+	var i := seat - 1
+	GameSettings.set_bot_active(seat, not GameSettings.bot_active[i])
+	bots_button.text = "Bots: %d" % _bot_count()
+	_refresh_box(i)
 
 
 func _on_ready_pressed() -> void:

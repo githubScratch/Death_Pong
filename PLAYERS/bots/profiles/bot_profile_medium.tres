@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="BotProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://PLAYERS/bots/bot_profile.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+reaction_delay = 0.15
+placement_offset_error = 18.0
+decision_interval = 0.1
+lookahead_tier = 1
+goal_side_margin = 36.0
+position_tolerance = 20.0
+cast_eta_threshold = 0.35
+cast_cooldown = 0.4
+min_ball_speed_for_eta = 40.0

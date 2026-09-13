@@ -154,7 +154,7 @@ libraries = {
 [node name="Glyph Light" type="PointLight2D" parent="RigidBody2D"]
 light_mask = 32
 visibility_layer = 32
-energy = 5.0
+energy = 10.0
 blend_mode = 1
 range_item_cull_mask = 32
 texture = ExtResource("5_bc5wg")
