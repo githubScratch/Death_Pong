@@ -225,10 +225,14 @@ func _on_zone_right_body_exited(body: Node2D) -> void:
 #UI
 func _on_rematch_1_pressed() -> void:
 	GameSettings.reroll_random_seats()
-	get_tree().change_scene_to_file("res://ARENAS/yonder.tscn")
+	# GameSettings.next_arena_scene_path() rather than hardcoding this scene -
+	# under the Mode Menu's Random map button (game_arena == "random") this
+	# rerolls a fresh map pick for the rematch too, instead of just replaying
+	# Yonder every time; any deliberate map choice still just reloads here.
+	get_tree().change_scene_to_file(GameSettings.next_arena_scene_path())
 func _on_rematch_2_pressed() -> void:
 	GameSettings.reroll_random_seats()
-	get_tree().change_scene_to_file("res://ARENAS/yonder.tscn")
+	get_tree().change_scene_to_file(GameSettings.next_arena_scene_path())
 func _on_menu_1_pressed() -> void:
 	get_tree().change_scene_to_file("res://MENUS/Menu.tscn")
 func _on_menu_2_pressed() -> void:

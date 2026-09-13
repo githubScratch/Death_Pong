@@ -64,31 +64,7 @@ theme_override_font_sizes/font_size = 60
 text = " arena"
 horizontal_alignment = 1
 
-[node name="TeamRow" type="HBoxContainer" parent="Layout"]
-visible = false
-layout_mode = 2
-size_flags_vertical = 6
-
-[node name="LongBeardLabel" type="Label" parent="Layout/TeamRow"]
-visible = false
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.639216, 0.00392157, 1, 1)
-theme_override_font_sizes/font_size = 36
-text = " Long Beard"
-horizontal_alignment = 1
-
-[node name="FloppyHatLabel" type="Label" parent="Layout/TeamRow"]
-visible = false
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0, 0.698039, 0.101961, 1)
-theme_override_font_sizes/font_size = 36
-text = "Floppy Hat"
-horizontal_alignment = 1
-
 [node name="Label" type="Label" parent="Layout"]
-visible = false
 layout_mode = 2
 
 [node name="TopRow" type="HBoxContainer" parent="Layout"]
@@ -105,8 +81,7 @@ alignment = 1
 
 [node name="NameLabel" type="Label" parent="Layout/TopRow/P1/Box"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 0.635294)
 theme_override_constants/outline_size = 7
 theme_override_font_sizes/font_size = 28
 text = "Player 1"
@@ -134,7 +109,7 @@ vertical_alignment = 1
 [node name="ClassLabel" type="Label" parent="Layout/TopRow/P1/Box"]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_7ak8a")
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 50
 text = "Class 1"
 horizontal_alignment = 1
 
@@ -159,8 +134,7 @@ alignment = 1
 
 [node name="NameLabel" type="Label" parent="Layout/TopRow/P2/Box"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 0.635294)
 theme_override_constants/outline_size = 7
 theme_override_font_sizes/font_size = 28
 text = "Player 2"
@@ -188,7 +162,7 @@ vertical_alignment = 1
 [node name="ClassLabel" type="Label" parent="Layout/TopRow/P2/Box"]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_7ak8a")
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 50
 text = "Class 2"
 horizontal_alignment = 1
 
@@ -214,8 +188,7 @@ alignment = 1
 
 [node name="NameLabel" type="Label" parent="Layout/TopRow/P3/Box"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 0.635294)
 theme_override_constants/outline_size = 7
 theme_override_font_sizes/font_size = 28
 text = "Player 3"
@@ -245,7 +218,7 @@ vertical_alignment = 1
 visible = false
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_7ak8a")
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 50
 text = "Class 3"
 horizontal_alignment = 1
 
@@ -270,8 +243,7 @@ alignment = 1
 
 [node name="NameLabel" type="Label" parent="Layout/TopRow/P4/Box"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 0.635294)
 theme_override_constants/outline_size = 7
 theme_override_font_sizes/font_size = 28
 text = "Player 4"
@@ -301,7 +273,7 @@ vertical_alignment = 1
 visible = false
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_7ak8a")
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 50
 text = "Class 4"
 horizontal_alignment = 1
 
@@ -350,6 +322,29 @@ text = "Options"
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "Back"
+
+[node name="TeamRow" type="HBoxContainer" parent="Layout"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 6
+
+[node name="LongBeardLabel" type="Label" parent="Layout/TeamRow"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.639216, 0.00392157, 1, 1)
+theme_override_font_sizes/font_size = 1
+text = " Long Beard"
+horizontal_alignment = 1
+
+[node name="FloppyHatLabel" type="Label" parent="Layout/TeamRow"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0.698039, 0.101961, 1)
+theme_override_font_sizes/font_size = 1
+text = "Floppy Hat"
+horizontal_alignment = 1
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 

@@ -90,6 +90,12 @@ theme = ExtResource("2_vllpc")
 toggle_mode = true
 text = "YONDER"
 
+[node name="Random" type="Button" parent="CenterContainer/VBoxContainer/MapRow"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+toggle_mode = true
+text = "RANDOM"
+
 [node name="ModLabel" type="Label" parent="CenterContainer/VBoxContainer"]
 visible = false
 layout_mode = 2
@@ -138,7 +144,7 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
-text = "  "
+text = "     "
 
 [node name="ButtonStack" type="VBoxContainer" parent="CenterContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
@@ -186,6 +192,7 @@ bus = &"SFX"
 [connection signal="pressed" from="CenterContainer/VBoxContainer/MapRow/Arena" to="." method="_on_arena_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/MapRow/Tower" to="." method="_on_tower_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/MapRow/Yonder" to="." method="_on_yonder_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/MapRow/Random" to="." method="_on_random_map_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/ModRow/Pure" to="." method="_on_pure_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/ModRow/Random" to="." method="_on_random_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/ModRow/Hot_Potatoe" to="." method="_on_hot_potatoe_pressed"]

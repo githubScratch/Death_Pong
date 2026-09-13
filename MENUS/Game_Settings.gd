@@ -3,7 +3,7 @@ extends Node
 signal settings_changed # Signal to notify when any setting changes
 # Variables to store selected game mode and map
 var game_mode = "pure" # "pure", "random", "hot", or "training"
-var game_arena = "arena" # "arena", "tower", or "yonder"
+var game_arena = "arena" # "arena", "tower", "yonder", or "random"
 var game_magic = "on" # "stock" or "time"
 
 ## Player-facing names for each game_mode/game_arena value above - keyed by
@@ -20,7 +20,33 @@ const ARENA_DISPLAY_NAMES := {
 	"arena": "Arena",
 	"tower": "Tower",
 	"yonder": "Yonder",
+	"random": "Random",
 }
+
+## Every deliberately-pickable arena, keyed the same as game_arena/
+## ARENA_DISPLAY_NAMES above - the pool next_arena_scene_path() below draws
+## from whenever game_arena is "random" (Mode_Menu's Random map button).
+const ARENA_SCENE_PATHS := {
+	"arena": "res://ARENAS/arena.tscn",
+	"tower": "res://ARENAS/tower.tscn",
+	"yonder": "res://ARENAS/yonder.tscn",
+}
+
+## Resolves game_arena into the actual arena scene to load next. A
+## deliberate map choice ("arena"/"tower"/"yonder") is just a lookup - but
+## "random" rerolls a fresh pick among all three maps every single time this
+## is called, not just once per session, so a Random pick means a genuinely
+## new surprise on every trip through here. Both character_select.gd's
+## _on_ready_pressed() (the very first match) AND every arena's own
+## _on_rematch_N_pressed() (each rematch after that) call this rather than
+## hardcoding their own scene, which is what makes Random apply to rematches
+## too instead of just freezing on whatever map the first roll happened to
+## land on.
+func next_arena_scene_path() -> String:
+	if game_arena == "random":
+		var picks := ARENA_SCENE_PATHS.values()
+		return picks[randi() % picks.size()]
+	return ARENA_SCENE_PATHS.get(game_arena, ARENA_SCENE_PATHS["arena"])
 
 ## The Lobby's non-interactive summary line: "<mod> <map>" (e.g. "pure
 ## arena", "hydra tower"), or just "<mod>" alone while Training is the

@@ -6,16 +6,24 @@ extends Control
 ## Title's "SETTINGS" button goes straight to Settings_Menu.tscn instead
 ## (see GameSettings.go_to_settings()).
 ##
-## Row of 3 map buttons, row of 4 mod buttons beneath (Pure/Hydra/Zones/
-## Training), then a vertical stack of Ready/Settings/Reset Options/Back.
-## Training isn't compatible with a map choice or the other three mods, so
-## picking it dims all of those out (see _update_button_states()) - but
-## they're deliberately never actually .disabled while dimmed: pressing one
-## is how you leave Training. The three mod buttons already do that just by
-## being pressed (each sets game_mode to something other than "training" -
-## see their own handlers below); the three map buttons have no Training
-## equivalent of their own, so they route through _exit_training_mode()
-## first, which lands back on "pure" before applying the map.
+## Row of 4 map buttons (Arena/Tower/Yonder/Random), row of 4 mod buttons
+## beneath (Pure/Hydra/Zones/Training), then a vertical stack of Ready/
+## Settings/Reset Options/Back. Training isn't compatible with a map choice
+## or the other three mods, so picking it dims all of those out (see
+## _update_button_states()) - but they're deliberately never actually
+## .disabled while dimmed: pressing one is how you leave Training. The three
+## mod buttons already do that just by being pressed (each sets game_mode to
+## something other than "training" - see their own handlers below); the four
+## map buttons have no Training equivalent of their own, so they route
+## through _exit_training_mode() first, which lands back on "pure" before
+## applying the map.
+##
+## Random (the map row's 4th button) doesn't pick a map itself - it sets
+## GameSettings.game_arena to the sentinel "random" instead, and
+## GameSettings.next_arena_scene_path() is what actually rolls a fresh map
+## every time a match or rematch loads (see that function's own doc
+## comment) - so a Random pick keeps surprising you rematch after rematch,
+## rather than just freezing on whatever the very first roll landed on.
 
 ## Same faded-alpha treatment Character_Select.tscn already uses for an
 ## un-joined P3/P4 box - shared here so "dimmed but still pressable" reads
@@ -25,6 +33,7 @@ const DISABLED_TINT := Color(1, 1, 1, 0.423529)
 @onready var arena: Button = $CenterContainer/VBoxContainer/MapRow/Arena
 @onready var tower: Button = $CenterContainer/VBoxContainer/MapRow/Tower
 @onready var yonder: Button = $CenterContainer/VBoxContainer/MapRow/Yonder
+@onready var random_map: Button = $CenterContainer/VBoxContainer/MapRow/Random
 
 @onready var pure: Button = $CenterContainer/VBoxContainer/ModRow/Pure
 @onready var random: Button = $CenterContainer/VBoxContainer/ModRow/Random
@@ -103,19 +112,34 @@ func _on_arena_pressed() -> void:
 	arena.set_pressed_no_signal(true)
 	tower.set_pressed_no_signal(false)
 	yonder.set_pressed_no_signal(false)
+	random_map.set_pressed_no_signal(false)
 	GameSettings.set_game_arena("arena")
 func _on_tower_pressed() -> void:
 	_exit_training_mode()
 	arena.set_pressed_no_signal(false)
 	tower.set_pressed_no_signal(true)
 	yonder.set_pressed_no_signal(false)
+	random_map.set_pressed_no_signal(false)
 	GameSettings.set_game_arena("tower")
 func _on_yonder_pressed() -> void:
 	_exit_training_mode()
 	arena.set_pressed_no_signal(false)
 	tower.set_pressed_no_signal(false)
 	yonder.set_pressed_no_signal(true)
+	random_map.set_pressed_no_signal(false)
 	GameSettings.set_game_arena("yonder")
+
+## Random doesn't pick a map itself - it sets game_arena to the sentinel
+## "random", which GameSettings.next_arena_scene_path() rerolls into an
+## actual map fresh every time a match or rematch loads (see that function's
+## own doc comment and this file's top-of-file comment).
+func _on_random_map_pressed() -> void:
+	_exit_training_mode()
+	arena.set_pressed_no_signal(false)
+	tower.set_pressed_no_signal(false)
+	yonder.set_pressed_no_signal(false)
+	random_map.set_pressed_no_signal(true)
+	GameSettings.set_game_arena("random")
 
 
 ## Maps have no Training equivalent, so pressing one while Training is
@@ -151,12 +175,14 @@ func _update_button_states() -> void:
 	arena.set_pressed_no_signal(GameSettings.game_arena == "arena")
 	tower.set_pressed_no_signal(GameSettings.game_arena == "tower")
 	yonder.set_pressed_no_signal(GameSettings.game_arena == "yonder")
+	random_map.set_pressed_no_signal(GameSettings.game_arena == "random")
 
 	var training_active: bool = GameSettings.game_mode == "training"
 	var tint := DISABLED_TINT if training_active else Color.WHITE
 	arena.modulate = tint
 	tower.modulate = tint
 	yonder.modulate = tint
+	random_map.modulate = tint
 	pure.modulate = tint
 	random.modulate = tint
 	hot_potatoe.modulate = tint

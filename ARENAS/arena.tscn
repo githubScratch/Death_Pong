@@ -1,4 +1,4 @@
-[gd_scene load_steps=71 format=4 uid="uid://dgpeqxyiiriwx"]
+[gd_scene load_steps=73 format=4 uid="uid://dgpeqxyiiriwx"]
 
 [ext_resource type="Script" uid="uid://dg4utk7dcltn2" path="res://ARENAS/arena.gd" id="1_3ujay"]
 [ext_resource type="PackedScene" uid="uid://c7wd648uhhby4" path="res://PLAYERS/wizard.tscn" id="1_chassis"]
@@ -364,7 +364,13 @@ size = Vector2(2344, 392)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_qslgg"]
 size = Vector2(192, 32)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_jjff5"]
+size = Vector2(192, 32)
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_uo83q"]
+size = Vector2(192, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sgwbn"]
 size = Vector2(192, 32)
 
 [sub_resource type="Animation" id="Animation_55po1"]
@@ -1555,6 +1561,13 @@ scale = Vector2(2, 2)
 tile_map_data = PackedByteArray("AAAUAAwAAgADAAEAAAAVAAwAAgAEAAEAAAAWAAwAAgADAAEAAAAXAAwAAgAEAAEAAAAYAAwAAgADAAEAAAAZAAwAAgAEAAEAAAA=")
 tile_set = SubResource("TileSet_w4q3b")
 
+[node name="StaticBody2D" type="StaticBody2D" parent="Arena/Right_Plat"]
+collision_layer = 8
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Arena/Right_Plat/StaticBody2D"]
+shape = SubResource("RectangleShape2D_jjff5")
+
 [node name="Left_Plat" type="StaticBody2D" parent="Arena"]
 z_index = -1
 position = Vector2(416, 400)
@@ -1580,6 +1593,13 @@ position = Vector2(-736, -400)
 scale = Vector2(2, 2)
 tile_map_data = PackedByteArray("AAAUAAwAAgADAAEAAAAVAAwAAgAEAAEAAAAWAAwAAgADAAEAAAAXAAwAAgAEAAEAAAAYAAwAAgADAAEAAAAZAAwAAgAEAAEAAAA=")
 tile_set = SubResource("TileSet_w4q3b")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="Arena/Left_Plat"]
+collision_layer = 8
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Arena/Left_Plat/StaticBody2D"]
+shape = SubResource("RectangleShape2D_sgwbn")
 
 [node name="Platforms" type="AnimationPlayer" parent="Arena"]
 root_node = NodePath("../..")
