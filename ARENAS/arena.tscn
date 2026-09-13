@@ -1,4 +1,4 @@
-[gd_scene load_steps=68 format=4 uid="uid://dgpeqxyiiriwx"]
+[gd_scene load_steps=71 format=4 uid="uid://dgpeqxyiiriwx"]
 
 [ext_resource type="Script" uid="uid://dg4utk7dcltn2" path="res://ARENAS/arena.gd" id="1_3ujay"]
 [ext_resource type="PackedScene" uid="uid://c7wd648uhhby4" path="res://PLAYERS/wizard.tscn" id="1_chassis"]
@@ -1251,6 +1251,44 @@ gravity = Vector3(0, 298, 0)
 scale_min = 0.05
 scale_max = 0.2
 
+[sub_resource type="Animation" id="Animation_w4q3b"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("RainParticles:speed_scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.0]
+}
+
+[sub_resource type="Animation" id="Animation_eglsa"]
+resource_name = "raingrav"
+length = 5.0
+loop_mode = 2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("RainParticles:speed_scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 4.96667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [1.0, 5.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_hu6o2"]
+_data = {
+&"RESET": SubResource("Animation_w4q3b"),
+&"raingrav": SubResource("Animation_eglsa")
+}
+
 [node name="Node2D3" type="Node2D"]
 script = ExtResource("1_3ujay")
 instance_scene = ExtResource("3_uo83q")
@@ -1915,6 +1953,13 @@ process_material = SubResource("ParticleProcessMaterial_liqqh")
 [node name="platformsSFX" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("24_qslgg")
 volume_db = 5.0
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_hu6o2")
+}
+autoplay = "raingrav"
+speed_scale = 0.25
 
 [connection signal="body_entered" from="Arena/walls/right/Zone_Right" to="." method="_on_zone_right_body_entered"]
 [connection signal="body_exited" from="Arena/walls/right/Zone_Right" to="." method="_on_zone_right_body_exited"]

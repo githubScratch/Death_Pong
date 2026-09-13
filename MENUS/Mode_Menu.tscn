@@ -91,6 +91,7 @@ toggle_mode = true
 text = "YONDER"
 
 [node name="ModLabel" type="Label" parent="CenterContainer/VBoxContainer"]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
@@ -99,6 +100,7 @@ text = "MOD"
 horizontal_alignment = 1
 
 [node name="ModRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+visible = false
 layout_mode = 2
 theme_override_constants/separation = 32
 alignment = 1
@@ -136,12 +138,15 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
-text = "     "
+text = "  "
 
 [node name="ButtonStack" type="VBoxContainer" parent="CenterContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 theme_override_constants/separation = 8
 alignment = 1
+
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/HBoxContainer/ButtonStack"]
+layout_mode = 2
 
 [node name="Ready" type="Button" parent="CenterContainer/VBoxContainer/HBoxContainer/ButtonStack"]
 layout_mode = 2

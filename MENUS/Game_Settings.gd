@@ -32,7 +32,8 @@ func summary_text() -> String:
 	if game_mode == "training":
 		return mod_word
 	var map_word: String = ARENA_DISPLAY_NAMES.get(game_arena, game_arena).to_lower()
-	return "%s %s" % [mod_word, map_word]
+	return "%s" % [map_word]
+	#return "%s %s" % [mod_word, map_word]
 
 ## The Options screen's "Reset Options" button - restores the map/mod
 ## choice to its default. Deliberately separate from Settings' own "Reset"
