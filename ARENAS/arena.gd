@@ -81,6 +81,16 @@ func _on_settings_changed() -> void:
 	# Re-apply settings when they change
 	apply_game_settings()
 
+## Failsafe landing spot for wizard.gd's stuck-in-wall watchdog
+## (_update_stuck_watchdog()/STUCK_IN_WALL_RESPAWN_TIME) - looked up by
+## has_method() on the current scene, so it has to live under this exact
+## name. Kept right next to create_new_instance() below, which is the only
+## other place this number should ever need to change, rather than a
+## separately-maintained constant elsewhere that could drift out of sync
+## with where a fresh ball actually spawns.
+func get_ball_spawn_position() -> Vector2:
+	return Vector2(576, 70)
+
 #Ball Reset
 func create_new_instance():
 	# Check if scene is assigned using is_instance_valid
@@ -268,26 +278,23 @@ func _spawn_selected_extras() -> void:
 ## Bot AI rollout (see the project's bot-implementation-roadmap doc): attaches
 ## a BotController (PLAYERS/bots/bot_controller.gd) to seat 2's WizardSeat
 ## (player_2, already placed in this scene with seat = 2) when Character
-## Select's "Bots" toggle marked that seat bot-controlled - see
-## GameSettings.bot_active's own doc comment for why the underlying array
+## Select's "Bots" button marked that seat bot-controlled - see
+## GameSettings.bot_difficulty's own doc comment for why the underlying array
 ## already covers all four seats even though only seat 2 is reachable from
 ## the menu today. Deliberately hardcoded to seat 2/player_2 for now,
 ## matching that same single-seat scope; extending this to seats 3/4 (inside
 ## _spawn_selected_extras() above, once those exist) or to training.gd's own
 ## single seat is future work, not done here.
 ##
-## Defaults to the Hard starter BotProfile (see PLAYERS/bots/profiles/) -
-## BotController itself falls back to a perfect/zero-error profile if none
-## is assigned at all, which is useful for isolated testing but not what a
-## real match should default to (see bot_profile.gd's own note on why the
-## imperfection knobs matter). Picking a difficulty from the menu is Phase 8
-## work; swap the .tres path below (or load it conditionally on a real
-## selection once that exists) to change what a fresh match gets by default -
-## see the roadmap doc for how to hand-tune the three starter profiles
-## in the meantime.
+## Which BotProfile gets attached now follows the difficulty picked on the
+## Bots button (Apprentice/Mage/Archmage -> easy/medium/hard - see
+## GameSettings.bot_profile_path()) instead of always defaulting to Hard.
+## bot_profile_path() only returns a real path for a seat is_bot_active()
+## already confirmed is bot-controlled, so an empty string here would mean
+## something changed those two out of sync - not expected in normal play.
 func _maybe_attach_bots() -> void:
-	if GameSettings.bot_active.size() > 1 and GameSettings.bot_active[1]:
+	if GameSettings.is_bot_active(2):
 		var bot := BotController.new()
 		bot.seat = 2
-		bot.profile = load("res://PLAYERS/bots/profiles/bot_profile_hard.tres")
+		bot.profile = load(GameSettings.bot_profile_path(2))
 		player_2.add_child(bot)

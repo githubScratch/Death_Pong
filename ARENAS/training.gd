@@ -92,6 +92,16 @@ func _spawn_selected_extras() -> void:
 		spawn_ball.play()
 
 
+## Failsafe landing spot for wizard.gd's stuck-in-wall watchdog
+## (_update_stuck_watchdog()/STUCK_IN_WALL_RESPAWN_TIME) - looked up by
+## has_method() on the current scene, so it has to live under this exact
+## name. Kept right next to create_new_instance() below, which is the only
+## other place this number should ever need to change, rather than a
+## separately-maintained constant elsewhere that could drift out of sync
+## with where a fresh ball actually spawns.
+func get_ball_spawn_position() -> Vector2:
+	return Vector2(576, 70)
+
 #Ball Reset
 func create_new_instance():
 	# Check if scene is assigned using is_instance_valid

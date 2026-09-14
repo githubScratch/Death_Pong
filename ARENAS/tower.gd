@@ -23,6 +23,8 @@ var current_instance: Node = null
 var ball_instances = []
 @onready var mid_barrier: Node2D = $Mid_Barrier
 @onready var mid_collision: StaticBody2D = $Mid_Barrier/Mid_Collision
+@onready var player_1: Node2D = $player1
+@onready var player_2: Node2D = $player2
 
 @export var p3_scene: PackedScene
 @export var p4_scene: PackedScene
@@ -37,6 +39,7 @@ func _ready() -> void:
 
 	GameSettings.settings_changed.connect(_on_settings_changed)
 	_spawn_selected_extras()
+	_maybe_attach_bots()
 
 
 ## Both Victory screens just read "Victory!" now - the old per-team flavor
@@ -78,6 +81,15 @@ func apply_game_settings() -> void:
 func _on_settings_changed() -> void:
 	# Re-apply settings when they change
 	apply_game_settings()
+
+## Failsafe landing spot for wizard.gd's stuck-in-wall watchdog
+## (_update_stuck_watchdog()/STUCK_IN_WALL_RESPAWN_TIME) - looked up by
+## has_method() on the current scene, so it has to live under this exact
+## name. Reads the same `ballspawn` node create_new_instance() below uses,
+## rather than a separately-maintained position, so the two can never drift
+## apart.
+func get_ball_spawn_position() -> Vector2:
+	return ballspawn.global_position
 
 #Ball Reset
 func create_new_instance():
@@ -251,3 +263,16 @@ func _spawn_selected_extras() -> void:
 		get_tree().current_scene.add_child(p4_instance)
 		spawn_ball.pitch_scale = randf_range(1.4, 1.6)
 		spawn_ball.play()
+
+
+## Attaches an AI bot to player 2's wizard when P2 was set to "bot" on the
+## character select / mode menu flow (see ARENAS/arena.gd, the reference
+## implementation this mirrors exactly). Tower has no bot-specific quirks -
+## its player1/player2 nodes just weren't previously exposed as @onready
+## references here, so those were added above alongside this function.
+func _maybe_attach_bots() -> void:
+	if GameSettings.is_bot_active(2):
+		var bot := BotController.new()
+		bot.seat = 2
+		bot.profile = load(GameSettings.bot_profile_path(2))
+		player_2.add_child(bot)

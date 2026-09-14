@@ -45,6 +45,7 @@ func _ready() -> void:
 
 	GameSettings.settings_changed.connect(_on_settings_changed)
 	_spawn_selected_extras()
+	_maybe_attach_bots()
 
 ## Both Victory screens just read "Victory!" now - the old per-team flavor
 ## line ("Long be thy Beard(s)!" / "Floppy be thy Hat(s)!") has been
@@ -93,6 +94,16 @@ func apply_game_settings() -> void:
 func _on_settings_changed() -> void:
 	# Re-apply settings when they change
 	apply_game_settings()
+
+## Failsafe landing spot for wizard.gd's stuck-in-wall watchdog
+## (_update_stuck_watchdog()/STUCK_IN_WALL_RESPAWN_TIME) - looked up by
+## has_method() on the current scene, so it has to live under this exact
+## name. Kept right next to create_new_instance() below, which is the only
+## other place this number should ever need to change, rather than a
+## separately-maintained constant elsewhere that could drift out of sync
+## with where a fresh ball actually spawns.
+func get_ball_spawn_position() -> Vector2:
+	return Vector2(574, 160)
 
 #Ball Reset
 func create_new_instance():
@@ -321,3 +332,26 @@ func _spawn_selected_extras() -> void:
 		get_tree().current_scene.add_child(p4_instance)
 		spawn_ball.pitch_scale = randf_range(1.4, 1.6)
 		spawn_ball.play()
+
+
+## Attaches an AI bot to player 2's wizard when P2 was set to "bot" on the
+## character select / mode menu flow (see ARENAS/arena.gd, the reference
+## implementation this mirrors exactly). Yonder's top/bottom teleport
+## portals (_on_portal_bottom_body_entered()/_on_portal_top_body_entered()
+## above) get no special handling here - they just reposition whatever body
+## touches them, ball or wizard alike, and the bot has no portal-specific
+## awareness anywhere in bot_controller.gd. In practice this is transparent
+## to it: BotController reads target_ball's live global_position every tick
+## (not a cached/extrapolated one) and reacts to wherever it actually is,
+## and a teleported bot wizard just resumes from its new spot the same way
+## it would after any other sudden reposition (a knockback, a respawn).
+## Revisit this note if playtesting turns up portal-specific bot confusion -
+## e.g. chasing a pre-teleport ball position for a stray frame, or obstacle
+## raycasts misreading geometry near a portal mouth - since neither has been
+## observed yet and nothing below tries to guess at it.
+func _maybe_attach_bots() -> void:
+	if GameSettings.is_bot_active(2):
+		var bot := BotController.new()
+		bot.seat = 2
+		bot.profile = load(GameSettings.bot_profile_path(2))
+		player_2.add_child(bot)

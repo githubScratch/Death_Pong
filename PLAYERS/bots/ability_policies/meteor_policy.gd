@@ -16,6 +16,22 @@ class_name MeteorPolicy
 ## _cast_and_jump()). Deliberately jumping first to use this more often is a
 ## natural follow-up once this simple version is confirmed working in
 ## practice, not built speculatively before that.
+##
+## Playtesting turned up exactly the failure mode "opportunistic" was meant
+## to avoid: with min_tiers_banked satisfied, "airborne" alone was cheap
+## enough to hit constantly - _update_cast_decision()'s close-range/
+## stationary-standoff triggers and ordinary obstacle-clearing jumps both
+## produce frequent, ankle-high hops that barely leave the floor, and every
+## single one of those was a fresh "should I Meteor" opportunity. Starting
+## the double-tap gesture on one of those tiny hops suspends normal
+## movement/casting for its full 5-frame window (see BotController.
+## _advance_ability_gesture()) for a jump that's often already landing again
+## before the gesture even finishes - visibly indistinguishable from the
+## bot just bunny-hopping in place, and for no payoff since a meteor cast
+## from ankle height isn't the "well-timed dive bomb" this is meant to be.
+## min_airborne_height below is the fix: require this wizard to actually be
+## up at a meaningful height above wherever it last stood, not merely
+## off the floor by any amount.
 
 ## Minimum tiers of strikes banked before this is even considered - a
 ## fraction of a tier is never enough payoff to justify committing to an
@@ -28,6 +44,16 @@ class_name MeteorPolicy
 ## skipped this tick no matter how much is banked.
 @export var min_safe_eta: float = 0.6
 
+## Minimum pixels above BotController._last_grounded_y (this wizard's own
+## Y the last time it was actually on the floor - see that field's own doc
+## comment) before an airborne moment counts as worth considering Meteor
+## for at all. Distinguishes a genuine jump/climb (vertical engagement's
+## chained air-jumps, or a real human-style leap) from the ankle-high hop an
+## ordinary shield-cast or obstacle-clearing jump produces, which is airborne
+## in the strict is_on_floor() sense for only a few frames and was never
+## going anywhere worth a dive-bomb finisher from.
+@export var min_airborne_height: float = 90.0
+
 
 func should_use(bot: BotController) -> bool:
 	if bot._own_wizard == null:
@@ -39,6 +65,9 @@ func should_use(bot: BotController) -> bool:
 	if tiers_banked < min_tiers_banked:
 		return false
 	if bot._own_wizard.is_on_floor():
+		return false
+	var airborne_height: float = bot._last_grounded_y - bot._own_wizard.global_position.y
+	if airborne_height < min_airborne_height:
 		return false
 
 	if bot.target_ball == null:

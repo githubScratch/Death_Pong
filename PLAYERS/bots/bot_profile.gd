@@ -40,6 +40,25 @@ class_name BotProfile
 ## PLAYERS/bots/profiles/ for reasonable combinations).
 @export var decision_interval: float = 0.0
 
+## Minimum real-world seconds this bot enforces between any two brand-new
+## discrete input COMMANDS - a jump request or a dash/dive pulse (see
+## BotController._request_jump()/_request_down_pulse(), the two chokepoints
+## every one-off button press funnels through, and _update_cast_decision()'s
+## own direct Up-press) - regardless of which kind fires next. Distinct from
+## decision_interval just above: that one paces how often the DECISION
+## layer re-evaluates at all, while this paces how soon this bot may act
+## again once it HAS decided to do something, even across two completely
+## different actions decided on the very same tick. Added per the user's
+## own explicit request purely to look less like a frame-perfect machine -
+## with decision_interval able to be 0.0 (Hard's own default), nothing
+## previously stopped e.g. a jump and a dash from firing on the exact same
+## physics frame, something no human could ever actually do. Deliberately
+## does NOT gate continuous left/right movement, an ability gesture/Growth
+## hold already under way, or _update_air_control()'s dive (safety-critical
+## for getting down to a ball above this wizard - see addendum 8 in the
+## roadmap doc - and should never be delayed by an unrelated command).
+@export var min_command_interval: float = 0.1
+
 ## Reserved for Phase 3's optional lookahead tier (not yet built): 0 = pure
 ## reactive (Tier 0), 1 = straight-line lead-time (Tier 1 - what Phase 2
 ## actually implements today regardless of this value), 2 = single-bounce
@@ -85,7 +104,19 @@ class_name BotProfile
 ## going to produce. This is a deliberate "just engage" override, not a
 ## replacement for the eta/position logic above - still respects
 ## cast_cooldown, so it reads as an eager poke, not a stutter.
-@export var close_range_engage_distance: float = 50.0
+##
+## Raised from an original 50.0 after a further playtest turned up a standing
+## standoff against a stationary ball: `in_position` only requires landing
+## within position_tolerance of the goal-side stand point, and that stand
+## point already sits goal_side_margin away from the ball itself - so a bot
+## that parks at the FAR edge of its own tolerance band can be as much as
+## goal_side_margin + position_tolerance (56px with the defaults below) from
+## the ball while still reading as "in position," which used to clear this
+## gate too. Set comfortably above that worst case so being in position is
+## never itself the reason a stand nearly on top of the ball fails to close
+## the last few pixels. See _update_cast_decision()'s own new stationary-ball
+## clause for the other half of that same fix.
+@export var close_range_engage_distance: float = 70.0
 
 @export_group("Tactical Movement & Pathing")
 ## Phase 6: reusing wizard.gd's own ground-dash/dive/jump moves (SPEED = DASH,
@@ -113,6 +144,34 @@ class_name BotProfile
 ## _cast_and_jump() - a cost the ground dash doesn't carry).
 @export var dash_cooldown: float = 0.1
 
+## How long wizard.gd's own ground dash actually boosts SPEED for once
+## triggered (see wizard.gd's Down-while-grounded dash: `SPEED = DASH` for a
+## hardcoded 0.1s before resetting to INIT_SPEED) - kept as its own tunable
+## here rather than read directly off wizard.gd (that 0.1s is a bare literal
+## inside an await, not an exposed constant, and this project's own
+## convention is never to edit wizard.gd itself). BotController.
+## _dash_active_remaining counts down from this the instant a dash pulse
+## fires, and this wizard's own optional/tactical jump requests (obstacle-
+## clearing, vertical-engagement chasing) stand down for as long as it's
+## still counting - see that field's own doc comment for why: per the
+## user's own explicit report, a jump immediately after a dash cuts the
+## dash's repositioning benefit short, since the SPEED boost above is far
+## less useful once this wizard leaves the ground. MUST be kept in sync by
+## hand if wizard.gd's own 0.1s literal ever changes.
+@export var dash_burst_duration: float = 0.1
+
+## Estimated max horizontal distance (in pixels) wizard.gd's own ground dash
+## actually covers over its dash_burst_duration window - wizard.gd's DASH
+## constant (1400.0) times that duration (0.1s by default), so 140.0 here.
+## Kept as its own tunable rather than computed from DASH/dash_burst_duration
+## directly, matching this project's own convention of never reading a bare
+## literal out of wizard.gd itself - MUST be kept in sync by hand if either
+## one changes. Used only by _maybe_dash()'s "don't dash past the ball" guard
+## (see that function's own doc comment) to estimate whether a dash about to
+## fire would carry this wizard clean through the ball's own position rather
+## than just toward it.
+@export var dash_travel_distance: float = 140.0
+
 ## How far ahead (in pixels, along the current direction of travel) to check
 ## for a physical obstacle before walking into it - see _scan_obstacle().
 ## Matched to a little more than one decision tick's worth of ground covered
@@ -135,6 +194,21 @@ class_name BotProfile
 ## the path gets noticed and walked past on its own, with no separate
 ## "waiting" state to track.
 @export var reroute_margin: float = 50.0
+
+## Minimum seconds between two obstacle-CLEARING jump attempts (the
+## "blocked, jumpable" case above) in the SAME direction - see
+## BotController._obstacle_jump_cooldown_remaining's own doc comment for the
+## failure this closes: obstacle_clear_height above is a cheap stand-in, not
+## a real jump-arc simulation, and playtesting found a spot where it read as
+## clearable but the wizard's actual jump never carried past it - which,
+## with nothing else changing between decision ticks, meant the exact same
+## jump got re-requested every single tick forever: a bot bunny-hopping in
+## place (and burning a shield recast every hop - see _request_jump()'s own
+## doc comment) instead of ever making progress. This doesn't make the scan
+## smarter about what's actually clearable; it just stops a failed attempt
+## from being retried instantly, giving the ordinary hold-short reroute a
+## chance to take over instead.
+@export var obstacle_jump_retry_cooldown: float = 1.0
 
 @export_group("Vertical Engagement")
 ## Added after playtesting showed the bot making no effort at all to reach a
@@ -171,3 +245,69 @@ class_name BotProfile
 ## Only kicks in once the ball is at least this many pixels below this
 ## wizard's own current position.
 @export var descend_engage_height: float = 40.0
+
+@export_group("Engagement Role")
+## Added per the user's own explicit design: chasing the ball everywhere,
+## including deep into the opponent's half during a long volley, leaves this
+## wizard's own goal wide open - not smart, however good the mobility
+## toolkit above is. See BotController._update_engagement_role() for the
+## race logic this powers, and _home_x for what "falling back" actually
+## means (this wizard's own spawn X - see _ready() - rather than a hardcoded
+## arena position, so this works on any map without per-arena tuning).
+
+## The ball has to be at least this far away before defensive caution even
+## gets considered - a nearby ball is always worth engaging regardless of
+## who else is around.
+@export var defensive_ball_range: float = 250.0
+
+## An opposing wizard has to be within this distance of the ball to count as
+## "about to strike back" - otherwise there's no real threat to react to and
+## this wizard just goes and gets the ball as usual.
+@export var opponent_threat_distance: float = 200.0
+
+## Whether being far from the ball and outraced by a threatening opponent
+## (see the two fields above) means playing it safe. False restores the old
+## always-chase behavior - useful for isolated testing (e.g. no second
+## wizard on the field, where "opponent" never applies anyway) without
+## needing to also blow out the distance thresholds above.
+@export var defensive_role_enabled: bool = true
+
+## Minimum seconds _defensive must hold whatever value it just switched to
+## before _update_engagement_role() is allowed to re-evaluate it at all -
+## added after playtesting caught a bot visibly flickering left/right in
+## place ("facing both directions" within the same second). The race in
+## step 3 of that function (own distance/speed vs. the nearest threatening
+## opponent's) is a continuous comparison with no built-in deadband, and
+## with decision_interval at or near 0.0 (see Hard's own profile) it's
+## re-run every physics frame - a ball wobbling by a pixel, or an opponent
+## taking one step, is enough to flip which side is nominally "faster" from
+## frame to frame, and _defensive flipping means _move_target_x flips
+## between the ball-relative stand point and _home_x, which can sit on
+## OPPOSITE sides of this wizard - hence the flicker. This doesn't change
+## the race logic itself, just rate-limits how often its verdict is allowed
+## to change, which is enough to turn frame-by-frame flicker into a clean,
+## deliberate switch a human would actually perceive as "changing its mind."
+@export var engagement_role_min_hold: float = 0.35
+
+## How close (pixels, measured from the ball to _home_x - see
+## BotController._update_goal_pressure()'s own doc comment for why _home_x
+## and not this wizard's current position) the ball has to get before this
+## wizard treats it as urgent goal defense - added per the user's own
+## explicit design, as the deliberate opposite case from the
+## defensive-fallback fields above: those decide when NOT to bother chasing
+## a ball that's already lost; this decides when the ball is close enough to
+## this wizard's own goal that it has to be met regardless of any race
+## outcome. Defaults to roughly a third of this project's current Arena
+## (goal-to-goal is ~1064px) per the user's own estimate - a plain tunable,
+## not derived from any actual arena dimension.
+@export var goal_pressure_range: float = 350.0
+
+## Replaces dash_trigger_distance while under goal pressure (see the field
+## above) - per the user's own explicit request that a ball closing in on
+## this wizard's own goal should be raced down with dashes "as needed,"
+## not gated behind the same distance threshold ordinary repositioning
+## uses. 0.0 means dash the instant there's anywhere to go at all (still
+## respects position_tolerance via the diff check in
+## BotController._maybe_dash(), so it won't dash while already essentially
+## on target).
+@export var goal_pressure_dash_trigger_distance: float = 0.0

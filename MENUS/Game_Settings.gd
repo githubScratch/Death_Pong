@@ -100,11 +100,19 @@ const CLASSES: Array[WizardClass] = [
 # class - index 0..3 for seats 1..4. Set by set_selected_class() below
 # (character_select.gd's _resolve_random_picks() passes was_random=true the
 # moment a Random pick actually gets rolled; every deliberate pick passes
-# the default false instead). Read by reroll_random_seats() so a rematch can
-# roll every still-Random seat a FRESH surprise instead of silently
-# repeating whatever it happened to land on last match, while a seat that
-# deliberately chose a class keeps wearing it, rematch after rematch.
-var was_random_pick: Array = [false, false, false, false]
+# the default false instead) and by set_was_random_pick() the instant a box
+# lands on Random, before Ready is even pressed. Read by
+# reroll_random_seats() so a rematch can roll every still-Random seat a
+# FRESH surprise instead of silently repeating whatever it happened to land
+# on last match, while a seat that deliberately chose a class keeps wearing
+# it, rematch after rematch. Also read directly by character_select.gd's
+# _ready() to decide what each box shows on a fresh visit - defaulted to
+# true per the user's own explicit request that every seat start on Random
+# rather than class_1/2/3/4 (selected_classes' own defaults just below are
+# untouched, since they're still what a scene opened directly - skipping
+# character select entirely - falls back to; this only changes what the
+# character select SCREEN shows before anyone has touched a box).
+var was_random_pick: Array = [true, true, true, true]
 
 # Which menu sent the player to character select, so its Back button can
 # return them to wherever they actually came from.
@@ -134,15 +142,19 @@ var seat_active: Array = [true, true, false, false]
 # the Lobby doesn't reset the bank back to 2 for no reason.
 var wizard_count: int = 2
 
-# Whether each seat is currently bot-controlled - index 0..3 for seats 1..4.
-# Toggled today only for seat 2, via Character Select's "Bots" button (see
-# character_select.gd's _on_bots_pressed()) - kept as a full 4-seat array
-# anyway, matching every other per-seat array in this file, so extending bot
-# support to more seats later is a UI change only, never a data-model change.
-# Read by each arena's own _maybe_attach_bots() at match start (see arena.gd)
-# to decide whether to attach a PLAYERS/bots/bot_controller.gd to that seat
+# Which difficulty (if any) controls each seat - index 0..3 for seats 1..4,
+# one of "none"/"easy"/"medium"/"hard". Replaced the old plain bot_active
+# boolean array once Character Select's "Bots" button grew from a toggle
+# into a 4-state difficulty cycle (None -> Apprentice -> Mage -> Archmage ->
+# None - see character_select.gd's _on_bots_pressed()). Toggled today only
+# for seat 2, but kept as a full 4-seat array anyway, matching every other
+# per-seat array in this file, so extending bot support to more seats later
+# is a UI change only, never a data-model change.
+# Read by each arena's own _maybe_attach_bots() at match start (see arena.gd
+# and bot_profile_path() below) to decide whether to attach a
+# PLAYERS/bots/bot_controller.gd to that seat, and with which profile,
 # instead of leaving it waiting on hardware input that will never come.
-var bot_active: Array = [false, false, false, false]
+var bot_difficulty: Array = ["none", "none", "none", "none"]
 
 # Per-seat identity color - index 0..3 for seats 1..4, same convention as
 # every other per-seat array in this file. Currently only consumed by
@@ -252,6 +264,21 @@ func set_selected_class(seat: int, wizard_class: WizardClass, was_random: bool =
 	selected_classes[seat - 1] = wizard_class
 	was_random_pick[seat - 1] = was_random
 
+## Persists "this seat is sitting on Random" the instant it's picked on
+## Character_Select's box, rather than waiting for _resolve_random_picks()
+## to actually roll one at Ready-press. Random has no WizardClass of its own
+## to hand set_selected_class() (see character_select.gd's _refresh_box(),
+## which deliberately skips that call for Random), so without this,
+## was_random_pick[seat-1] kept whatever value it last had - true after an
+## actual roll, false otherwise - and leaving Character_Select for another
+## menu before ever pressing Ready silently reverted the box back to
+## whatever concrete class was stored from before, instead of remembering
+## Random as a standing preference like every other pick on that screen.
+func set_was_random_pick(seat: int, was_random: bool) -> void:
+	if seat < 1 or seat > was_random_pick.size():
+		return
+	was_random_pick[seat - 1] = was_random
+
 func set_seat_active(seat: int, active: bool) -> void:
 	if seat < 1 or seat > seat_active.size():
 		return
@@ -260,10 +287,36 @@ func set_seat_active(seat: int, active: bool) -> void:
 func set_wizard_count(count: int) -> void:
 	wizard_count = count
 
-func set_bot_active(seat: int, active: bool) -> void:
-	if seat < 1 or seat > bot_active.size():
+func set_bot_difficulty(seat: int, difficulty: String) -> void:
+	if seat < 1 or seat > bot_difficulty.size():
 		return
-	bot_active[seat - 1] = active
+	bot_difficulty[seat - 1] = difficulty
+
+## True whenever seat's bot_difficulty entry is anything other than "none" -
+## the replacement for the old plain bot_active[seat-1] boolean read, kept as
+## a function (rather than a second array to stay in sync) so there is only
+## ever one source of truth for whether a seat is bot-controlled.
+func is_bot_active(seat: int) -> bool:
+	if seat < 1 or seat > bot_difficulty.size():
+		return false
+	return bot_difficulty[seat - 1] != "none"
+
+## Resource path for the BotController profile matching seat's current
+## bot_difficulty, or "" for "none"/anything unrecognized. Centralizes the
+## difficulty->profile mapping so arena.gd/tower.gd/yonder.gd's
+## _maybe_attach_bots() don't each hardcode their own copy of it.
+func bot_profile_path(seat: int) -> String:
+	if seat < 1 or seat > bot_difficulty.size():
+		return ""
+	match bot_difficulty[seat - 1]:
+		"easy":
+			return "res://PLAYERS/bots/profiles/bot_profile_easy.tres"
+		"medium":
+			return "res://PLAYERS/bots/profiles/bot_profile_medium.tres"
+		"hard":
+			return "res://PLAYERS/bots/profiles/bot_profile_hard.tres"
+		_:
+			return ""
 
 ## Re-rolls a fresh random class for every active seat whose CURRENT class
 ## came from a "Random" pick (see was_random_pick above) - called by each

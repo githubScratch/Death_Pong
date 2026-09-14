@@ -445,6 +445,11 @@ func _build_sprite_frames(sheet: Texture2D) -> SpriteFrames:
 ### wizard_N.gd scripts with p{N}_* swapped for the cached _action_* names.
 
 func _physics_process(delta: float) -> void:
+	# Failsafe first, unconditionally - see STUCK_IN_WALL_RESPAWN_TIME's own
+	# doc comment. Everything else below can freely assume "not currently
+	# overlapping solid geometry" as a baseline again from here on this frame.
+	_update_stuck_watchdog(delta)
+
 	# Frozen still locks out jumping, diving, casting, and growth/blink/zone
 	# holds unconditionally - a slowed wizard can't burst out of it with a
 	# jump-dash or interrupt it with a fresh cast, no matter how partial
@@ -2108,6 +2113,30 @@ func _try_slam_wrap() -> void:
 		wrap_target = ceiling_wall.get_node_or_null("WrapDestination") as Node2D
 	if wrap_target == null:
 		return
+	# Only Y ever moves for this wrap (see the global_position.y assignment
+	# below) - this wizard's current X carries straight through unchanged.
+	# WrapDestination's own Y was placed assuming every reachable X at that
+	# height is safely open air, which held for as long as nothing was ever
+	# reachable outside the normal play field. That's no longer guaranteed:
+	# a goal-mouth "wizard wall" being disabled (see arena.tscn's own
+	# "left/right wizard wall" nodes - solid StaticBody2Ds still present but
+	# zeroed out to collision_layer/mask 0) opens a narrow pocket behind the
+	# goal notch that a wizard can now stand in, and the main boundary wall
+	# directly above that pocket (still fully solid - that one was never
+	# meant to be disabled) is exactly where this wrap's fixed landing
+	# height lands if triggered from inside it. _position_is_clear() below
+	# is a general "would materializing here overlap solid geometry" check
+	# (not a swept test_move() - this is a teleport clean over whatever's in
+	# between, same as _execute_blink()'s own left/right wrap already trusts
+	# its destination to be clear, just verified explicitly here instead of
+	# assumed), so a wrap that would land the wizard inside a wall now
+	# refuses instead - denied exactly like the "no ceiling tagged" case
+	# just above: no strikes spent, no VFX, the landing stays a normal one.
+	var landing_position := Vector2(global_position.x, wrap_target.global_position.y)
+	if not _position_is_clear(landing_position):
+		# TEMP DEBUG - remove once slam wrap is confirmed working.
+		print("[DEBUG seat %d] slam wrap denied - landing position blocked by solid geometry" % seat)
+		return
 	var tiers_banked := strikes / ability.strikes_per_tier if ability.strikes_per_tier > 0 else 0
 	var maxed_out := ability.strikes_per_tier > 0 and tiers_banked >= ability.max_tiers
 	if maxed_out and ability.clone_on_max_tier and not _is_clone:
@@ -2139,6 +2168,98 @@ func _try_slam_wrap() -> void:
 	_spawn_blink_vfx(ability.vertical_vfx_scene, Vector2(0.0, -1.0), false)
 	# TEMP DEBUG - remove once slam wrap is confirmed working.
 	print("[DEBUG seat %d] slam-wrapped floor to ceiling - %d strikes remain" % [seat, strikes])
+
+
+## True when `pos` is clear of solid physical geometry - i.e. this wizard's
+## own collision shape (`shape`), if instantly placed at `pos` instead of
+## wherever it actually is right now, wouldn't overlap anything on
+## collision_mask (the same mask that already governs this wizard's normal
+## movement/collision). A direct shape-overlap query rather than a swept
+## test_move(): this isn't asking "is the path there clear" (test_move()'s
+## own job, see _execute_blink()'s left/right wrap), it's asking "is this
+## exact spot safe to materialize at" for a move that's a genuine teleport,
+## deliberately clean over whatever's in between. Used by _try_slam_wrap()
+## so a ceiling landing that would otherwise embed this wizard in solid
+## geometry (see that function's own doc comment) gets refused instead -
+## available for any future teleport-style reposition that needs the same
+## "don't materialize inside a wall" guarantee.
+func _position_is_clear(pos: Vector2) -> bool:
+	if shape == null or shape.shape == null:
+		return true
+	var query := PhysicsShapeQueryParameters2D.new()
+	query.shape = shape.shape
+	var probe_transform := global_transform
+	probe_transform.origin = pos
+	query.transform = probe_transform * shape.transform
+	query.collision_mask = collision_mask
+	query.exclude = [get_rid()]
+	return get_world_2d().direct_space_state.intersect_shape(query, 1).is_empty()
+
+
+## Seconds this wizard's own collision shape has been continuously
+## overlapping solid geometry, right now - see _update_stuck_watchdog() and
+## STUCK_IN_WALL_RESPAWN_TIME. Reset to 0 the instant a frame finds it clear
+## again, so this only ever accumulates across an unbroken run of stuck
+## frames, never across separate short brushes with a wall.
+var _stuck_in_wall_time: float = 0.0
+
+## How long this wizard's shape can continuously overlap solid geometry
+## before the failsafe below gives up on whatever put it there and yanks it
+## back to a known-clear spot instead. This is deliberately a last resort,
+## not a substitute for actually fixing a specific cause - it exists because
+## the Growth-blocker and Blink-slam-wrap fixes above were each found only
+## after the user hit them by hand, and there's no reason to assume those
+## were the last two ways to end up wedged in a wall. Generic by design: it
+## reuses _position_is_clear() against this wizard's OWN real position and
+## OWN real collision_mask (which already includes both the map walls' layer
+## and, since this wizard's own mask also covers the growth blocker's layer -
+## see wizard.tscn's collision_mask = 18, layers 2 and 5 - anything grown
+## into a wall too), so it doesn't need to know which ability or teleport
+## caused the overlap, or care whether a future one does something new.
+const STUCK_IN_WALL_RESPAWN_TIME: float = 1.0
+
+## Called every physics frame from the very top of _physics_process(),
+## unconditionally - even while frozen, despawning, or mid-ability - since a
+## wizard that's actually wedged in a wall needs rescuing regardless of what
+## else is going on. See STUCK_IN_WALL_RESPAWN_TIME's own doc comment for why
+## this exists at all.
+func _update_stuck_watchdog(delta: float) -> void:
+	if _despawning:
+		# A wizard on its way out (see the doc comment near _despawning's own
+		# declaration) has no reason to be rescued mid-despawn - let whatever
+		# owns that sequence finish it undisturbed.
+		_stuck_in_wall_time = 0.0
+		return
+	if _position_is_clear(global_position):
+		_stuck_in_wall_time = 0.0
+		return
+	_stuck_in_wall_time += delta
+	if _stuck_in_wall_time < STUCK_IN_WALL_RESPAWN_TIME:
+		return
+	_stuck_in_wall_time = 0.0
+	# TEMP DEBUG - remove once the stuck-in-wall failsafe is confirmed working.
+	print("[DEBUG seat %d] stuck-in-wall failsafe triggered after %.1fs - respawning at ball spawn point" % [seat, STUCK_IN_WALL_RESPAWN_TIME])
+	_respawn_at_ball_spawn()
+
+## Failsafe landing spot for the watchdog above: the exact position each
+## map's own create_new_instance() already drops a fresh ball at - the one
+## spot every map's own geometry is guaranteed to keep clear, since the ball
+## itself has to be able to sit there without a bug of its own, and not a
+## fixed constant duplicated here, since each arena script
+## (arena.gd/training.gd's Vector2(576, 70), tower.gd's own `ballspawn` node,
+## yonder.gd's Vector2(574, 160)) already knows its own real number - see
+## each script's own get_ball_spawn_position(). Looked up by a plain
+## has_method() check on the current scene rather than a shared base class,
+## since these arena scripts don't share one; a future map that hasn't added
+## this method yet just skips the respawn instead of guessing at a position
+## or crashing, so adding a new map without this method is a silent no-op
+## here, not a broken build - worth remembering to add it there too.
+func _respawn_at_ball_spawn() -> void:
+	var scene := get_tree().current_scene
+	if scene == null or not scene.has_method("get_ball_spawn_position"):
+		return
+	global_position = scene.get_ball_spawn_position()
+	velocity = Vector2.ZERO
 
 
 ## Double-tap-and-hold-to-meteor: double-tapping Down and continuing to hold

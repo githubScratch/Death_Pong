@@ -108,9 +108,10 @@ const REGIONS := [
 ## Top of the button stack - cycles the seat bank between 2 and 4 (see
 ## _on_wizards_pressed()); its label always mirrors _wizard_count.
 @onready var wizards_button: Button = $Layout/Bottom/Buttons/Wizards
-## Toggles seat 2 between a human Player 2 and a bot-controlled "Bot 1" (see
-## _on_bots_pressed()/GameSettings.bot_active) - only seat 2 for now, same
-## "start narrow, widen later" spirit as everything else on this screen.
+## Cycles seat 2 through None -> Apprentice -> Mage -> Archmage -> None (see
+## _on_bots_pressed()/GameSettings.bot_difficulty), i.e. a human Player 2 or
+## one of three bot difficulties - only seat 2 for now, same "start narrow,
+## widen later" spirit as everything else on this screen.
 @onready var bots_button: Button = $Layout/Bottom/Buttons/Bots
 ## Beneath the seat row - non-interactive readout of the currently chosen
 ## mod/map (see GameSettings.summary_text()), kept in sync with Options via
@@ -122,7 +123,16 @@ const REGIONS := [
 @onready var move_sfx: AudioStreamPlayer2D = $move
 
 # All four of these are indexed 0..3 for seats 1..4.
-var _class_index := [0, 1, 2, 3]
+# _class_index defaults every seat to Random (CLASSES.size(), one past the
+# last real class - see the CLASSES doc comment above) rather than
+# class_1/2/3/4, matching GameSettings.was_random_pick's own new default
+# (see that field's own doc comment) per the user's explicit request that
+# every seat start on Random. _ready()'s restore loop below overwrites this
+# for any seat already in the active bank on load, but a seat 3/4 revealed
+# LATER by the WIZARDS: button (_on_wizards_pressed() calls _refresh_box()
+# directly, not through that restore loop) still needs a sane starting
+# value of its own - this is that value.
+var _class_index := [CLASSES.size(), CLASSES.size(), CLASSES.size(), CLASSES.size()]
 var _frame := [0, 0, 0, 0]
 var _frame_time := [0.0, 0.0, 0.0, 0.0]
 
@@ -137,28 +147,30 @@ func _is_training() -> bool:
 	return GameSettings.game_mode == "training"
 
 
-## Total number of seats currently flagged bot-controlled - just seat 2 is
-## reachable from this screen today, so this is 0 or 1 for now, but written
-## as a count (not a bool) so the "Bots: %d" button label and _bot_display_name()
-## below don't need to change shape once more seats can toggle it.
-func _bot_count() -> int:
-	var count := 0
-	for active in GameSettings.bot_active:
-		if active:
-			count += 1
-	return count
+## Maps a GameSettings.bot_difficulty value ("none"/"easy"/"medium"/"hard")
+## to the in-fiction name shown on the Bots button and in a bot seat's own
+## box: Apprentice/Mage/Archmage for the three difficulties, None for no bot
+## at all. Falls back to "None" for anything unrecognized rather than
+## erroring, same spirit as color_for_seat()'s out-of-range fallback.
+func _difficulty_display_name(difficulty: String) -> String:
+	match difficulty:
+		"easy":
+			return "Apprentice"
+		"medium":
+			return "Wizard"
+		"hard":
+			return "Archwizard"
+		_:
+			return "None"
 
 
-## "Bot 1", "Bot 2", etc. - numbered by bank order among bot-controlled seats
-## only (never by seat number itself), so seat 2 being the first seat that can
-## toggle bot control still reads as "Bot 1" rather than "Bot 2". Only call
-## this for a seat GameSettings.bot_active already marks true.
+## Seat i's own display name for its box's name label - just the difficulty
+## name (Apprentice/Mage/Archmage) for now, since only seat 2 can ever be a
+## bot today and a bank-order "Bot 1"/"Bot 2" numbering would only ever show
+## one value anyway. Only call this for a seat GameSettings.is_bot_active()
+## already confirmed is bot-controlled.
 func _bot_display_name(i: int) -> String:
-	var bot_number := 0
-	for j in range(i + 1):
-		if GameSettings.bot_active[j]:
-			bot_number += 1
-	return "Bot %d" % bot_number
+	return _difficulty_display_name(GameSettings.bot_difficulty[i])
 
 
 ## The one number training's "just seat 1" rule and the WIZARDS: button's
@@ -203,7 +215,7 @@ func _ready() -> void:
 	# is meaningless during training (that mode plays a single scene-baked
 	# seat 1 with its own separate join mechanics - see ARENAS/training.gd).
 	bots_button.visible = not training
-	bots_button.text = "Bots: %d" % _bot_count()
+	bots_button.text = "Bot: %s" % _difficulty_display_name(GameSettings.bot_difficulty[1])
 	_update_team_labels()
 
 	# Show only as many seat boxes as are actually in the bank right now,
@@ -341,7 +353,7 @@ func _refresh_box(i: int) -> void:
 	_random_marks[i].visible = random
 	_class_labels[i].visible = true
 
-	_name_labels[i].text = _bot_display_name(i) if GameSettings.bot_active[i] else "Player %d" % seat
+	_name_labels[i].text = _bot_display_name(i) if GameSettings.is_bot_active(seat) else "Player %d" % seat
 	if random:
 		# Deliberately does NOT call GameSettings.set_selected_class()
 		# here - Random has no real WizardClass of its own to hand it,
@@ -350,6 +362,17 @@ func _refresh_box(i: int) -> void:
 		# result early and reroll it for no reason. _on_ready_pressed()
 		# below does the actual roll, once, right before the match
 		# starts, for every seat still sitting on Random at that point.
+		#
+		# set_was_random_pick() IS still called, though - separately from
+		# the "don't roll early" concern above, this box landing on Random
+		# needs to be remembered as a standing preference right away, not
+		# just once Ready is pressed. Without it, cycling to Random then
+		# leaving for another menu (Options, etc.) before ever pressing
+		# Ready left GameSettings.was_random_pick[i] at whatever it was
+		# last set to, so _ready()'s restore logic above fell through to
+		# whatever concrete class was stored from before instead of
+		# showing Random again on return.
+		GameSettings.set_was_random_pick(seat, true)
 		_class_labels[i].text = "Random"
 	else:
 		var wclass := CLASSES[_class_index[i]]
@@ -406,18 +429,26 @@ func _on_wizards_pressed() -> void:
 
 
 ## BOTS: button handler. First cut, seat 2 only (see bots_button's own doc
-## comment) - flips GameSettings.bot_active[1], relabels the button and seat
-## 2's own box immediately (same "apply live, don't wait for the next visit"
+## comment) - cycles GameSettings.bot_difficulty[1] through
+## none -> easy -> medium -> hard -> none (None -> Apprentice -> Mage ->
+## Archmage -> None on the button/box), relabels the button and seat 2's own
+## box immediately (same "apply live, don't wait for the next visit"
 ## treatment _on_wizards_pressed() gives its own button/boxes), and leaves
 ## seat 2's class/active state completely untouched. The actual effect - an
-## arena attaching a BotController to seat 2 instead of leaving it on human
-## input - only happens at match start; see ARENAS/arena.gd's own
-## _maybe_attach_bots().
+## arena attaching a BotController (with a profile matching the chosen
+## difficulty) to seat 2 instead of leaving it on human input - only happens
+## at match start; see ARENAS/arena.gd's own _maybe_attach_bots().
+const _BOT_DIFFICULTY_CYCLE := ["none", "easy", "medium", "hard"]
+
 func _on_bots_pressed() -> void:
 	var seat := 2
 	var i := seat - 1
-	GameSettings.set_bot_active(seat, not GameSettings.bot_active[i])
-	bots_button.text = "Bots: %d" % _bot_count()
+	var current_index := _BOT_DIFFICULTY_CYCLE.find(GameSettings.bot_difficulty[i])
+	if current_index == -1:
+		current_index = 0
+	var next_difficulty: String = _BOT_DIFFICULTY_CYCLE[(current_index + 1) % _BOT_DIFFICULTY_CYCLE.size()]
+	GameSettings.set_bot_difficulty(seat, next_difficulty)
+	bots_button.text = "Bot: %s" % _difficulty_display_name(next_difficulty)
 	_refresh_box(i)
 
 
@@ -426,13 +457,17 @@ func _on_ready_pressed() -> void:
 	if _is_training():
 		get_tree().change_scene_to_file("res://ARENAS/training.tscn")
 		return
-	match GameSettings.game_arena:
-		"tower":
-			get_tree().change_scene_to_file("res://ARENAS/tower.tscn")
-		"yonder":
-			get_tree().change_scene_to_file("res://ARENAS/yonder.tscn")
-		_:
-			get_tree().change_scene_to_file("res://ARENAS/arena.tscn")
+	# Was a hardcoded match on GameSettings.game_arena with only "tower"/
+	# "yonder" cases and an "_" wildcard defaulting to Arena - meaning
+	# "random" (Mode_Menu's Random map button) always fell into that
+	# wildcard and loaded Arena every time, never actually rolling among
+	# all three maps despite next_arena_scene_path()'s own doc comment
+	# claiming this function already called it. Every rematch handler
+	# (arena.gd/tower.gd/yonder.gd's _on_rematch_N_pressed()) already calls
+	# next_arena_scene_path() correctly - this just brings the very first
+	# match in line with them, restoring "Random" as a real rotation
+	# through Arena/Tower/Yonder instead of only ever landing on Arena.
+	get_tree().change_scene_to_file(GameSettings.next_arena_scene_path())
 
 
 func _on_options_pressed() -> void:

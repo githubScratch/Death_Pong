@@ -22,7 +22,7 @@
 [ext_resource type="PackedScene" path="res://PLAYERS/wizard_seat3.tscn" id="15_0yefq"]
 [ext_resource type="PackedScene" path="res://PLAYERS/wizard_seat4.tscn" id="16_ji56j"]
 [ext_resource type="Texture2D" uid="uid://lovia63fg07t" path="res://SPRITES/75.png" id="21_ps7ku"]
-[ext_resource type="AudioStream" uid="uid://dqdb8np8n8l4x" path="res://SFX/wobble.wav" id="24_qslgg"]
+[ext_resource type="AudioStream" uid="uid://bodm65n0ukrdc" path="res://SFX/landing.wav" id="25_eglsa"]
 [ext_resource type="Script" uid="uid://gvbw1kb2bw33" path="res://ARENAS/moving_platform.gd" id="99_mvplt"]
 [ext_resource type="Script" uid="uid://dk1jeq4bfobk" path="res://PLAYERS/pause_overlay.gd" id="99_pause_overlay"]
 
@@ -317,7 +317,7 @@ sources/1 = SubResource("TileSetAtlasSource_qslgg")
 sources/2 = SubResource("TileSetAtlasSource_eglsa")
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_444vf"]
-size = Vector2(2344, 480)
+size = Vector2(2344, 688)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_2udws"]
 radius = 152.84
@@ -646,6 +646,7 @@ tracks/5/keys = {
 resource_name = "platforms"
 length = 32.0
 loop_mode = 1
+step = 0.1
 markers = [{
 "color": Color(0.277458, 0.607044, 0.670572, 1),
 "name": &"horizontal",
@@ -662,7 +663,7 @@ tracks/0/path = NodePath("Arena/walls/left:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 2.03333, 3.96667, 5.9, 7.96667, 9.96667, 12.0667, 14.0333, 16.1333, 18.1333, 20.0667, 22, 24.0667, 26.0667, 28.1667, 30.1333),
+"times": PackedFloat32Array(0, 2, 4, 6, 8, 10, 12, 14, 16, 18.1333, 20, 22, 24, 26, 28, 30),
 "transitions": PackedFloat32Array(0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4),
 "update": 0,
 "values": [Vector2(0, 0), Vector2(0, 0), Vector2(0, -164), Vector2(0, -164), Vector2(0, 0), Vector2(0, 0), Vector2(0, 164), Vector2(0, 164), Vector2(0, 0), Vector2(0, 0), Vector2(0, -164), Vector2(0, -164), Vector2(0, 0), Vector2(0, 0), Vector2(0, 164), Vector2(0, 164)]
@@ -674,7 +675,7 @@ tracks/1/path = NodePath("Arena/walls/right:position")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 2.03333, 4, 5.93333, 7.93333, 9.96667, 12.0333, 14.0667, 16.1, 18.1333, 20.1, 22.0333, 24.0333, 26.0667, 28.1333, 30.2),
+"times": PackedFloat32Array(0, 2, 4, 6, 8, 10, 12, 14, 16, 18.1333, 20, 22, 24, 26, 28, 30),
 "transitions": PackedFloat32Array(0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4),
 "update": 0,
 "values": [Vector2(0, 0), Vector2(0, 0), Vector2(0, -164), Vector2(0, -164), Vector2(0, 0), Vector2(0, 0), Vector2(0, 164), Vector2(0, 164), Vector2(0, 0), Vector2(0, 0), Vector2(0, -164), Vector2(0, -164), Vector2(0, 0), Vector2(0, 0), Vector2(0, 164), Vector2(0, 164)]
@@ -1357,7 +1358,7 @@ collision_layer = 2
 collision_mask = 7
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Arena/walls/top"]
-position = Vector2(596, -176)
+position = Vector2(596, -280)
 shape = SubResource("RectangleShape2D_444vf")
 
 [node name="WrapDestination" type="Marker2D" parent="Arena/walls/top"]
@@ -1375,7 +1376,7 @@ collision_mask = 7
 
 [node name="CollisionPolygon2D2" type="CollisionPolygon2D" parent="Arena/walls/right"]
 position = Vector2(1088, 0)
-polygon = PackedVector2Array(0, -448, 696, -456, 704, 1088, 0, 1088, 0, 416, 32, 416, 32, 224, 0, 224)
+polygon = PackedVector2Array(0, -1072, 720, -1072, 704, 1088, 0, 1088, 0, 416, 32, 416, 32, 224, 0, 224)
 
 [node name="ColorRect6" type="ColorRect" parent="Arena/walls/right"]
 offset_left = 1088.0
@@ -1437,7 +1438,7 @@ tile_set = SubResource("TileSet_w4q3b")
 
 [node name="right wizard wall" type="StaticBody2D" parent="Arena/walls/right" groups=["map_wall_right"]]
 position = Vector2(1099, 234)
-collision_layer = 16
+collision_layer = 0
 collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Arena/walls/right/right wizard wall"]
@@ -1456,7 +1457,7 @@ color = Color(0, 0, 0, 1)
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Arena/walls/left"]
 z_index = -1
-polygon = PackedVector2Array(-584, -448, 64, -448, 64, 224, 32, 224, 32, 416, 64, 416, 64, 1088, -592, 1088)
+polygon = PackedVector2Array(-592, -1096, 64, -1096, 64, 224, 32, 224, 32, 416, 64, 416, 64, 1088, -592, 1088)
 
 [node name="Zone_Left" type="Area2D" parent="Arena/walls/left"]
 collision_layer = 4
@@ -1510,7 +1511,7 @@ tile_set = SubResource("TileSet_w4q3b")
 
 [node name="left wizard wall" type="StaticBody2D" parent="Arena/walls/left" groups=["map_wall_left"]]
 position = Vector2(44, 224)
-collision_layer = 16
+collision_layer = 0
 collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Arena/walls/left/left wizard wall"]
@@ -2026,7 +2027,7 @@ trail_lifetime = 0.1
 process_material = SubResource("ParticleProcessMaterial_liqqh")
 
 [node name="platformsSFX" type="AudioStreamPlayer2D" parent="."]
-stream = ExtResource("24_qslgg")
+stream = ExtResource("25_eglsa")
 volume_db = 5.0
 
 [node name="Rain Player" type="AnimationPlayer" parent="."]

@@ -303,6 +303,7 @@ theme_override_font_sizes/font_size = 32
 text = "Start"
 
 [node name="Wizards" type="Button" parent="Layout/Bottom/Buttons"]
+visible = false
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "Wizards: 2"
