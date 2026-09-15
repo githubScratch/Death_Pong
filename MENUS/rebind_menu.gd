@@ -2,30 +2,49 @@ extends Control
 
 # Per-player keyboard/controller rebind screen. Opened by settings_menu.gd
 # via open_for_player(n). Reads/writes InputMap live through the InputRemap
-# autoload; only commits to disk on Confirm, and reverts to the state it
-# had when opened if cancelled with Backspace.
+# autoload; only commits to disk on OK, and reverts to the state it had when
+# opened if cancelled with Backspace (this also discards a mid-flight Rebind
+# Keys sequence or a Reset Keys press, same as any other unconfirmed change).
+#
+# Layout: a non-interactive D-pad diagram (one box for Up, a row below for
+# Left/Down/Right - matching a physical arrow-key cluster) just displays the
+# current bindings. "Rebind Keys" walks through all four directions in a
+# fixed Up -> Down -> Left -> Right sequence, prompting for each in turn;
+# "Reset Keys" snaps this player's four bindings back to their defaults;
+# "OK" saves and closes.
 
 const DIRECTIONS := ["up", "down", "left", "right"]
 
 var player_index: int = 1
 var _original_events: Dictionary = {}
 var _capturing_direction: String = ""
+var _sequence_remaining: Array = []
 var _flash_tween: Tween
 var _return_focus_to: Control = null
 
 @onready var title: Label = $CenterContainer/Panel/Margin/VBox/Title
-@onready var dir_buttons: Dictionary = {
-	"up": $CenterContainer/Panel/Margin/VBox/UpButton,
-	"down": $CenterContainer/Panel/Margin/VBox/DownButton,
-	"left": $CenterContainer/Panel/Margin/VBox/LeftButton,
-	"right": $CenterContainer/Panel/Margin/VBox/RightButton,
+@onready var dir_boxes: Dictionary = {
+	"up": $CenterContainer/Panel/Margin/VBox/DPad/UpRow/UpBox,
+	"down": $CenterContainer/Panel/Margin/VBox/DPad/BottomRow/DownBox,
+	"left": $CenterContainer/Panel/Margin/VBox/DPad/BottomRow/LeftBox,
+	"right": $CenterContainer/Panel/Margin/VBox/DPad/BottomRow/RightBox,
 }
-@onready var confirm_button: Button = $CenterContainer/Panel/Margin/VBox/ConfirmButton
+@onready var dir_labels: Dictionary = {
+	"up": $CenterContainer/Panel/Margin/VBox/DPad/UpRow/UpBox/UpLabel,
+	"down": $CenterContainer/Panel/Margin/VBox/DPad/BottomRow/DownBox/DownLabel,
+	"left": $CenterContainer/Panel/Margin/VBox/DPad/BottomRow/LeftBox/LeftLabel,
+	"right": $CenterContainer/Panel/Margin/VBox/DPad/BottomRow/RightBox/RightLabel,
+}
+@onready var prompt_label: Label = $CenterContainer/Panel/Margin/VBox/PromptLabel
+@onready var ok_button: Button = $CenterContainer/Panel/Margin/VBox/ButtonRow/VBox/OkButton
+@onready var rebind_button: Button = $CenterContainer/Panel/Margin/VBox/ButtonRow/VBox/RebindButton
+@onready var reset_button: Button = $CenterContainer/Panel/Margin/VBox/ButtonRow/VBox/ResetButton
+
 
 func _ready() -> void:
-	for dir in DIRECTIONS:
-		dir_buttons[dir].pressed.connect(_on_direction_pressed.bind(dir))
-	confirm_button.pressed.connect(_on_confirm_pressed)
+	ok_button.pressed.connect(_on_ok_pressed)
+	rebind_button.pressed.connect(_on_rebind_pressed)
+	reset_button.pressed.connect(_on_reset_pressed)
 	visible = false
 
 ## Call this to open the screen for a given player (1-4).
@@ -37,11 +56,13 @@ func open_for_player(p: int) -> void:
 	for dir in DIRECTIONS:
 		_original_events[dir] = InputMap.action_get_events(InputRemap.action_for(p, dir)).duplicate()
 	_capturing_direction = ""
+	_sequence_remaining.clear()
 	_stop_flash()
+	prompt_label.visible = false
 	_refresh_labels()
 	_set_background_focusable(get_parent(), false)
 	visible = true
-	dir_buttons["up"].grab_focus()
+	ok_button.grab_focus()
 
 ## Recursively disables (or restores) focus on every Control under `root`
 ## except this rebind screen and its own children, so keyboard/gamepad
@@ -64,29 +85,43 @@ func _set_background_focusable(root: Node, enabled: bool) -> void:
 func _refresh_labels() -> void:
 	for dir in DIRECTIONS:
 		var ev := InputRemap.get_display_event(InputRemap.action_for(player_index, dir))
-		dir_buttons[dir].text = "%s — %s" % [dir.to_upper(), InputRemap.describe_event(ev)]
+		dir_labels[dir].text = InputRemap.describe_event(ev)
 
-func _on_direction_pressed(dir: String) -> void:
+## Kicks off the full Up -> Down -> Left -> Right rebind sequence.
+func _on_rebind_pressed() -> void:
 	if _capturing_direction != "":
 		return
+	_sequence_remaining = DIRECTIONS.duplicate()
+	_begin_capture(_sequence_remaining.pop_front())
+
+func _begin_capture(dir: String) -> void:
 	_capturing_direction = dir
-	dir_buttons[dir].text = "%s — ...?" % dir.to_upper()
+	prompt_label.text = "PRESS %s" % dir.to_upper()
+	prompt_label.visible = true
 	_start_flash(dir)
 
+## Snaps this player's four bindings back to the project defaults. Like a
+## rebind, this only lives in InputMap until OK (or Backspace) is pressed.
+func _on_reset_pressed() -> void:
+	if _capturing_direction != "":
+		return
+	InputRemap.reset_player_to_defaults(player_index)
+	_refresh_labels()
+
 func _start_flash(dir: String) -> void:
-	var btn: Button = dir_buttons[dir]
+	var box: Control = dir_boxes[dir]
 	if _flash_tween:
 		_flash_tween.kill()
 	_flash_tween = create_tween().set_loops()
-	_flash_tween.tween_property(btn, "modulate:a", 0.25, 0.25)
-	_flash_tween.tween_property(btn, "modulate:a", 1.0, 0.25)
+	_flash_tween.tween_property(box, "modulate:a", 0.25, 0.25)
+	_flash_tween.tween_property(box, "modulate:a", 1.0, 0.25)
 
 func _stop_flash() -> void:
 	if _flash_tween:
 		_flash_tween.kill()
 		_flash_tween = null
 	for dir in DIRECTIONS:
-		dir_buttons[dir].modulate.a = 1.0
+		dir_boxes[dir].modulate.a = 1.0
 
 func _input(event: InputEvent) -> void:
 	if not visible:
@@ -127,8 +162,14 @@ func _input(event: InputEvent) -> void:
 
 	InputRemap.set_binding(InputRemap.action_for(player_index, _capturing_direction), candidate)
 	_stop_flash()
-	_capturing_direction = ""
 	_refresh_labels()
+
+	if _sequence_remaining.is_empty():
+		_capturing_direction = ""
+		prompt_label.visible = false
+		ok_button.grab_focus()
+	else:
+		_begin_capture(_sequence_remaining.pop_front())
 
 ## Rebuilds the captured stick event with a clean +-1 axis_value instead of
 ## whatever exact magnitude triggered the capture, so the saved binding
@@ -141,12 +182,12 @@ func _normalized_stick_event(source: InputEventJoypadMotion, target_sign: float)
 	return motion
 
 func _flash_rejection() -> void:
-	var btn: Button = dir_buttons[_capturing_direction]
+	var box: Control = dir_boxes[_capturing_direction]
 	var t := create_tween()
-	t.tween_property(btn, "modulate", Color(1, 0.35, 0.35), 0.08)
-	t.tween_property(btn, "modulate", Color(1, 1, 1), 0.08)
+	t.tween_property(box, "modulate", Color(1, 0.35, 0.35), 0.08)
+	t.tween_property(box, "modulate", Color(1, 1, 1), 0.08)
 
-func _on_confirm_pressed() -> void:
+func _on_ok_pressed() -> void:
 	if _capturing_direction != "":
 		return
 	InputRemap.save_bindings()
@@ -156,6 +197,8 @@ func _cancel_and_close() -> void:
 	if _capturing_direction != "":
 		_stop_flash()
 		_capturing_direction = ""
+	_sequence_remaining.clear()
+	prompt_label.visible = false
 	for dir in DIRECTIONS:
 		var action := InputRemap.action_for(player_index, dir)
 		InputMap.action_erase_events(action)

@@ -190,6 +190,18 @@ func reset_all_to_defaults() -> void:
 			ev.physical_keycode = DEFAULTS[action]
 			set_binding(action, ev)
 
+## Single-player "clean slate" for the rebind screen's Reset Keys button:
+## snaps just this player's four directions back to their keyboard defaults.
+## Unlike reset_all_to_defaults(), this doesn't touch save data or the other
+## three players - it's a live InputMap change like any other in-progress
+## rebind, left to the caller to persist (OK) or discard (Backspace).
+func reset_player_to_defaults(player: int) -> void:
+	for dir in DIRECTIONS:
+		var action := action_for(player, dir)
+		var ev := InputEventKey.new()
+		ev.physical_keycode = DEFAULTS[action]
+		set_binding(action, ev)
+
 func _delete_own_save_files() -> void:
 	for path in OWN_SAVE_FILES:
 		if FileAccess.file_exists(path):

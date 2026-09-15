@@ -1,7 +1,19 @@
-[gd_scene load_steps=3 format=3 uid="uid://d2v55w8qc8mvb"]
+[gd_scene load_steps=4 format=3 uid="uid://d2v55w8qc8mvb"]
 
 [ext_resource type="Theme" uid="uid://dka4pq4oxkc3b" path="res://MENUS/Menu_Theme.tres" id="1_theme"]
 [ext_resource type="Script" uid="uid://3vjhi3udaqcf" path="res://MENUS/rebind_menu.gd" id="2_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dpad"]
+content_margin_left = 6.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 6.0
+bg_color = Color(0.1, 0.1, 0.1, 0.6)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+corner_detail = 5
 
 [node name="RebindMenu" type="Control"]
 layout_mode = 3
@@ -31,7 +43,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Panel" type="PanelContainer" parent="CenterContainer"]
-custom_minimum_size = Vector2(380, 0)
+custom_minimum_size = Vector2(560, 0)
 layout_mode = 2
 
 [node name="Margin" type="MarginContainer" parent="CenterContainer/Panel"]
@@ -43,7 +55,7 @@ theme_override_constants/margin_bottom = 24
 
 [node name="VBox" type="VBoxContainer" parent="CenterContainer/Panel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 18
 
 [node name="Title" type="Label" parent="CenterContainer/Panel/Margin/VBox"]
 layout_mode = 2
@@ -51,22 +63,92 @@ theme_override_font_sizes/font_size = 30
 text = "P1 CONTROLS"
 horizontal_alignment = 1
 
-[node name="UpButton" type="Button" parent="CenterContainer/Panel/Margin/VBox"]
+[node name="DPad" type="VBoxContainer" parent="CenterContainer/Panel/Margin/VBox"]
 layout_mode = 2
-text = "UP — W"
+theme_override_constants/separation = 8
 
-[node name="DownButton" type="Button" parent="CenterContainer/Panel/Margin/VBox"]
+[node name="UpRow" type="CenterContainer" parent="CenterContainer/Panel/Margin/VBox/DPad"]
 layout_mode = 2
-text = "DOWN — S"
 
-[node name="LeftButton" type="Button" parent="CenterContainer/Panel/Margin/VBox"]
+[node name="UpBox" type="PanelContainer" parent="CenterContainer/Panel/Margin/VBox/DPad/UpRow"]
+custom_minimum_size = Vector2(96, 64)
 layout_mode = 2
-text = "LEFT — A"
+theme_override_styles/panel = SubResource("StyleBoxFlat_dpad")
 
-[node name="RightButton" type="Button" parent="CenterContainer/Panel/Margin/VBox"]
+[node name="UpLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox/DPad/UpRow/UpBox"]
 layout_mode = 2
-text = "RIGHT — D"
+theme_override_font_sizes/font_size = 22
+text = "W"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="ConfirmButton" type="Button" parent="CenterContainer/Panel/Margin/VBox"]
+[node name="BottomRow" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBox/DPad"]
 layout_mode = 2
-text = "CONFIRM"
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="LeftBox" type="PanelContainer" parent="CenterContainer/Panel/Margin/VBox/DPad/BottomRow"]
+custom_minimum_size = Vector2(96, 64)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_dpad")
+
+[node name="LeftLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox/DPad/BottomRow/LeftBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "A"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DownBox" type="PanelContainer" parent="CenterContainer/Panel/Margin/VBox/DPad/BottomRow"]
+custom_minimum_size = Vector2(96, 64)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_dpad")
+
+[node name="DownLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox/DPad/BottomRow/DownBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "S"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="RightBox" type="PanelContainer" parent="CenterContainer/Panel/Margin/VBox/DPad/BottomRow"]
+custom_minimum_size = Vector2(96, 64)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_dpad")
+
+[node name="RightLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox/DPad/BottomRow/RightBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "D"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PromptLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox"]
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "PRESS UP"
+horizontal_alignment = 1
+
+[node name="ButtonRow" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/Panel/Margin/VBox/ButtonRow"]
+layout_mode = 2
+
+[node name="OkButton" type="Button" parent="CenterContainer/Panel/Margin/VBox/ButtonRow/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "OK"
+
+[node name="RebindButton" type="Button" parent="CenterContainer/Panel/Margin/VBox/ButtonRow/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "REBIND KEYS"
+
+[node name="ResetButton" type="Button" parent="CenterContainer/Panel/Margin/VBox/ButtonRow/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "RESET KEYS"
