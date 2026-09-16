@@ -1,20 +1,40 @@
 extends Node
 
 # Autoload: owns keyboard/controller-button rebinding for p1-p4's
-# up/down/left/right actions - defaults, persistence, and conflict rules.
+# up/down/left/right actions, plus each seat's own dedicated "magic" button
+# (see ALL_SLOTS/bind_magic_mode below) - defaults, persistence, and
+# conflict rules for all five bindable slots alike.
 #
 # Rules enforced here (per the design agreed with the project owner):
-#  - Space / Enter / Escape / Backspace can never be bound to a direction.
-#  - A player can't bind the same physical input to two of their own directions.
-#  - Two players can't share the same physical input - for keyboard that means
-#    the same key; for a controller it means the same button on the SAME
-#    physical device (two different pads pressing "A" is not a conflict).
+#  - Space / Enter / Escape / Backspace can never be bound to a direction (or
+#    the magic button - RESERVED_KEYCODES applies to every slot equally).
+#  - A player can't bind the same physical input to two of their own slots
+#    (any two of up/down/left/right/magic).
+#  - Two players can't share the same physical input, on any of their own
+#    slots - for keyboard that means the same key; for a controller it means
+#    the same button on the SAME physical device (two different pads
+#    pressing "A" is not a conflict).
 #  - InputEventKey and InputEventJoypadButton are always accepted. A stick's
-#    horizontal axis may also be bound to left/right (only) - see STICK_AXIS
-#    and rebind_menu.gd. Vertical axis and triggers are still ignored.
+#    horizontal axis may also be bound to left/right (only, never magic) -
+#    see STICK_AXIS and rebind_menu.gd. Vertical axis and triggers are still
+#    ignored.
+#  - Each seat's own bind_magic_mode ("movement"/"button"/"both") lives here
+#    too, alongside the keys themselves, since rebind_menu.gd edits both with
+#    the same commit-on-OK/revert-on-Backspace flow - see that var's own doc
+#    comment for what each mode actually changes in wizard.gd/bot_controller.gd.
 
 const PLAYERS := [1, 2, 3, 4]
 const DIRECTIONS := ["up", "down", "left", "right"]
+
+## Every bindable slot a player has, directions plus the dedicated magic
+## button added for the "bind magic to" feature (see bind_magic_mode below).
+## validate_new_binding()/save_bindings()/_load_bindings()/reset_*_to_defaults()
+## all loop this instead of DIRECTIONS so the magic key gets the exact same
+## conflict-checking, persistence, and reset treatment every direction
+## already had - rebind_menu.gd's own D-pad diagram still only ever shows
+## the four literal directions, since "magic" has no arrow-key box, but the
+## underlying key it's bound to is just as real a binding as any of those.
+const ALL_SLOTS := ["up", "down", "left", "right", "magic"]
 
 const RESERVED_KEYCODES := [KEY_SPACE, KEY_ENTER, KEY_ESCAPE, KEY_BACKSPACE]
 const RESERVED_JOY_BUTTONS := [JOY_BUTTON_START]
@@ -33,13 +53,47 @@ const DEFAULTS := {
 	"p2_up": KEY_UP, "p2_down": KEY_DOWN, "p2_left": KEY_LEFT, "p2_right": KEY_RIGHT,
 	"p3_up": KEY_J, "p3_down": KEY_M, "p3_left": KEY_N, "p3_right": KEY_COMMA,
 	"p4_up": KEY_KP_8, "p4_down": KEY_KP_5, "p4_left": KEY_KP_4, "p4_right": KEY_KP_6,
+	"p1_magic": KEY_Q, "p2_magic": KEY_SHIFT, "p3_magic": KEY_H, "p4_magic": KEY_KP_7,
 }
+
+## Per-seat "bind magic to" choice - index 0..3 for seats 1..4, one of
+## "movement" (today's original behavior: each class's own ability gesture
+## lives entirely on its usual direction(s) - Up-hold for Growth, double-tap
+## Left/Right for Blink/Ice, double-tap-hold Down for Meteor; the dedicated
+## magic action below does nothing), "button" (the opposite - every one of
+## those gestures moves to the dedicated magic action instead, and the
+## directions that used to trigger them go back to being plain movement
+## only), or "both" (either input works). Jumping/diving themselves are
+## never affected by this - only each class's own special ability gesture -
+## see wizard.gd's _magic_hold_active()/its per-ability magic-button blocks,
+## and bot_controller.gd's own mirror of the same choice for a bot-controlled
+## seat. Defaults to "movement" for every seat, matching the project having
+## no dedicated magic button at all before this existed. Persisted alongside
+## the key bindings themselves (see save_bindings()/_load_bindings()) rather
+## than in Game_Settings.gd, since rebind_menu.gd edits it with the exact
+## same "commits on OK, reverts on Backspace" transactional flow every other
+## edit on that screen already uses - it's part of one player's control
+## scheme, not a match-setup option.
+var bind_magic_mode: Array = ["movement", "movement", "movement", "movement"]
 
 func _ready() -> void:
 	_load_bindings()
 
 func action_for(player: int, dir: String) -> String:
 	return "p%d_%s" % [player, dir]
+
+func magic_mode_for(player: int) -> String:
+	if player < 1 or player > bind_magic_mode.size():
+		return "movement"
+	return bind_magic_mode[player - 1]
+
+## Live in-InputMap change only, same as set_binding() below - left to the
+## caller (rebind_menu.gd) to persist via save_bindings() on OK or discard by
+## restoring the snapshot it took in open_for_player() on Backspace.
+func set_magic_mode(player: int, mode: String) -> void:
+	if player < 1 or player > bind_magic_mode.size():
+		return
+	bind_magic_mode[player - 1] = mode
 
 ## The first key/pad-button/stick event currently bound to this action, or null.
 func get_display_event(action: String) -> InputEvent:
@@ -90,17 +144,17 @@ func validate_new_binding(player: int, dir: String, candidate: InputEvent) -> St
 	if candidate is InputEventJoypadMotion and dir != "left" and dir != "right":
 		return "reserved"
 
-	for other_dir in DIRECTIONS:
-		if other_dir == dir:
+	for other_slot in ALL_SLOTS:
+		if other_slot == dir:
 			continue
-		if _same_input(candidate, get_display_event(action_for(player, other_dir))):
+		if _same_input(candidate, get_display_event(action_for(player, other_slot))):
 			return "used_by_self"
 
 	for p in PLAYERS:
 		if p == player:
 			continue
-		for other_dir in DIRECTIONS:
-			if _same_input(candidate, get_display_event(action_for(p, other_dir))):
+		for other_slot in ALL_SLOTS:
+			if _same_input(candidate, get_display_event(action_for(p, other_slot))):
 				return "used_by_other"
 
 	return ""
@@ -123,9 +177,10 @@ func set_binding(action: String, ev: InputEvent) -> void:
 func save_bindings() -> void:
 	var cfg := ConfigFile.new()
 	for p in PLAYERS:
-		for dir in DIRECTIONS:
-			var ev := get_display_event(action_for(p, dir))
-			cfg.set_value("p%d" % p, dir, _serialize(ev))
+		for slot in ALL_SLOTS:
+			var ev := get_display_event(action_for(p, slot))
+			cfg.set_value("p%d" % p, slot, _serialize(ev))
+		cfg.set_value("p%d" % p, "magic_mode", magic_mode_for(p))
 	cfg.save(SAVE_PATH)
 
 func _serialize(ev: InputEvent) -> Dictionary:
@@ -163,12 +218,14 @@ func _load_bindings() -> void:
 		var section := "p%d" % p
 		if not cfg.has_section(section):
 			continue
-		for dir in DIRECTIONS:
-			if not cfg.has_section_key(section, dir):
+		for slot in ALL_SLOTS:
+			if not cfg.has_section_key(section, slot):
 				continue
-			var ev := _deserialize(cfg.get_value(section, dir))
+			var ev := _deserialize(cfg.get_value(section, slot))
 			if ev:
-				set_binding(action_for(p, dir), ev)
+				set_binding(action_for(p, slot), ev)
+		if cfg.has_section_key(section, "magic_mode"):
+			set_magic_mode(p, cfg.get_value(section, "magic_mode"))
 
 ## Every file this game itself writes under user:// - extend this list if
 ## more save data (e.g. persisted volume settings) gets added later.
@@ -184,11 +241,12 @@ const OWN_SAVE_FILES := [SAVE_PATH]
 func reset_all_to_defaults() -> void:
 	_delete_own_save_files()
 	for p in PLAYERS:
-		for dir in DIRECTIONS:
-			var action := action_for(p, dir)
+		for slot in ALL_SLOTS:
+			var action := action_for(p, slot)
 			var ev := InputEventKey.new()
 			ev.physical_keycode = DEFAULTS[action]
 			set_binding(action, ev)
+	bind_magic_mode = ["movement", "movement", "movement", "movement"]
 
 ## Single-player "clean slate" for the rebind screen's Reset Keys button:
 ## snaps just this player's four directions back to their keyboard defaults.
@@ -196,8 +254,8 @@ func reset_all_to_defaults() -> void:
 ## three players - it's a live InputMap change like any other in-progress
 ## rebind, left to the caller to persist (OK) or discard (Backspace).
 func reset_player_to_defaults(player: int) -> void:
-	for dir in DIRECTIONS:
-		var action := action_for(player, dir)
+	for slot in ALL_SLOTS:
+		var action := action_for(player, slot)
 		var ev := InputEventKey.new()
 		ev.physical_keycode = DEFAULTS[action]
 		set_binding(action, ev)

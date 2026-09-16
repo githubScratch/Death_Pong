@@ -357,6 +357,29 @@ var _action_down: String
 var _action_left: String
 var _action_right: String
 
+## Cached like the four above - only ever meaningful when
+## InputRemap.magic_mode_for(seat) is "button" or "both" (see
+## _ability_direction_action()/_execute_growth()); resolved unconditionally
+## in _ready() anyway since InputRemap.action_for() always returns SOME
+## action regardless of mode, and a seat's mode can change later via the
+## rebind menu without this node being re-created.
+var _action_magic: String
+
+## Set alongside _up_press_pending whenever _execute_growth() presses Up (or
+## _action_magic, in "button" mode - see _execute_growth()) so the matching
+## release in _physics_process() lets go of whichever action was actually
+## pressed, not always _action_up. "" means the pending Up-equivalent press
+## was a normal cast/jump on _action_up, not a Growth hold.
+var _growth_hold_action: String = ""
+
+## Set alongside _ability_gesture_action whenever a magic-button gesture
+## (Blink/Ice fired via _action_magic in "button"/"both" mode) needs a brief
+## direction-key tap first to set the wizard's facing before the real
+## gesture fires - see _ability_facing_action()/_advance_ability_gesture().
+## "" means no facing nudge is needed this gesture (movement-mode gestures
+## already tap the real direction key, which sets facing as a side effect).
+var _ability_gesture_facing_action: String = ""
+
 ## True for exactly one physics frame after a cast decision presses Up, OR
 ## for as long as _up_hold_seconds_remaining counts down for a Growth hold -
 ## see _update_cast_decision()/_execute_growth(). Casting is normally a
@@ -647,6 +670,7 @@ func _ready() -> void:
 	_action_down = InputRemap.action_for(seat, "down")
 	_action_left = InputRemap.action_for(seat, "left")
 	_action_right = InputRemap.action_for(seat, "right")
+	_action_magic = InputRemap.action_for(seat, "magic")
 
 	for child in get_parent().get_children():
 		if child is Wizard:
@@ -716,7 +740,8 @@ func _physics_process(delta: float) -> void:
 		if _up_hold_seconds_remaining > 0.0:
 			_up_hold_seconds_remaining = maxf(_up_hold_seconds_remaining - delta, 0.0)
 		else:
-			Input.action_release(_action_up)
+			Input.action_release(_growth_hold_action if _growth_hold_action != "" else _action_up)
+			_growth_hold_action = ""
 			_up_press_pending = false
 
 	# Same one-frame-pulse release as Up above, for a dash/dive's Down press
@@ -1573,7 +1598,16 @@ func _update_ability_usage() -> void:
 	var direction_action := _ability_direction_action(ability)
 	if direction_action == "":
 		return
-	_start_ability_gesture(direction_action)
+	# When this seat's magic is bound to the button, wizard.gd's Blink/Ice
+	# still fire in whatever direction the wizard is FACING (see wizard.gd's
+	# _update_blink()/_update_ice_zone() magic-button branch), so a nudge tap
+	# on the real direction key is needed first purely to set that facing -
+	# see _ability_facing_action()'s own doc comment for why this has to be
+	# a separate action from direction_action itself.
+	var facing_action := ""
+	if direction_action == _action_magic:
+		facing_action = _ability_facing_action(ability)
+	_start_ability_gesture(direction_action, facing_action)
 	_ability_cooldown_remaining = _ability_policy.cooldown
 
 
@@ -1582,9 +1616,44 @@ func _update_ability_usage() -> void:
 ## that direction (toward the goal-side target for Blink, toward the ball
 ## for Ice, always Down for Meteor). Returns "" if the ability isn't one of
 ## these three, or if there's no ball to aim relative to yet for Blink/Ice.
+## When this seat's magic is bound to the button ("button" mode - "both"
+## still prefers the real direction key, since it's just as available and
+## needs no facing nudge), the gesture itself targets _action_magic instead
+## - see wizard.gd's mode-aware _update_blink()/_update_ice_zone()/
+## _update_meteor(), which all read _action_magic taps identically to
+## direction taps once mode != "movement".
 func _ability_direction_action(ability: WizardAbility) -> String:
+	if InputRemap.magic_mode_for(seat) == "button":
+		return _action_magic
+
 	if ability is MeteorAbility:
 		return _action_down
+
+	var ball_state := _delayed_ball_state()
+	if ball_state.is_empty():
+		return ""
+
+	if ability is BlinkAbility:
+		return _action_right if (_target_x - _own_wizard.global_position.x) > 0.0 else _action_left
+	if ability is IceAbility:
+		var ball_x: float = ball_state["position"].x
+		return _action_right if (ball_x - _own_wizard.global_position.x) > 0.0 else _action_left
+
+	return ""
+
+
+## Only called when _ability_direction_action() returned _action_magic (i.e.
+## this seat's magic is in "button" mode) for a Blink/Ice ability - Meteor
+## isn't directional at all, so it's excluded here. Mirrors the OLD
+## direction-selection logic above exactly, but its result is used only to
+## pick a direction key for a brief facing-nudge tap (see
+## _advance_ability_gesture()), never as the gesture's own action, since
+## wizard.gd's button-mode Blink/Ice reads facing (sprite.flip_h) rather
+## than a direction key press. Returns "" for Meteor or if there's no ball
+## to aim relative to yet.
+func _ability_facing_action(ability: WizardAbility) -> String:
+	if ability is MeteorAbility:
+		return ""
 
 	var ball_state := _delayed_ball_state()
 	if ball_state.is_empty():
@@ -1614,7 +1683,12 @@ func _execute_growth(policy: GrowthPolicy) -> void:
 	if ability == null:
 		return
 
-	Input.action_press(_action_up)
+	# In "button" mode, wizard.gd's Growth hold is read off _action_magic
+	# instead of Up (see wizard.gd's magic_also_casts/_magic_hold_active()) -
+	# "movement" and "both" both still accept the real Up hold, so only
+	# "button" needs to swap which action gets pressed/held/released here.
+	_growth_hold_action = _action_magic if InputRemap.magic_mode_for(seat) == "button" else _action_up
+	Input.action_press(_growth_hold_action)
 	_up_press_pending = true
 	_up_hold_seconds_remaining = ability.hold_confirm_time + ability.growth_duration_per_tier * maxf(float(policy.tiers_to_grow), 1.0)
 	_cast_cooldown_remaining = profile.cast_cooldown
@@ -1623,8 +1697,12 @@ func _execute_growth(policy: GrowthPolicy) -> void:
 
 ## Starts a Blink/Ice/Meteor double-tap gesture on the given action - see
 ## _advance_ability_gesture() for the actual frame-by-frame execution.
-func _start_ability_gesture(action_name: String) -> void:
+## facing_action, when non-"", is briefly tapped first purely to set the
+## wizard's facing before the real gesture action fires - see
+## _ability_facing_action()'s doc comment for when/why that's needed.
+func _start_ability_gesture(action_name: String, facing_action: String = "") -> void:
 	_ability_gesture_action = action_name
+	_ability_gesture_facing_action = facing_action
 	_ability_gesture_step = 1
 
 
@@ -1653,11 +1731,29 @@ func _start_ability_gesture(action_name: String) -> void:
 func _advance_ability_gesture() -> void:
 	if _ability_gesture_step == 0:
 		return
+	# wizard.gd's magic button fires Blink/Ice/Meteor on a single press now
+	# (double-tapping was only ever needed because Left/Right/Down double as
+	# movement keys - the dedicated magic button has no such dual purpose,
+	# so it always fires immediately - see wizard.gd's _update_blink()/
+	# _update_ice_zone()/_update_meteor() magic-button blocks). A gesture
+	# targeting _action_magic (this seat's mode is "button" - see
+	# _ability_direction_action()) only needs a clean one-tap pulse, not the
+	# full double-tap sequence a direction key still requires.
+	var single_tap := _ability_gesture_action == _action_magic
+	var final_step := 3 if single_tap else 5
 	match _ability_gesture_step:
 		1:
 			Input.action_release(_action_left)
 			Input.action_release(_action_right)
+			# Facing nudge (button-mode Blink/Ice only - see
+			# _ability_facing_action()): press the real direction key one
+			# step early so wizard.gd's movement code has a frame to flip
+			# sprite.flip_h before the magic-button tap below reads it.
+			if _ability_gesture_facing_action != "":
+				Input.action_press(_ability_gesture_facing_action)
 		2:
+			if _ability_gesture_facing_action != "":
+				Input.action_release(_ability_gesture_facing_action)
 			Input.action_press(_ability_gesture_action)
 		3:
 			Input.action_release(_ability_gesture_action)
@@ -1666,9 +1762,10 @@ func _advance_ability_gesture() -> void:
 		5:
 			Input.action_release(_ability_gesture_action)
 	_ability_gesture_step += 1
-	if _ability_gesture_step > 5:
+	if _ability_gesture_step > final_step:
 		_ability_gesture_step = 0
 		_ability_gesture_action = ""
+		_ability_gesture_facing_action = ""
 
 
 ## Debug-only visualization of perception + the current decisions - draws

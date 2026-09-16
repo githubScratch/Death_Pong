@@ -9,14 +9,35 @@ extends Control
 # Layout: a non-interactive D-pad diagram (one box for Up, a row below for
 # Left/Down/Right - matching a physical arrow-key cluster) just displays the
 # current bindings. "Rebind Keys" walks through all four directions in a
-# fixed Up -> Down -> Left -> Right sequence, prompting for each in turn;
-# "Reset Keys" snaps this player's four bindings back to their defaults;
-# "OK" saves and closes.
+# fixed Up -> Down -> Left -> Right sequence, prompting for each in turn -
+# plus one more for Magic afterward, whenever this player's bind-magic-mode
+# actually uses it (see below); "Reset Keys" snaps this player's four
+# direction bindings AND the magic key back to their defaults; "OK" saves
+# and closes.
+#
+# "BindMagicButton" cycles this player's own bind_magic_mode (see
+# Input_Remap.gd's own doc comment on that var for what each of "movement"/
+# "button"/"both" actually changes in wizard.gd/bot_controller.gd) and
+# relabels itself to match; MagicLabel (under DPad/ExtraRow, alongside the
+# four literal direction boxes) shows the current magic key and is only
+# visible outside "movement" mode, since that key isn't read by anything
+# while movement alone still covers every ability.
 
 const DIRECTIONS := ["up", "down", "left", "right"]
 
+## Cycle order for BindMagicButton - see _on_bind_magic_pressed(). Matches
+## InputRemap.bind_magic_mode's own three values exactly; MAGIC_MODE_LABELS
+## below is this same order's button text.
+const MAGIC_MODES := ["movement", "button", "both"]
+const MAGIC_MODE_LABELS := {
+	"movement": "BIND MAGIC TO: MOVEMENT",
+	"button": "BIND MAGIC TO: BUTTON",
+	"both": "BIND MAGIC TO: BOTH",
+}
+
 var player_index: int = 1
 var _original_events: Dictionary = {}
+var _original_magic_mode: String = "movement"
 var _capturing_direction: String = ""
 var _sequence_remaining: Array = []
 var _flash_tween: Tween
@@ -24,13 +45,18 @@ var _return_focus_to: Control = null
 
 @onready var title: Label = $CenterContainer/Panel/Margin/VBox/Title
 @onready var dir_boxes: Dictionary = {
-	"up": $CenterContainer/Panel/Margin/VBox/DPad/UpRow/UpBox,
+	"up": $CenterContainer/Panel/Margin/VBox/DPad/UpRow/HBoxContainer/UpBox,
 	"down": $CenterContainer/Panel/Margin/VBox/DPad/BottomRow/DownBox,
 	"left": $CenterContainer/Panel/Margin/VBox/DPad/BottomRow/LeftBox,
 	"right": $CenterContainer/Panel/Margin/VBox/DPad/BottomRow/RightBox,
+	# No arrow-key box of its own on the D-pad diagram - MagicLabel/BottomBox
+	# below is used as this slot's flash target instead, so capturing it
+	# reuses the exact same _start_flash()/_stop_flash()/_flash_rejection()
+	# code every direction already goes through, no special-casing needed.
+	"magic": $CenterContainer/Panel/Margin/VBox/DPad/UpRow/HBoxContainer/MagicBox,
 }
 @onready var dir_labels: Dictionary = {
-	"up": $CenterContainer/Panel/Margin/VBox/DPad/UpRow/UpBox/UpLabel,
+	"up": $CenterContainer/Panel/Margin/VBox/DPad/UpRow/HBoxContainer/UpBox/UpLabel,
 	"down": $CenterContainer/Panel/Margin/VBox/DPad/BottomRow/DownBox/DownLabel,
 	"left": $CenterContainer/Panel/Margin/VBox/DPad/BottomRow/LeftBox/LeftLabel,
 	"right": $CenterContainer/Panel/Margin/VBox/DPad/BottomRow/RightBox/RightLabel,
@@ -39,12 +65,16 @@ var _return_focus_to: Control = null
 @onready var ok_button: Button = $CenterContainer/Panel/Margin/VBox/ButtonRow/VBox/OkButton
 @onready var rebind_button: Button = $CenterContainer/Panel/Margin/VBox/ButtonRow/VBox/RebindButton
 @onready var reset_button: Button = $CenterContainer/Panel/Margin/VBox/ButtonRow/VBox/ResetButton
+@onready var bind_magic_button: Button = $CenterContainer/Panel/Margin/VBox/ButtonRow/VBox/BindMagicButton
+@onready var magic_label: Label = $CenterContainer/Panel/Margin/VBox/DPad/UpRow/HBoxContainer/MagicBox/MagicLabel
+@onready var magic_box: PanelContainer = $CenterContainer/Panel/Margin/VBox/DPad/UpRow/HBoxContainer/MagicBox
 
 
 func _ready() -> void:
 	ok_button.pressed.connect(_on_ok_pressed)
 	rebind_button.pressed.connect(_on_rebind_pressed)
 	reset_button.pressed.connect(_on_reset_pressed)
+	bind_magic_button.pressed.connect(_on_bind_magic_pressed)
 	visible = false
 
 ## Call this to open the screen for a given player (1-4).
@@ -53,13 +83,15 @@ func open_for_player(p: int) -> void:
 	title.text = "P%d CONTROLS" % p
 	_return_focus_to = get_viewport().gui_get_focus_owner()
 	_original_events.clear()
-	for dir in DIRECTIONS:
-		_original_events[dir] = InputMap.action_get_events(InputRemap.action_for(p, dir)).duplicate()
+	for slot in InputRemap.ALL_SLOTS:
+		_original_events[slot] = InputMap.action_get_events(InputRemap.action_for(p, slot)).duplicate()
+	_original_magic_mode = InputRemap.magic_mode_for(p)
 	_capturing_direction = ""
 	_sequence_remaining.clear()
 	_stop_flash()
 	prompt_label.visible = false
 	_refresh_labels()
+	_refresh_magic_ui()
 	_set_background_focusable(get_parent(), false)
 	visible = true
 	ok_button.grab_focus()
@@ -87,11 +119,41 @@ func _refresh_labels() -> void:
 		var ev := InputRemap.get_display_event(InputRemap.action_for(player_index, dir))
 		dir_labels[dir].text = InputRemap.describe_event(ev)
 
-## Kicks off the full Up -> Down -> Left -> Right rebind sequence.
+## Updates BindMagicButton's own text to the current mode, and shows/hides +
+## relabels MagicLabel to match - hidden entirely in "movement" mode (no
+## dedicated magic key is relevant to show), otherwise showing this player's
+## current magic key exactly like a fifth direction label would.
+func _refresh_magic_ui() -> void:
+	var mode: String = InputRemap.magic_mode_for(player_index)
+	bind_magic_button.text = MAGIC_MODE_LABELS.get(mode, MAGIC_MODE_LABELS["movement"])
+	magic_label.visible = mode != "movement"
+	if magic_label.visible:
+		var ev := InputRemap.get_display_event(InputRemap.action_for(player_index, "magic"))
+		magic_label.text = "%s" % InputRemap.describe_event(ev)
+
+## Cycles this player's bind-magic-mode movement -> button -> both ->
+## movement, same as any other in-progress edit on this screen - live in
+## InputRemap until OK (or Backspace) is pressed, see open_for_player()'s own
+## snapshot and _cancel_and_close()'s restore.
+func _on_bind_magic_pressed() -> void:
+	if _capturing_direction != "":
+		return
+	var current: String = InputRemap.magic_mode_for(player_index)
+	var next: String = MAGIC_MODES[(MAGIC_MODES.find(current) + 1) % MAGIC_MODES.size()]
+	InputRemap.set_magic_mode(player_index, next)
+	_refresh_magic_ui()
+
+## Kicks off the full Up -> Down -> Left -> Right rebind sequence, plus a
+## final Magic prompt whenever this player's current bind-magic-mode
+## actually uses the dedicated magic button ("button" or "both") - skipped
+## outright in "movement" mode, where that key is bound but never read by
+## anything, so prompting for it would be pure noise.
 func _on_rebind_pressed() -> void:
 	if _capturing_direction != "":
 		return
 	_sequence_remaining = DIRECTIONS.duplicate()
+	if InputRemap.magic_mode_for(player_index) != "movement":
+		_sequence_remaining.append("magic")
 	_begin_capture(_sequence_remaining.pop_front())
 
 func _begin_capture(dir: String) -> void:
@@ -100,13 +162,16 @@ func _begin_capture(dir: String) -> void:
 	prompt_label.visible = true
 	_start_flash(dir)
 
-## Snaps this player's four bindings back to the project defaults. Like a
-## rebind, this only lives in InputMap until OK (or Backspace) is pressed.
+## Snaps this player's four directions AND magic key back to the project
+## defaults - NOT the bind-magic-mode choice itself, which is a separate
+## setting from "which key," untouched here. Like a rebind, this only lives
+## in InputMap until OK (or Backspace) is pressed.
 func _on_reset_pressed() -> void:
 	if _capturing_direction != "":
 		return
 	InputRemap.reset_player_to_defaults(player_index)
 	_refresh_labels()
+	_refresh_magic_ui()
 
 func _start_flash(dir: String) -> void:
 	var box: Control = dir_boxes[dir]
@@ -120,7 +185,7 @@ func _stop_flash() -> void:
 	if _flash_tween:
 		_flash_tween.kill()
 		_flash_tween = null
-	for dir in DIRECTIONS:
+	for dir in dir_boxes:
 		dir_boxes[dir].modulate.a = 1.0
 
 func _input(event: InputEvent) -> void:
@@ -162,7 +227,10 @@ func _input(event: InputEvent) -> void:
 
 	InputRemap.set_binding(InputRemap.action_for(player_index, _capturing_direction), candidate)
 	_stop_flash()
-	_refresh_labels()
+	if _capturing_direction == "magic":
+		_refresh_magic_ui()
+	else:
+		_refresh_labels()
 
 	if _sequence_remaining.is_empty():
 		_capturing_direction = ""
@@ -199,11 +267,12 @@ func _cancel_and_close() -> void:
 		_capturing_direction = ""
 	_sequence_remaining.clear()
 	prompt_label.visible = false
-	for dir in DIRECTIONS:
-		var action := InputRemap.action_for(player_index, dir)
+	for slot in InputRemap.ALL_SLOTS:
+		var action := InputRemap.action_for(player_index, slot)
 		InputMap.action_erase_events(action)
-		for ev in _original_events[dir]:
+		for ev in _original_events[slot]:
 			InputMap.action_add_event(action, ev)
+	InputRemap.set_magic_mode(player_index, _original_magic_mode)
 	_close()
 
 func _close() -> void:

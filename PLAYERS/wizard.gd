@@ -302,6 +302,12 @@ var _action_up: String
 var _action_down: String
 var _action_left: String
 var _action_right: String
+## This seat's own dedicated magic button (see MENUS/Input_Remap.gd's
+## bind_magic_mode) - only actually read by anything while that seat's mode
+## is "button" or "both"; see _magic_hold_active() (Growth) and each of
+## _update_blink()/_update_ice_zone()/_update_meteor()'s own magic-button
+## block for where.
+var _action_magic: String
 
 ## This wizard's own scene, preloaded once - used by _spawn_blink_clone() to
 ## instantiate a clone. A fresh instantiate() rather than duplicate()-ing
@@ -341,6 +347,7 @@ func _ready() -> void:
 	_action_down = InputRemap.action_for(seat, "down")
 	_action_left = InputRemap.action_for(seat, "left")
 	_action_right = InputRemap.action_for(seat, "right")
+	_action_magic = InputRemap.action_for(seat, "magic")
 
 	# Even with Outlines.gdshader's texture_region clamp, the engine's
 	# default Linear filtering still blends a fraction of a pixel across
@@ -565,7 +572,20 @@ func _physics_process(delta: float) -> void:
 	# (see _update_growth_channel()), which is well past the one-or-two-frame
 	# span a plain tap occupies, so a tap always jumps normally and only a
 	# hold that survives the confirm window goes on to hover instead.
-	if Input.is_action_just_pressed(_action_up) and not _is_meteor:
+	#
+	# Growth is the one class where the magic button (see
+	# MENUS/Input_Remap.gd's bind_magic_mode) can ALSO trigger this same
+	# cast+jump, in "button"/"both" mode - that's what _update_growth_channel()
+	# actually grows once committed (see current_instance's own doc comment
+	# there), so a wizard whose mode has moved growth's hold off Up entirely
+	# still needs SOMETHING to summon a fresh barrier for the magic button to
+	# grow. Every other class's magic-button press only ever feeds its own
+	# double-tap gesture (see _update_blink()/_update_ice_zone()/_update_meteor())
+	# and never jumps on its own - only Up does, for them.
+	var magic_also_casts := _current_ability() is GrowthAbility \
+		and InputRemap.magic_mode_for(seat) != "movement" \
+		and Input.is_action_just_pressed(_action_magic)
+	if (Input.is_action_just_pressed(_action_up) or magic_also_casts) and not _is_meteor:
 		_cast_and_jump()
 
 	# Handle dive.
@@ -992,6 +1012,30 @@ func _max_banked_strikes(ability: WizardAbility) -> int:
 	return scaled_ability.max_strikes
 
 
+## Whether the input that should count as "holding this wizard's growth
+## trigger" is down right now, given this seat's own bind-magic-mode (see
+## MENUS/Input_Remap.gd's bind_magic_mode) - `direction_action` alone in
+## "movement" mode (today's original behavior, untouched), the dedicated
+## magic button alone in "button" mode (so holding Up on its own no longer
+## starts or continues a channel at all - see the matching magic_also_casts
+## guard on the jump/cast press above, which is what still summons a fresh
+## barrier for the magic button to grow), or either input in "both" mode.
+## Growth is the only ability that reads a continuously-HELD state rather
+## than a tap edge, unlike Blink/Ice/Meteor's own double-tap gestures (see
+## each of their own magic-button blocks below) - this only ever gets called
+## with `direction_action` == _action_up in practice, but takes the
+## parameter rather than hardcoding it so the logic itself documents which
+## direction it's standing in for.
+func _magic_hold_active(direction_action: String) -> bool:
+	match InputRemap.magic_mode_for(seat):
+		"button":
+			return Input.is_action_pressed(_action_magic)
+		"both":
+			return Input.is_action_pressed(direction_action) or Input.is_action_pressed(_action_magic)
+		_:
+			return Input.is_action_pressed(direction_action)
+
+
 ## Hold-to-grow: gates in once strikes >= ability.strikes_per_tier, then
 ## grows current_instance's scale one step through ability.growth_tier_scales()
 ## at a time, one step per growth_duration_per_tier seconds Up stays
@@ -1004,7 +1048,7 @@ func _max_banked_strikes(ability: WizardAbility) -> int:
 ## use it (and their WizardAbility resources don't carry any of these fields
 ## at all - see GrowthAbility for why that split exists).
 func _update_growth_channel(delta: float) -> void:
-	var up_held := Input.is_action_pressed(_action_up)
+	var up_held := _magic_hold_active(_action_up)
 
 	# TEMP DEBUG - remove once strikes/growth are confirmed working. Prints
 	# once per press (not every held frame) so it's readable: which class
@@ -1377,18 +1421,28 @@ func _update_ice_zone(delta: float) -> void:
 	if _ice_right_tap_window_remaining > 0.0:
 		_ice_right_tap_window_remaining = maxf(_ice_right_tap_window_remaining - delta, 0.0)
 
-	if Input.is_action_just_pressed(_action_left):
-		if _ice_left_tap_window_remaining > 0.0:
-			_ice_left_tap_window_remaining = 0.0
-			_cast_ice_zone(ability, -1.0)
-		else:
-			_ice_left_tap_window_remaining = ability.double_tap_window
-	if Input.is_action_just_pressed(_action_right):
-		if _ice_right_tap_window_remaining > 0.0:
-			_ice_right_tap_window_remaining = 0.0
-			_cast_ice_zone(ability, 1.0)
-		else:
-			_ice_right_tap_window_remaining = ability.double_tap_window
+	# Left/Right double-tap - see _update_blink()'s own matching block for
+	# why this stands down entirely in "button" mode.
+	var mode := InputRemap.magic_mode_for(seat)
+	if mode != "button":
+		if Input.is_action_just_pressed(_action_left):
+			if _ice_left_tap_window_remaining > 0.0:
+				_ice_left_tap_window_remaining = 0.0
+				_cast_ice_zone(ability, -1.0)
+			else:
+				_ice_left_tap_window_remaining = ability.double_tap_window
+		if Input.is_action_just_pressed(_action_right):
+			if _ice_right_tap_window_remaining > 0.0:
+				_ice_right_tap_window_remaining = 0.0
+				_cast_ice_zone(ability, 1.0)
+			else:
+				_ice_right_tap_window_remaining = ability.double_tap_window
+
+	# Magic button - single press, no double-tap needed (see _update_blink()'s
+	# own matching block for why); fires toward current facing since a single
+	# button can't carry a left/right choice the way a direction key does.
+	if mode != "movement" and Input.is_action_just_pressed(_action_magic):
+		_cast_ice_zone(ability, -1.0 if sprite.flip_h else 1.0)
 
 
 ## Spends every currently-banked tier at once (up to ability.max_tiers) -
@@ -1603,18 +1657,33 @@ func _update_blink(delta: float) -> void:
 	if _right_tap_window_remaining > 0.0:
 		_right_tap_window_remaining = maxf(_right_tap_window_remaining - delta, 0.0)
 
-	if Input.is_action_just_pressed(_action_left):
-		if _left_tap_window_remaining > 0.0:
-			_left_tap_window_remaining = 0.0
-			_try_blink(ability, -1.0)
-		else:
-			_left_tap_window_remaining = ability.double_tap_window
-	if Input.is_action_just_pressed(_action_right):
-		if _right_tap_window_remaining > 0.0:
-			_right_tap_window_remaining = 0.0
-			_try_blink(ability, 1.0)
-		else:
-			_right_tap_window_remaining = ability.double_tap_window
+	# Left/Right double-tap - this seat's own bind-magic-mode (see
+	# MENUS/Input_Remap.gd) permitting; "button" mode closes these off
+	# entirely, leaving Left/Right as plain movement only.
+	var mode := InputRemap.magic_mode_for(seat)
+	if mode != "button":
+		if Input.is_action_just_pressed(_action_left):
+			if _left_tap_window_remaining > 0.0:
+				_left_tap_window_remaining = 0.0
+				_try_blink(ability, -1.0)
+			else:
+				_left_tap_window_remaining = ability.double_tap_window
+		if Input.is_action_just_pressed(_action_right):
+			if _right_tap_window_remaining > 0.0:
+				_right_tap_window_remaining = 0.0
+				_try_blink(ability, 1.0)
+			else:
+				_right_tap_window_remaining = ability.double_tap_window
+
+	# Magic button - single press, no double-tap needed (per the project
+	# owner's own call: double-tapping only makes sense for the movement
+	# keys, which are also how this wizard walks - the dedicated magic
+	# button has no such dual purpose, so every press just fires directly).
+	# A single button carries no left/right choice the way a direction key
+	# does, so this fires toward wherever this wizard is CURRENTLY FACING
+	# (sprite.flip_h) at the moment it's pressed.
+	if mode != "movement" and Input.is_action_just_pressed(_action_magic):
+		_try_blink(ability, -1.0 if sprite.flip_h else 1.0)
 
 
 ## Spends one tier's worth of strikes (ability.strikes_per_tier) - but only
@@ -2284,7 +2353,13 @@ func _update_meteor(delta: float) -> void:
 		_meteor_down_tap_window_remaining = maxf(_meteor_down_tap_window_remaining - delta, 0.0)
 
 	if not _is_meteor:
-		if Input.is_action_just_pressed(_action_down):
+		var mode := InputRemap.magic_mode_for(seat)
+		# Down double-tap - see _update_blink()'s own matching block for why
+		# this stands down entirely in "button" mode. Dive/dash itself (the
+		# FIRST Down tap's other effect, handled separately further down in
+		# _physics_process()) is never affected either way - only this
+		# second-tap-into-a-fall gesture moves.
+		if mode != "button" and Input.is_action_just_pressed(_action_down):
 			if _meteor_down_tap_window_remaining > 0.0 and not is_on_floor():
 				# Second tap, still airborne, and it's a HOLD (Down is still
 				# down this same frame it was just pressed) - the "double tap
@@ -2295,20 +2370,17 @@ func _update_meteor(delta: float) -> void:
 				# `and not _is_meteor` guard, which only matters once this IS
 				# true - it never blocks the tap that gets it there).
 				_meteor_down_tap_window_remaining = 0.0
-				# Needs at least one full tier banked just to be ALLOWED to
-				# fall at all - see MeteorAbility's own doc comment - but
-				# unlike every other ability in this file, this is a pure
-				# affordability GATE, not a spend: nothing is subtracted
-				# here. The fall itself is free to attempt; what it actually
-				# costs is only decided at the landing, from whatever's
-				# banked by then (see _land_meteor()).
-				if ability.strikes_per_tier > 0 and strikes >= ability.strikes_per_tier:
-					_start_meteor(ability)
-				else:
-					# TEMP DEBUG - remove once meteor strikes are confirmed working.
-					print("[DEBUG seat %d] meteor denied - only %d strikes banked, need %d" % [seat, strikes, ability.strikes_per_tier])
+				_try_start_meteor(ability)
 			else:
 				_meteor_down_tap_window_remaining = ability.double_tap_window
+		# Magic button - single press, no double-tap needed (see
+		# _update_blink()'s own matching block for why); still requires
+		# actually being airborne, same as Down's own gesture above - that's
+		# an inherent physical requirement of a downward plunge, not a
+		# double-tap artifact, so it stays even though the tap itself no
+		# longer needs to be doubled.
+		if mode != "movement" and Input.is_action_just_pressed(_action_magic) and not is_on_floor():
+			_try_start_meteor(ability)
 		return
 
 	# Otherwise nothing here reacts to input - once a fall actually starts,
@@ -2326,6 +2398,24 @@ func _update_meteor(delta: float) -> void:
 	# above - see _meteor_hover_remaining's own doc comment.
 	if _meteor_hover_remaining > 0.0:
 		_meteor_hover_remaining = maxf(_meteor_hover_remaining - delta, 0.0)
+
+
+## Shared landing point for both of _update_meteor()'s own double-tap paths
+## (Down and the magic button) once their gesture actually completes -
+## previously inlined once, split out here the instant a second call site
+## (the magic-button path) needed the exact same affordability check. Needs
+## at least one full tier banked just to be ALLOWED to fall at all - see
+## MeteorAbility's own doc comment - but unlike every other ability in this
+## file, this is a pure affordability GATE, not a spend: nothing is
+## subtracted here. The fall itself is free to attempt; what it actually
+## costs is only decided at the landing, from whatever's banked by then (see
+## _land_meteor()).
+func _try_start_meteor(ability: MeteorAbility) -> void:
+	if ability.strikes_per_tier > 0 and strikes >= ability.strikes_per_tier:
+		_start_meteor(ability)
+	else:
+		# TEMP DEBUG - remove once meteor strikes are confirmed working.
+		print("[DEBUG seat %d] meteor denied - only %d strikes banked, need %d" % [seat, strikes, ability.strikes_per_tier])
 
 
 ## Begins a meteor fall: forces this wizard into a straight-down plunge (see
