@@ -908,6 +908,13 @@ func _connect_shield_deflected(instance: Node) -> void:
 		print("[DEBUG seat %d] could not find a deflectable Area2D on this shield instance - strikes will not count this cast" % seat)
 
 func _on_shield_deflected() -> void:
+	# Character Select's Options overlay "Magic: None" field - see
+	# GameSettings.game_magic's own doc comment. Checked first, before even
+	# the clone delegation below, so a clone's delegated call back into its
+	# _clone_source's own _on_shield_deflected() hits this exact same gate
+	# and bails too - "none" means no seat ever banks a strike, full stop.
+	if GameSettings.game_magic == "none":
+		return
 	# A clone (see _spawn_blink_clone()) never banks its own strikes - it's
 	# going to be despawned and forgotten once its clone_duration runs out
 	# anyway. BlinkAbility.clone_strikes_count_for_player decides whether the

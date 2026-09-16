@@ -5,33 +5,45 @@ extends Control
 ## before switching to this scene, so Back can return to the right place.
 ##
 ## Up to four boxes across the top, one per seat - but only as many as the
-## WIZARDS: button's current count actually show. That count starts at 2
-## (just P1/P2) and the button cycles it between 2 and 4; going to 4 reveals
-## P3/P4's boxes, going back to 2 hides them again and drops anything they'd
-## picked. Every seat in the bank is active the instant it's shown - there's
-## no separate "press any button to join" step for P3/P4 anymore now that
-## WIZARDS: is what decides whether they're playing at all; joining here
-## still doesn't force them to also join the match, though - it just means
-## whichever class a seat lands on here is what it'll be wearing *if* it
-## gets summoned later. GameSettings.wizard_count remembers the button's
-## setting across visits, same as every other choice on this screen.
+## Options overlay's Wizards field currently says (2 or 4 - see
+## Options_Menu.tscn/options_menu.gd). Every seat in the bank is active the
+## instant it's shown - there's no separate "press any button to join" step
+## for P3/P4 anymore now that Wizards is what decides whether they're
+## playing at all; joining here still doesn't force them to also join the
+## match, though - it just means whichever class a seat lands on here is
+## what it'll be wearing *if* it gets summoned later.
+## GameSettings.wizard_count remembers the overlay's setting across visits,
+## same as every other choice there.
 ##
 ## Left/right cycles a seat's class using THAT SEAT'S OWN controls only
 ## (InputRemap.action_for(seat, "left"/"right")), never the shared ui_left/
-## ui_right - those stay reserved for moving focus between Wizards/Ready/
+## ui_right - those stay reserved for moving focus between Start/Options/
 ## Back like every other menu. Whatever a seat lands on is written live into
 ## GameSettings.selected_classes, which wizard.gd's _ready() prefers over
 ## an arena scene's baked-in default class - see that file for the other
 ## half of this wiring.
 ##
-## While GameSettings.game_mode is "training" (chosen on the Options
-## screen), only seat 1 gets a class choice here - seats 2-4 are hidden
-## entirely and forced inactive (the WIZARDS: button itself is hidden too,
-## since a bank size is meaningless with a single seat), matching
+## While GameSettings.game_mode is "training", only seat 1 gets a class
+## choice here - seats 2-4 are hidden entirely and forced inactive (matching
 ## training.tscn's single scene-baked P1 plus its own separate P2/P3/P4 join
-## mechanics (see ARENAS/training.gd). _active_seat_count() below is the one
-## number the training case and the WIZARDS: count both collapse into, so
-## the rest of this file only ever has to ask "is seat i in the bank".
+## mechanics - see ARENAS/training.gd). game_mode has no UI control that can
+## actually set it to "training" any more (Options_Menu.tscn dropped the old
+## Mode_Menu's Pure/Hydra/Zones/Training row entirely - see that file's own
+## top-of-file comment), so this branch is dead in practice today, but left
+## intact rather than ripped out in case Training returns to the UI later.
+## _active_seat_count() below is the one number the training case and the
+## Wizards count both collapse into, so the rest of this file only ever has
+## to ask "is seat i in the bank".
+##
+## Options is now an in-place overlay (Options_Menu.tscn/options_menu.gd),
+## same "pop up over this screen, lock out the background" treatment
+## Rebind_Menu.tscn already gave per-player key rebinding - _on_options_pressed()
+## opens it instead of switching scenes. That overlay owns Map/Magic/
+## Wizards/Bot/Balls/Reset/Settings; this screen's own bottom row is down to
+## just Start/Options/Back as a result (Wizards:/Bots: used to live here as
+## their own buttons - see _sync_from_overlay() for how this screen now
+## reacts to those fields changing on the overlay instead of owning them
+## directly).
 ##
 ## A TeamRow sits where the old "WHO ART THOU?" title used to, naming
 ## whichever seats are on each half of the bank - "The Long Beard(s)" over
@@ -66,6 +78,8 @@ const REGIONS := [
 	Rect2(0, 192, 192, 192),
 	Rect2(192, 192, 192, 192),
 ]
+
+const OPTIONS_MENU_SCENE := preload("res://MENUS/Options_Menu.tscn")
 
 @onready var _seat_containers: Array = [
 	$Layout/TopRow/P1, $Layout/TopRow/P2, $Layout/TopRow/P3, $Layout/TopRow/P4,
@@ -105,22 +119,21 @@ const REGIONS := [
 @onready var team_row: HBoxContainer = $Layout/TeamRow
 @onready var long_beard_label: Label = $Layout/TeamRow/LongBeardLabel
 @onready var floppy_hat_label: Label = $Layout/TeamRow/FloppyHatLabel
-## Top of the button stack - cycles the seat bank between 2 and 4 (see
-## _on_wizards_pressed()); its label always mirrors _wizard_count.
-@onready var wizards_button: Button = $Layout/Bottom/Buttons/Wizards
-## Cycles seat 2 through None -> Apprentice -> Mage -> Archmage -> None (see
-## _on_bots_pressed()/GameSettings.bot_difficulty), i.e. a human Player 2 or
-## one of three bot difficulties - only seat 2 for now, same "start narrow,
-## widen later" spirit as everything else on this screen.
-@onready var bots_button: Button = $Layout/Bottom/Buttons/Bots
 ## Beneath the seat row - non-interactive readout of the currently chosen
-## mod/map (see GameSettings.summary_text()), kept in sync with Options via
-## GameSettings.settings_changed as well as refreshed on every visit here.
+## mod/map (see GameSettings.summary_text()), kept in sync with the Options
+## overlay via GameSettings.settings_changed as well as refreshed on every
+## visit here.
 @onready var summary_label: Label = $Layout/Summary
 @onready var ready_button: Button = $Layout/Bottom/Buttons/Ready
+@onready var options_button: Button = $Layout/Bottom/Buttons/Options
 @onready var back_button: Button = $Layout/Bottom/Buttons/Back
 @onready var select_sfx: AudioStreamPlayer2D = $select
 @onready var move_sfx: AudioStreamPlayer2D = $move
+
+## Instantiated fresh each visit to this scene, same pattern
+## settings_menu.gd already uses for Rebind_Menu.tscn - see
+## _on_options_pressed()/open().
+var options_menu: Control
 
 # All four of these are indexed 0..3 for seats 1..4.
 # _class_index defaults every seat to Random (CLASSES.size(), one past the
@@ -129,18 +142,12 @@ const REGIONS := [
 # (see that field's own doc comment) per the user's explicit request that
 # every seat start on Random. _ready()'s restore loop below overwrites this
 # for any seat already in the active bank on load, but a seat 3/4 revealed
-# LATER by the WIZARDS: button (_on_wizards_pressed() calls _refresh_box()
-# directly, not through that restore loop) still needs a sane starting
-# value of its own - this is that value.
+# LATER by the Options overlay's Wizards field (_sync_from_overlay() calls
+# _refresh_box() directly, not through that restore loop) still needs a
+# sane starting value of its own - this is that value.
 var _class_index := [CLASSES.size(), CLASSES.size(), CLASSES.size(), CLASSES.size()]
 var _frame := [0, 0, 0, 0]
 var _frame_time := [0.0, 0.0, 0.0, 0.0]
-
-## How many seats are in the bank right now - 2 or 4, driven by the
-## WIZARDS: button (GameSettings.wizard_count remembers it across visits)
-## and ignored entirely during training, where _active_seat_count() below
-## always wins out with 1 regardless of this value.
-var _wizard_count := 2
 
 
 func _is_training() -> bool:
@@ -148,10 +155,12 @@ func _is_training() -> bool:
 
 
 ## Maps a GameSettings.bot_difficulty value ("none"/"easy"/"medium"/"hard")
-## to the in-fiction name shown on the Bots button and in a bot seat's own
-## box: Apprentice/Mage/Archmage for the three difficulties, None for no bot
-## at all. Falls back to "None" for anything unrecognized rather than
-## erroring, same spirit as color_for_seat()'s out-of-range fallback.
+## to the in-fiction name shown in a bot seat's own box: Apprentice/Wizard/
+## Archwizard for the three difficulties, None for no bot at all. Falls back
+## to "None" for anything unrecognized rather than erroring, same spirit as
+## color_for_seat()'s out-of-range fallback. options_menu.gd keeps its own
+## copy of this same mapping for the overlay's Bot button label - simple
+## enough not to bother sharing between the two files.
 func _difficulty_display_name(difficulty: String) -> String:
 	match difficulty:
 		"easy":
@@ -165,20 +174,24 @@ func _difficulty_display_name(difficulty: String) -> String:
 
 
 ## Seat i's own display name for its box's name label - just the difficulty
-## name (Apprentice/Mage/Archmage) for now, since only seat 2 can ever be a
-## bot today and a bank-order "Bot 1"/"Bot 2" numbering would only ever show
-## one value anyway. Only call this for a seat GameSettings.is_bot_active()
+## name (Apprentice/Wizard/Archwizard) for now, since only seat 2 can ever
+## be a bot today and a bank-order "Bot 1"/"Bot 2" numbering would only ever
+## show one value anyway. Only call this for a seat GameSettings.is_bot_active()
 ## already confirmed is bot-controlled.
 func _bot_display_name(i: int) -> String:
 	return _difficulty_display_name(GameSettings.bot_difficulty[i])
 
 
-## The one number training's "just seat 1" rule and the WIZARDS: button's
-## 2/4 both collapse into - every loop below that used to check
+## The one number training's "just seat 1" rule and the Options overlay's
+## Wizards field both collapse into - every loop below that used to check
 ## "training and i > 0" checks "i >= _active_seat_count()" instead, so
-## neither case needs its own special-cased skip logic.
+## neither case needs its own special-cased skip logic. Reads
+## GameSettings.wizard_count directly rather than keeping a local mirror -
+## the overlay is the only thing that ever changes it now, and
+## GameSettings.settings_changed (see _sync_from_overlay()) is what tells
+## this screen to redraw when it does.
 func _active_seat_count() -> int:
-	return 1 if _is_training() else _wizard_count
+	return 1 if _is_training() else GameSettings.wizard_count
 
 
 ## Pluralizes both team names to match the current bank size ("The Long
@@ -186,36 +199,22 @@ func _active_seat_count() -> int:
 ## doc comment on long_beard_label above for why a plain 50/50 split is
 ## all that's needed to keep them lined up with the right seats. Team
 ## names are meaningless during training (a single scene-baked seat has
-## no "team" to name), so the whole row hides there instead, matching how
-## wizards_button and seats 2-4 are already hidden in that case.
+## no "team" to name), so the whole row hides there instead.
 func _update_team_labels() -> void:
 	var training := _is_training()
 	team_row.visible = not training
 	if training:
 		return
-	var plural := _wizard_count == 4
+	var plural := GameSettings.wizard_count == 4
 	long_beard_label.text = "Long Beard%s" % ("s" if plural else "")
 	floppy_hat_label.text = "Floppy Hat%s" % ("s" if plural else "")
 
 
 func _ready() -> void:
-	var training := _is_training()
+	options_menu = OPTIONS_MENU_SCENE.instantiate()
+	add_child(options_menu)
 
-	# The WIZARDS: button only makes sense with a real bank to resize -
-	# training always plays exactly one scene-baked seat (see
-	# ARENAS/training.gd), so the button is hidden there entirely rather
-	# than shown disabled. Outside training, pick up wherever the button was
-	# left last visit (GameSettings.wizard_count) instead of always
-	# resetting the bank back to 2.
-	wizards_button.visible = not training
-	if not training:
-		_wizard_count = GameSettings.wizard_count
-		wizards_button.text = "Wizards: %d" % _wizard_count
-	# Same reasoning as wizards_button just above - a bot toggle for seat 2
-	# is meaningless during training (that mode plays a single scene-baked
-	# seat 1 with its own separate join mechanics - see ARENAS/training.gd).
-	bots_button.visible = not training
-	bots_button.text = "Bot: %s" % _difficulty_display_name(GameSettings.bot_difficulty[1])
+	var training := _is_training()
 	_update_team_labels()
 
 	# Show only as many seat boxes as are actually in the bank right now,
@@ -253,7 +252,7 @@ func _ready() -> void:
 
 	ready_button.grab_focus()
 	_update_summary()
-	GameSettings.settings_changed.connect(_update_summary)
+	GameSettings.settings_changed.connect(_sync_from_overlay)
 	for i in range(4):
 		if i >= active_seats:
 			continue
@@ -264,7 +263,44 @@ func _update_summary() -> void:
 	summary_label.text = GameSettings.summary_text()
 
 
+## Reacts to GameSettings.settings_changed - fired by every field the
+## Options overlay can touch (Map/Magic/Wizards/Bot/Balls/Reset all route
+## through GameSettings setters that emit it - see Game_Settings.gd). Folds
+## together what used to be this screen's own _on_wizards_pressed()/
+## _on_bots_pressed() bodies, since both buttons now live on the overlay
+## instead of here: re-syncs the team labels, which seat boxes are visible,
+## and each visible seat's own box (which also picks up a bot-difficulty
+## rename via _refresh_box()'s call to _bot_display_name()) from whatever
+## GameSettings currently holds. Deliberately does NOT touch _class_index/
+## was_random_pick restoration - that's a _ready()-only "fresh visit to this
+## scene" concern, not something a live settings change should ever redo out
+## from under a seat mid-visit.
+func _sync_from_overlay() -> void:
+	_update_team_labels()
+	var active_seats := _active_seat_count()
+	for i in range(4):
+		var now_visible := i < active_seats
+		_seat_containers[i].visible = now_visible
+		if now_visible:
+			_refresh_box(i)
+		else:
+			# Dropped out of the bank - not in the match unless/until the
+			# bank grows back to include this seat again.
+			GameSettings.set_seat_active(i + 1, false)
+	_update_summary()
+
+
 func _process(delta: float) -> void:
+	# The Options overlay locks out background FOCUS itself (see
+	# options_menu.gd's _set_background_focusable()), but seat class-cycling
+	# below reads raw per-seat input directly (Input.is_action_just_pressed()),
+	# which doesn't go through Godot's focus system at all - so it has to be
+	# gated here explicitly, same as settings_menu.gd's own
+	# "not rebind_menu.visible" guard on its Back handling. This also covers
+	# ui_down/up/select/back just below for the same reason.
+	if options_menu.visible:
+		return
+
 	var active_seats := _active_seat_count()
 	for i in range(4):
 		if i >= active_seats:
@@ -382,8 +418,8 @@ func _refresh_box(i: int) -> void:
 
 	# Drives each arena's match-start P3/P4 spawn (see arena.gd's
 	# _spawn_selected_extras()) - true here is exactly "this seat is in the
-	# bank", so a seat the WIZARDS: count drops back out of still gets
-	# forced to false, by _on_wizards_pressed()/_ready() rather than here.
+	# bank", so a seat the Wizards field drops back out of still gets
+	# forced to false, by _sync_from_overlay()/_ready() rather than here.
 	GameSettings.set_seat_active(seat, true)
 
 
@@ -404,54 +440,6 @@ func _resolve_random_picks() -> void:
 			GameSettings.set_selected_class(i + 1, CLASSES[randi() % CLASSES.size()], true)
 
 
-## WIZARDS: button handler - cycles the bank between 2 and 4 seats. Persists
-## the new count into GameSettings so it survives Back-then-Start-again the
-## same way every other pick on this screen does, then re-syncs P3/P4's
-## boxes and GameSettings.seat_active to match - the same seats
-## _active_seat_count() gates everywhere else, just applied immediately
-## instead of waiting for the next _ready().
-func _on_wizards_pressed() -> void:
-	_wizard_count = 4 if _wizard_count == 2 else 2
-	GameSettings.set_wizard_count(_wizard_count)
-	wizards_button.text = "Wizards: %d" % _wizard_count
-	_update_team_labels()
-
-	var active_seats := _active_seat_count()
-	for i in range(2, 4):
-		var now_visible := i < active_seats
-		_seat_containers[i].visible = now_visible
-		if now_visible:
-			_refresh_box(i)
-		else:
-			# Dropped out of the bank - not in the match unless/until the
-			# bank grows back to include this seat again.
-			GameSettings.set_seat_active(i + 1, false)
-
-
-## BOTS: button handler. First cut, seat 2 only (see bots_button's own doc
-## comment) - cycles GameSettings.bot_difficulty[1] through
-## none -> easy -> medium -> hard -> none (None -> Apprentice -> Mage ->
-## Archmage -> None on the button/box), relabels the button and seat 2's own
-## box immediately (same "apply live, don't wait for the next visit"
-## treatment _on_wizards_pressed() gives its own button/boxes), and leaves
-## seat 2's class/active state completely untouched. The actual effect - an
-## arena attaching a BotController (with a profile matching the chosen
-## difficulty) to seat 2 instead of leaving it on human input - only happens
-## at match start; see ARENAS/arena.gd's own _maybe_attach_bots().
-const _BOT_DIFFICULTY_CYCLE := ["none", "easy", "medium", "hard"]
-
-func _on_bots_pressed() -> void:
-	var seat := 2
-	var i := seat - 1
-	var current_index := _BOT_DIFFICULTY_CYCLE.find(GameSettings.bot_difficulty[i])
-	if current_index == -1:
-		current_index = 0
-	var next_difficulty: String = _BOT_DIFFICULTY_CYCLE[(current_index + 1) % _BOT_DIFFICULTY_CYCLE.size()]
-	GameSettings.set_bot_difficulty(seat, next_difficulty)
-	bots_button.text = "Bot: %s" % _difficulty_display_name(next_difficulty)
-	_refresh_box(i)
-
-
 func _on_ready_pressed() -> void:
 	_resolve_random_picks()
 	if _is_training():
@@ -459,9 +447,9 @@ func _on_ready_pressed() -> void:
 		return
 	# Was a hardcoded match on GameSettings.game_arena with only "tower"/
 	# "yonder" cases and an "_" wildcard defaulting to Arena - meaning
-	# "random" (Mode_Menu's Random map button) always fell into that
-	# wildcard and loaded Arena every time, never actually rolling among
-	# all three maps despite next_arena_scene_path()'s own doc comment
+	# "random" (the Options overlay's Random map choice) always fell into
+	# that wildcard and loaded Arena every time, never actually rolling
+	# among all three maps despite next_arena_scene_path()'s own doc comment
 	# claiming this function already called it. Every rematch handler
 	# (arena.gd/tower.gd/yonder.gd's _on_rematch_N_pressed()) already calls
 	# next_arena_scene_path() correctly - this just brings the very first
@@ -471,7 +459,7 @@ func _on_ready_pressed() -> void:
 
 
 func _on_options_pressed() -> void:
-	get_tree().change_scene_to_file("res://MENUS/Mode_Menu.tscn")
+	options_menu.open()
 
 
 func _on_back_pressed() -> void:

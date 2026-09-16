@@ -4,7 +4,26 @@ signal settings_changed # Signal to notify when any setting changes
 # Variables to store selected game mode and map
 var game_mode = "pure" # "pure", "random", "hot", or "training"
 var game_arena = "arena" # "arena", "tower", "yonder", or "random"
-var game_magic = "on" # "stock" or "time"
+
+## Character Select's Options overlay "Magic" field - "classes" (every
+## class's ability works normally) or "none" (wizard.gd's
+## _on_shield_deflected() gates on this first thing and bails before a
+## single strike ever banks, for every seat regardless of class - since
+## every ability gates on having strikes banked, "none" effectively turns
+## every class's magic off without touching each ability's own code).
+## Unrelated to InputRemap.bind_magic_mode (that's a per-seat CONTROLS
+## choice - which button casts - this is a match-setup choice about whether
+## abilities work AT ALL) despite the similar name.
+var game_magic = "classes" # "classes" or "none"
+
+## Character Select's Options overlay "Balls" field - just "clean" (a
+## single ordinary ball, today's only actual behavior) for now, but kept as
+## its own GameSettings field/cycle (see BALL_MODES) rather than a hardcoded
+## button label, so adding real variants later - multi-ball, effect zones,
+## whatever "more options to come" turns out to mean - is a data change
+## here, not a rewire of the overlay itself.
+var ball_mode = "clean" # see BALL_MODES
+const BALL_MODES := ["clean"]
 
 ## Player-facing names for each game_mode/game_arena value above - keyed by
 ## the internal string values, used only to build the Lobby's non-interactive
@@ -61,13 +80,23 @@ func summary_text() -> String:
 	return "%s" % [map_word]
 	#return "%s %s" % [mod_word, map_word]
 
-## The Options screen's "Reset Options" button - restores the map/mod
-## choice to its default. Deliberately separate from Settings' own "Reset"
-## (see settings_menu.gd's _on_reset_button_pressed(), which only ever
-## touches display/volume/keybinds) so the two stay distinct, as requested.
+## Character Select's Options overlay "Reset" button - restores every field
+## on that overlay (Map/Magic/Wizards/Bot/Balls) to its default in one go.
+## game_mode is included too, even though the overlay itself no longer has a
+## Mode field to show it (see character_select.gd's own top-of-file comment
+## for why - Pure is the only mode reachable from the UI right now) - this
+## still keeps it pinned to "pure" rather than leaving a stale value behind
+## if something upstream ever set it to something else. Deliberately
+## separate from Settings' own "Reset" (see settings_menu.gd's
+## _on_reset_button_pressed(), which only ever touches display/volume/
+## keybinds) so the two stay distinct, as requested.
 func reset_game_options() -> void:
 	game_mode = "pure"
 	game_arena = "arena"
+	game_magic = "classes"
+	wizard_count = 2
+	bot_difficulty = ["none", "none", "none", "none"]
+	ball_mode = "clean"
 	emit_signal("settings_changed")
 
 # Which class each seat is currently wearing - index 0..3 for seats 1..4.
@@ -286,11 +315,17 @@ func set_seat_active(seat: int, active: bool) -> void:
 
 func set_wizard_count(count: int) -> void:
 	wizard_count = count
+	emit_signal("settings_changed")
 
 func set_bot_difficulty(seat: int, difficulty: String) -> void:
 	if seat < 1 or seat > bot_difficulty.size():
 		return
 	bot_difficulty[seat - 1] = difficulty
+	emit_signal("settings_changed")
+
+func set_ball_mode(mode: String) -> void:
+	ball_mode = mode
+	emit_signal("settings_changed")
 
 ## True whenever seat's bot_difficulty entry is anything other than "none" -
 ## the replacement for the old plain bot_active[seat-1] boolean read, kept as

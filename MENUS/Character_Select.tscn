@@ -57,6 +57,10 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("2_theme")
 
+[node name="Label2" type="Label" parent="Layout"]
+layout_mode = 2
+text = " "
+
 [node name="Summary" type="Label" parent="Layout"]
 layout_mode = 2
 theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
@@ -66,6 +70,7 @@ horizontal_alignment = 1
 
 [node name="Label" type="Label" parent="Layout"]
 layout_mode = 2
+text = " "
 
 [node name="TopRow" type="HBoxContainer" parent="Layout"]
 layout_mode = 2
@@ -302,16 +307,6 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "Start"
 
-[node name="Wizards" type="Button" parent="Layout/Bottom/Buttons"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 32
-text = "Wizards: 2"
-
-[node name="Bots" type="Button" parent="Layout/Bottom/Buttons"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 32
-text = "Bot Level: 0"
-
 [node name="Options" type="Button" parent="Layout/Bottom/Buttons"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
@@ -365,7 +360,5 @@ stream = ExtResource("5_move")
 bus = &"SFX"
 
 [connection signal="pressed" from="Layout/Bottom/Buttons/Ready" to="." method="_on_ready_pressed"]
-[connection signal="pressed" from="Layout/Bottom/Buttons/Wizards" to="." method="_on_wizards_pressed"]
-[connection signal="pressed" from="Layout/Bottom/Buttons/Bots" to="." method="_on_bots_pressed"]
 [connection signal="pressed" from="Layout/Bottom/Buttons/Options" to="." method="_on_options_pressed"]
 [connection signal="pressed" from="Layout/Bottom/Buttons/Back" to="." method="_on_back_pressed"]
