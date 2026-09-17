@@ -140,6 +140,49 @@ var _blink_pending_swap: bool = false
 ## only adds a bonus check at the landing spot on top of that.
 var _blink_pending_grab: bool = false
 
+## True from the moment _begin_blink_travel() makes this wizard intangible
+## and swaps its look, until _end_blink_travel() puts both back - covers
+## this wizard's own blink AND the window it spends being visually zipped
+## by SOMEONE ELSE'S ability (a max-tier swap, a grab's pull-back), since
+## both go through the exact same _begin_/_end_blink_travel() pair. Gates
+## the whole top of _physics_process() the same "no physics/input of its
+## own, must resolve entirely on its own timeline" way _is_meteor's fall
+## already does - see that block's own doc comment. Deliberately never
+## gated behind `not _despawning` the way the ability-dispatch block is:
+## a wizard already mid-zip when something else calls _despawning's own
+## cleanup should still be allowed to finish resolving here rather than
+## getting stuck read-only forever with a leftover ghost look and zero
+## collision.
+var _is_blinking: bool = false
+
+## This wizard's own collision_layer/collision_mask from the instant
+## _begin_blink_travel() zeroed both out to make it intangible - restored
+## exactly in _end_blink_travel() rather than assuming wizard.tscn's
+## current defaults, so those defaults can change later without this
+## quietly going stale.
+var _pre_blink_collision_layer: int = 0
+var _pre_blink_collision_mask: int = 0
+
+## This wizard's own sprite.sprite_frames/modulate.a/Outlines.gdshader
+## fade_alpha from the instant _begin_blink_travel() swapped the look to
+## ability.clone_sprite_sheet's ghostly one - restored exactly in
+## _end_blink_travel(). Snapshotting rather than assuming "restore to a
+## normal opaque wizard" is what keeps this correct even when the wizard
+## doing the zipping is ITSELF a blink clone (already on its own ghost
+## look/transparency before this ever touched it) - see _spawn_blink_clone()
+## for why a clone's look isn't the plain default.
+var _pre_blink_sprite_frames: SpriteFrames = null
+var _pre_blink_modulate_a: float = 1.0
+var _pre_blink_fade_alpha: float = 1.0
+
+## The Tween currently driving this wizard's own global_position through a
+## _blink_travel_leg() - tracked so a second _begin_blink_travel() call
+## arriving while one's still in flight (this wizard's own zip somehow
+## getting interrupted by a fresh grab/swap from someone else) can kill the
+## old one first instead of leaving two Tweens fighting over global_position
+## at once. Null whenever _is_blinking is false.
+var _blink_zip_tween: Tween = null
+
 ## Set on a wizard spawned by _spawn_blink_clone() (see BlinkAbility.
 ## clone_on_max_tier) - never true for a normally-summoned wizard. Gates
 ## _try_blink()'s AND _try_slam_wrap()'s own clone-spawn branches off (a
@@ -351,6 +394,16 @@ var _meteor_form_lock_remaining: float = 0.0
 ## reasons.
 const _PLATFORMS_COLLISION_LAYER_BIT := 1 << 5
 
+## Bit for 2d_physics/layer_5 "WizardWall" in project.godot (layer_1 is bit 0,
+## so layer_5 is bit 4) - the layer a grown-up Growth barrier's own collision
+## sits on once it's big enough to act as a solid wall (see GrowthAbility's
+## own doc comments), also shared by the arena's own "wizard wall" side
+## panels. Used only by _execute_blink() below, which briefly clears it (and
+## _PLATFORMS_COLLISION_LAYER_BIT) from this wizard's own collision_mask for
+## the duration of its own obstacle sweep - unlike _PLATFORMS_COLLISION_
+## LAYER_BIT above, nothing else ever adds or removes this bit.
+const _WIZARD_WALL_COLLISION_LAYER_BIT := 1 << 4
+
 # Cached per-seat action names, so the hot path in _physics_process isn't
 # rebuilding strings ("p%d_up" % seat) every frame.
 var _action_up: String
@@ -513,6 +566,22 @@ func _physics_process(delta: float) -> void:
 	# doc comment. Everything else below can freely assume "not currently
 	# overlapping solid geometry" as a baseline again from here on this frame.
 	_update_stuck_watchdog(delta)
+
+	# Uninterruptible for its whole travel_time, same "no physics/input of
+	# its own, must resolve entirely on its own timeline" shape _is_meteor's
+	# fall already uses (see that override further down) - _begin_blink_
+	# travel() already zeroed this wizard's own collision_layer/mask (see
+	# _is_blinking's own doc comment for why that's safe here), and its
+	# actual position for the whole trip is owned by the Tween(s) _blink_
+	# travel_leg() drives directly, not by anything below this point.
+	# Zeroing velocity and still calling move_and_slide() (rather than
+	# skipping it outright) keeps this body's own physics state consistent
+	# with an intangible mask - there's nothing left to collide with either
+	# way.
+	if _is_blinking:
+		velocity = Vector2.ZERO
+		move_and_slide()
+		return
 
 	# Multiplies the ordinary (non-frozen) gravity/movement code further down
 	# this function - stays 1.0 (no effect at all) except for one specific
@@ -2215,8 +2284,16 @@ func _free_blink_vfx(vfx: Variant) -> void:
 		vfx.queue_free()
 
 
-## Actually performs the teleport - immediately from _try_blink() if
-## blink_delay is 0, otherwise once _update_blink()'s countdown reaches 0.
+## Resolves WHERE this teleport lands - immediately from _try_blink() if
+## blink_delay is 0, otherwise once _update_blink()'s countdown reaches 0 -
+## then hands the actual moving-there off to _begin_blink_travel()/
+## _blink_travel_leg(), which visually zips this wizard (ghost look, squash,
+## intangible - see _is_blinking's own doc comment) across ability.
+## travel_time seconds instead of snapping there in the same frame. Landing
+## feel (cast_on_blink/jump_on_blink/velocity reset, the landing vfx, arming
+## a grab) is deferred to _finish_blink_landing(), called only once the zip
+## actually arrives - none of that should happen at the moment the ability
+## is USED, only once this wizard is actually standing at the new spot.
 ## should_swap (see BlinkAbility.swap_locations_at_max_tier and _try_blink()'s
 ## own doc comment for exactly when this is true) skips the ordinary
 ## directional move entirely and instead swaps this wizard's global_position
@@ -2240,6 +2317,24 @@ func _free_blink_vfx(vfx: Variant) -> void:
 ## would still clip - test_move() checks the real shape, not a point, so no
 ## separate collision geometry is needed for this.
 ##
+## Before that clipped-short landing even comes up, though, the sweep itself
+## is run with _PLATFORMS_COLLISION_LAYER_BIT/_WIZARD_WALL_COLLISION_LAYER_
+## BIT excluded from collision_mask - a mid-arena Platform or a grown-up
+## Growth barrier (see _WIZARD_WALL_COLLISION_LAYER_BIT's own doc comment
+## for why exactly those two, and why excluding them up front rather than
+## checking what got hit afterward) never feel like a fair reason for a
+## whole-ability-defining move to fizzle a few pixels short. If this
+## wizard's full, un-shortened blink_distance destination is itself
+## genuinely clear ground once those two are ignored (not a real wall,
+## another wizard, or an obstacle too wide to clear in one go), this skips
+## straight to that destination instead - same "teleport clean over
+## whatever's in between, verify only the landing spot" trust the
+## enemy-swap branch above and _try_slam_wrap() already place in
+## _position_is_clear(). Any REAL obstruction (a wall, the arena edge,
+## another wizard) still clips short exactly as before - this is
+## deliberately narrow, not a general "blink always goes the full distance"
+## change.
+##
 ## Either way, also handles landing feel, in order of precedence: if
 ## ability.cast_on_blink is true, lands exactly like an Up press - a fresh
 ## shield plus the normal jump impulse, via _cast_and_jump() - letting a
@@ -2259,69 +2354,314 @@ func _free_blink_vfx(vfx: Variant) -> void:
 ## additional check at that landing spot afterward, via _arm_blink_grab(),
 ## using `origin` (this wizard's position from BEFORE this function moved
 ## it at all) as where a caught enemy gets pulled to.
+##
+## A successful wall-wrap zips in THREE legs instead of one straight line:
+## out past the wall to ability.wrap_offscreen_distance (half of travel_time),
+## an instant, invisible snap to the equivalent off-screen spot on the
+## opposite edge, then in from there to the wrap destination (the other
+## half of travel_time) - see BlinkAbility.wrap_offscreen_distance's own
+## doc comment. should_swap zips BOTH wizards at once, in opposite
+## directions, via a second _begin_/_end_blink_travel() pair called on
+## `swap_target` directly - see _begin_blink_travel()'s own doc comment for
+## why calling it on another wizard instance is safe.
+## Marks this wizard mid-zip (see _is_blinking's own doc comment) and swaps
+## its look/collision for the trip - called exactly ONCE at the start of a
+## whole travel sequence, even one made of several _blink_travel_leg() calls
+## back to back (the wall-wrap's zip-out/instant-snap/zip-in three-parter is
+## still only one _begin_/_end_blink_travel() pair start to finish). Safe to
+## call on a wizard that's already mid-zip from something else (this wizard
+## somehow getting grabbed or swapped into while still finishing its OWN
+## blink) - finishes that old trip in place first via _end_blink_travel() so
+## its snapshot never gets clobbered by a second, nested one, and kills
+## whatever Tween was still driving it so the two never fight over
+## global_position at once.
+##
+## collision_layer/mask both go to 0 (intangible - see _is_blinking's own
+## doc comment for what that does and doesn't affect in this project) and,
+## if ability.clone_sprite_sheet is set, sprite.sprite_frames/modulate.a/
+## the outline shader's fade_alpha all swap to the exact same ghostly
+## treatment _spawn_blink_clone() already gives a clone (same asset, same
+## transparency) - snapshotting whatever was there first so _end_blink_
+## travel() can put it back exactly, clone-on-clone included (see _pre_
+## blink_sprite_frames's own doc comment). Also applies the same squash
+## _action_down's own dash dive uses further down in _physics_process(), so
+## the zip reads as a fast, committed motion instead of a slow glide.
+func _begin_blink_travel(ability: BlinkAbility) -> void:
+	if _is_blinking:
+		if _blink_zip_tween != null and _blink_zip_tween.is_valid():
+			_blink_zip_tween.kill()
+		_end_blink_travel()
+	_is_blinking = true
+	_pre_blink_collision_layer = collision_layer
+	_pre_blink_collision_mask = collision_mask
+	collision_layer = 0
+	collision_mask = 0
+	_pre_blink_sprite_frames = sprite.sprite_frames
+	_pre_blink_modulate_a = modulate.a
+	if sprite.material is ShaderMaterial:
+		# get_shader_parameter() returns null (not a real float) for a
+		# uniform that's never been explicitly set on THIS material
+		# instance - true for any wizard that hasn't already been a clone -
+		# same gap _despawn_clone()'s own fade-out already works around.
+		var start_alpha: Variant = (sprite.material as ShaderMaterial).get_shader_parameter("fade_alpha")
+		_pre_blink_fade_alpha = 1.0 if start_alpha == null else start_alpha
+	if ability.clone_sprite_sheet:
+		sprite.sprite_frames = _build_sprite_frames(ability.clone_sprite_sheet)
+		sprite.play("default")
+		modulate.a = ability.clone_transparency
+		if sprite.material is ShaderMaterial:
+			(sprite.material as ShaderMaterial).set_shader_parameter("fade_alpha", ability.clone_transparency)
+		_on_sprite_frame_changed()
+	sprite.scale.y = 0.15
+	sprite.scale.x = 0.6
+
+
+## One leg of a blink travel sequence already begun by _begin_blink_travel() -
+## tweens global_position from wherever this wizard currently is to `to`
+## over `duration` seconds, then calls `on_done` (a plain Callable, never
+## `await` - see _is_blinking's own doc comment/this project's CLAUDE.md for
+## why an awaited continuation is a real hazard here: a wizard freed mid-wait
+## would otherwise leave that continuation dangling forever). A Tween
+## created via create_tween() is bound to this node's own lifetime by
+## default, so a wizard that's queue_free()'d mid-zip (match end, a despawn)
+## simply takes the Tween down with it - `on_done` never fires, and nothing
+## is left dangling.
+##
+## duration <= 0.0 skips the tween entirely and snaps straight to `to`,
+## calling `on_done` immediately on the same frame - the travel_time = 0
+## case collapses cleanly back to the original instant-teleport feel with no
+## wasted one-frame tween.
+##
+## Does NOT touch collision/look/_is_blinking itself - purely the movement
+## primitive multiple legs (the wall-wrap's zip-out/instant-snap/zip-in) get
+## chained on top of, bookended by exactly one _begin_/_end_blink_travel()
+## pair.
+func _blink_travel_leg(to: Vector2, duration: float, on_done: Callable) -> void:
+	if duration <= 0.0:
+		global_position = to
+		if on_done.is_valid():
+			on_done.call()
+		return
+	var tween := create_tween()
+	tween.tween_property(self, "global_position", to, duration) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_blink_zip_tween = tween
+	tween.finished.connect(func():
+		_blink_zip_tween = null
+		if on_done.is_valid():
+			on_done.call()
+	)
+
+
+## Closes out whatever _begin_blink_travel() opened - puts collision_layer/
+## mask and the sprite's look back exactly as snapshotted, and clears
+## _is_blinking so _physics_process() resumes driving this wizard normally
+## next frame. Leaves sprite.scale alone - the ambient "reset stretch over
+## time" lerp already running at the top of _physics_process() (unpaused
+## again now that _is_blinking is false) eases the travel squash back to
+## resting scale on its own, same as it already does for a dash's own
+## squash.
+func _end_blink_travel() -> void:
+	_is_blinking = false
+	collision_layer = _pre_blink_collision_layer
+	collision_mask = _pre_blink_collision_mask
+	sprite.sprite_frames = _pre_blink_sprite_frames
+	sprite.play("default")
+	modulate.a = _pre_blink_modulate_a
+	if sprite.material is ShaderMaterial:
+		(sprite.material as ShaderMaterial).set_shader_parameter("fade_alpha", _pre_blink_fade_alpha)
+	_on_sprite_frame_changed()
+
+
+## A mid-arena Platform (_PLATFORMS_COLLISION_LAYER_BIT - the same
+## "climbable scenery, not a real wall" layer MeteorAbility.disable_platform_
+## collision_while_meteor_form already lets a meteor fall ignore) or a
+## grown-up Growth barrier (_WIZARD_WALL_COLLISION_LAYER_BIT) big enough to
+## be physically solid are both things a wizard can perfectly reasonably
+## teleport clean through - a platform is meant to be landed on or dashed
+## under, never a hard stop, and a Growth barrier blocking an opposing
+## wizard's own escape/reposition move is an accidental side effect of it
+## being big enough to deflect balls, not something Growth is meant to
+## punish Blink with.
+##
+## _execute_blink() used to detect this by sweeping with the wizard's full
+## collision_mask, then checking whether the FIRST thing that sweep hit
+## happened to be tagged with either bit. That broke down asymmetrically:
+## whichever collider a swept shape reaches first can depend on fine detail
+## of the sweep's starting margin/recovery and the exact geometry involved,
+## and a rotated platform's thin shape lining up differently against
+## neighboring geometry depending on which side the sweep started from was
+## enough to make the SAME platform register as "the first thing hit" from
+## one approach direction but not the other - so a blink heading one way
+## correctly recognized it and passed through, while the same blink heading
+## the other way stopped short as if genuinely blocked, purely because
+## test_move()'s sweep happened to report a different collider (or the same
+## one, at a point close enough to a shape edge that recovery handled it
+## differently) first. Excluding both bits from collision_mask before the
+## sweep even runs (see _execute_blink() below) sidesteps that hit-order
+## dependency entirely - test_move() then simply can't see a Platform or a
+## Growth barrier as an obstacle at all, in either direction, the same way
+## _start_meteor() already excludes _PLATFORMS_COLLISION_LAYER_BIT for the
+## whole of a meteor fall rather than checking case by case what it lands on.
+
+
 func _execute_blink(ability: BlinkAbility, direction: float, should_swap: bool = false, should_grab: bool = false) -> void:
 	var origin := global_position
 	if should_swap:
 		var swap_target := _nearest_enemy_wizard()
 		if swap_target != null:
-			var my_position := global_position
-			global_position = swap_target.global_position
-			swap_target.global_position = my_position
+			var their_position := swap_target.global_position
+			_begin_blink_travel(ability)
+			swap_target._begin_blink_travel(ability)
+			_blink_travel_leg(their_position, ability.travel_time, func():
+				_end_blink_travel()
+				_finish_blink_landing(ability, direction, origin, should_grab)
+			)
+			swap_target._blink_travel_leg(origin, ability.travel_time, func():
+				swap_target._end_blink_travel()
+			)
 			# TEMP DEBUG - remove once blink charges are confirmed working.
 			print("[DEBUG seat %d] max-tier blink swapped positions with seat %d" % [seat, swap_target.seat])
+			return
+		# Nobody to swap with (no other wizard in play, or every other
+		# wizard is on this one's own team) - falls straight through to the
+		# ordinary directional teleport below instead of doing nothing;
+		# nothing past this point ever looks at should_swap again, so it's
+		# left as-is rather than reassigned.
+
+	var motion := Vector2(direction * ability.blink_distance, 0.0)
+	var collision := KinematicCollision2D.new()
+	var is_wall_wrap := false
+	var wrap_landing := Vector2.ZERO
+	# Platforms/WizardWall excluded from the mask for this sweep alone (see
+	# _WIZARD_WALL_COLLISION_LAYER_BIT's own doc comment for why this
+	# replaced a post-hoc "check what we hit" approach) - test_move() below
+	# can then only ever report a REAL obstacle: an arena wall, a wrap wall,
+	# or another wizard, identically regardless of which side of a Platform/
+	# Growth barrier this blink started from. Restored immediately after,
+	# same "safe to toggle right around the one call that needs it" shape
+	# _start_meteor()/_cancel_meteor() already use for the same bit.
+	var _real_collision_mask := collision_mask
+	collision_mask &= ~(_PLATFORMS_COLLISION_LAYER_BIT | _WIZARD_WALL_COLLISION_LAYER_BIT)
+	var hit_real_obstacle := test_move(global_transform, motion, collision)
+	collision_mask = _real_collision_mask
+	if hit_real_obstacle:
+		var wrap_target := _wrap_destination(collision.get_collider())
+		var travel: Vector2 = collision.get_travel()
+		# A wrap wall only actually wraps if this wizard was already within
+		# ability.wrap_activation_distance of it BEFORE this blink started -
+		# travel.length() is exactly that clear distance (test_move() only
+		# swept this far before hitting the wall). Without this check, any
+		# blink_distance long enough to reach a wrap wall from anywhere -
+		# mid-arena, mid-fight - would launch the wizard clean across the
+		# map; gating it on proximity keeps that an "already sneaking up on
+		# the wall" move instead of an accident (see BlinkAbility.
+		# wrap_activation_distance's own doc comment).
+		if wrap_target != null and travel.length() <= ability.wrap_activation_distance:
+			# Close enough to the wall AND it's a wrap boundary (see
+			# arena.tscn's map_wall_left/map_wall_right groups) - reappear at
+			# that wall's own WrapDestination marker instead of stopping
+			# short. Only X moves; Y is left untouched (origin.y carries
+			# through the whole zip below) - this is a left/right wrap only,
+			# vertical wrap is a separate mechanic (the slam-wrap landing
+			# one), not this one.
+			is_wall_wrap = true
+			wrap_landing = Vector2(wrap_target.global_position.x, origin.y)
+			# TEMP DEBUG - remove once blink charges are confirmed working.
+			print("[DEBUG seat %d] blink %s wrapped to the opposite side" % [seat, ("left" if direction < 0.0 else "right")])
 		else:
-			# Nobody to swap with (no other wizard in play, or every other
-			# wizard is on this one's own team) - fall through to the
-			# ordinary directional teleport below instead of doing nothing.
-			should_swap = false
-	if not should_swap:
-		var motion := Vector2(direction * ability.blink_distance, 0.0)
-		var collision := KinematicCollision2D.new()
-		if test_move(global_transform, motion, collision):
-			var wrap_target := _wrap_destination(collision.get_collider())
-			var travel: Vector2 = collision.get_travel()
-			# A wrap wall only actually wraps if this wizard was already within
-			# ability.wrap_activation_distance of it BEFORE this blink started -
-			# travel.length() is exactly that clear distance (test_move() only
-			# swept this far before hitting the wall). Without this check, any
-			# blink_distance long enough to reach a wrap wall from anywhere -
-			# mid-arena, mid-fight - would launch the wizard clean across the
-			# map; gating it on proximity keeps that an "already sneaking up on
-			# the wall" move instead of an accident (see BlinkAbility.
-			# wrap_activation_distance's own doc comment).
-			if wrap_target != null and travel.length() <= ability.wrap_activation_distance:
-				# Close enough to the wall AND it's a wrap boundary (see
-				# arena.tscn's map_wall_left/map_wall_right groups) - reappear at
-				# that wall's own WrapDestination marker instead of stopping
-				# short. Only X moves; Y is left untouched - this is a left/right
-				# wrap only, vertical wrap is a separate mechanic (the slam-wrap
-				# landing one), not this one.
-				global_position.x = wrap_target.global_position.x
-				# TEMP DEBUG - remove once blink charges are confirmed working.
-				print("[DEBUG seat %d] blink %s wrapped to the opposite side" % [seat, ("left" if direction < 0.0 else "right")])
-			else:
-				# Blocked by something that isn't a wrap boundary (another
-				# wizard, an untagged wall, a mid-arena platform), or it IS one
-				# but this wizard started too far from it to count as a
-				# deliberate wrap - either way, only take the portion of the
-				# motion that's actually clear, so the wizard stops flush
-				# against whatever it hit instead of ending up inside it (or,
-				# for a too-far wrap wall, instead of launching clean across the
-				# map).
-				motion = travel
-				global_position += motion
-				# TEMP DEBUG - remove once blink charges are confirmed working.
-				print("[DEBUG seat %d] blink %s blocked - only %.1f of %.1f px clear" % [seat, ("left" if direction < 0.0 else "right"), motion.length(), ability.blink_distance])
-		else:
-			global_position += motion
-	# global_position is fully settled by this point in every branch above
-	# (swapped, wrapped, blocked-and-clipped, or the full unblocked distance) -
-	# _spawn_blink_vfx() reads it live, so calling it here drops a second
-	# VFX at wherever the wizard actually ended up (the landing point),
-	# matching _try_blink()'s existing spawn at the cast point - same
-	# "one at each end" treatment _try_slam_wrap() uses. is_exit=false: this
-	# is the arrival end, so it faces back the opposite way from the
-	# cast-point one, which faces the direction of travel.
+			# Blocked by a REAL obstacle (another wizard, an untagged wall),
+			# or it IS a wrap boundary but this wizard started too far from
+			# it to count as a deliberate wrap - either way, only take the
+			# portion of the motion that's actually clear, so the wizard
+			# stops flush against whatever it hit instead of ending up
+			# inside it (or, for a too-far wrap wall, instead of launching
+			# clean across the map). A Platform/Growth barrier can never be
+			# what's reported here at all - they were already excluded from
+			# this sweep's mask above.
+			motion = travel
+			# TEMP DEBUG - remove once blink charges are confirmed working.
+			print("[DEBUG seat %d] blink %s blocked - only %.1f of %.1f px clear" % [seat, ("left" if direction < 0.0 else "right"), motion.length(), ability.blink_distance])
+	elif not _position_is_clear(origin + motion):
+		# Nothing REAL in the way - but the full, un-shortened destination
+		# still lands embedded in whatever Platform/Growth barrier this
+		# sweep was told to ignore (blink_distance too short to actually
+		# clear it), so passing clean through isn't safe after all. Falls
+		# back to a second sweep, this time with the ordinary full mask, purely
+		# to find how far this direction is safely walkable before touching
+		# that obstacle's own near edge - same "stop flush against it"
+		# behavior blink has always had for anything it can't cleanly clear,
+		# now reached via the landing-spot check instead of a first-hit
+		# layer check, so it applies the same way regardless of approach
+		# direction.
+		var clip_collision := KinematicCollision2D.new()
+		if test_move(global_transform, motion, clip_collision):
+			motion = clip_collision.get_travel()
+		# TEMP DEBUG - remove once blink charges are confirmed working.
+		print("[DEBUG seat %d] blink %s couldn't clear a platform/wizard wall in one go - only %.1f of %.1f px clear" % [seat, ("left" if direction < 0.0 else "right"), motion.length(), ability.blink_distance])
+	else:
+		# Nothing REAL in the way, and the full-distance landing spot is
+		# itself genuinely clear - teleport the full, un-shortened distance
+		# regardless of whatever Platform/Growth barrier sat in between,
+		# same "teleport clean over whatever's in between, verify only the
+		# landing spot" trust the enemy-swap branch above and
+		# _try_slam_wrap() already place in _position_is_clear().
+		# TEMP DEBUG - remove once blink charges are confirmed working.
+		print("[DEBUG seat %d] blink %s passed clean through - %.1f px clear on the far side" % [seat, ("left" if direction < 0.0 else "right"), motion.length()])
+
+	_begin_blink_travel(ability)
+	if is_wall_wrap:
+		# Three legs, not one straight line - zip out past the wall first
+		# (half of travel_time), snap instantly and invisibly to the
+		# equivalent off-screen spot on the OPPOSITE edge (no tween, no
+		# time - see _blink_travel_leg()'s own doc comment on duration <=
+		# 0.0), then zip in from there to the actual wrap destination (the
+		# other half) - see BlinkAbility.wrap_offscreen_distance's own doc
+		# comment for why. Still just one _begin_/_end_blink_travel() pair
+		# bookending all three legs.
+		var offscreen_exit := origin + Vector2(direction * ability.wrap_offscreen_distance, 0.0)
+		var offscreen_entry := Vector2(wrap_landing.x - direction * ability.wrap_offscreen_distance, origin.y)
+		_blink_travel_leg(offscreen_exit, ability.travel_time * 0.5, func():
+			_blink_travel_leg(offscreen_entry, 0.0, func():
+				_blink_travel_leg(wrap_landing, ability.travel_time * 0.5, func():
+					_end_blink_travel()
+					_finish_blink_landing(ability, direction, origin, should_grab)
+				)
+			)
+		)
+	else:
+		_blink_travel_leg(origin + motion, ability.travel_time, func():
+			_end_blink_travel()
+			_finish_blink_landing(ability, direction, origin, should_grab)
+		)
+
+
+## Landing feel, run only once _execute_blink()'s zip has actually arrived
+## (see _begin_blink_travel()'s own doc comment for why this can no longer
+## just run inline at the bottom of that function like it used to) - in
+## order of precedence: if ability.cast_on_blink is true, lands exactly like
+## an Up press - a fresh shield plus the normal jump impulse, via
+## _cast_and_jump() - letting a blink double as a re-cast/repositioning move
+## in one motion. Otherwise, if ability.jump_on_blink is true, applies just
+## the jump impulse via _apply_jump_impulse(), scaled by ability.jump_on_
+## blink_strength (1.0 = full jump, 0.5 = a half-height hop) - same feel,
+## but without summoning a shield. Otherwise (the default, with neither on)
+## just zeroes vertical velocity, so the wizard doesn't land in the new spot
+## still carrying whatever fall speed it had built up right before
+## blinking - a clean reset instead of instantly resuming a fast fall that
+## visually has nothing to do with the teleport that just happened.
+##
+## should_grab (see BlinkAbility.grab_at_max_tier) arms an additional check
+## at this landing spot via _arm_blink_grab(), using `origin` (this wizard's
+## position from BEFORE _execute_blink() ever moved it) as where a caught
+## enemy gets pulled back to.
+##
+## Also drops the landing-point vfx (ability.vfx_scene, is_exit=false - see
+## _spawn_blink_vfx()'s own doc comment for why that faces back the
+## opposite way from the cast-point one) - reads global_position live,
+## which by the time this runs is wherever the zip actually finished, not
+## wherever _execute_blink() was first called from.
+func _finish_blink_landing(ability: BlinkAbility, direction: float, origin: Vector2, should_grab: bool) -> void:
 	_spawn_blink_vfx(ability.vfx_scene, Vector2(direction, 0.0), false)
 	if should_grab:
 		_arm_blink_grab(ability, direction, origin)
@@ -2469,7 +2809,18 @@ func _enemy_wizard_within(point: Vector2, radius: float) -> Wizard:
 func _resolve_blink_grab(ability: BlinkAbility, target: Vector2, origin: Vector2, grab_vfx: Variant) -> void:
 	var caught := _enemy_wizard_within(target, ability.grab_catch_radius)
 	if caught != null:
-		caught.global_position = origin
+		# Same ghostly zip treatment this wizard's own blink gets - see
+		# _begin_blink_travel()'s own doc comment for why calling it on
+		# another wizard instance is safe. Sequential with ability.
+		# grab_delay's own wind-up above, not folded into it: the delay is
+		# already over by the time this function runs at all, so the catch
+		# resolves immediately and THEN the caught wizard's own travel_time
+		# zip plays on top, same as the caster's own blink_delay/travel_time
+		# already stay two separate windows.
+		caught._begin_blink_travel(ability)
+		caught._blink_travel_leg(origin, ability.travel_time, func():
+			caught._end_blink_travel()
+		)
 		strikes = 0
 		if is_instance_valid(grab_vfx):
 			var grab_sfx := grab_vfx.get_node_or_null("darkgrabSFX") as AudioStreamPlayer2D
@@ -2686,14 +3037,27 @@ func _try_slam_wrap() -> void:
 ## geometry (see that function's own doc comment) gets refused instead -
 ## available for any future teleport-style reposition that needs the same
 ## "don't materialize inside a wall" guarantee.
-func _position_is_clear(pos: Vector2) -> bool:
+## shrink_ratio (default 1.0 - the exact real shape, for a "would
+## materializing here overlap ANYTHING at all" teleport-safety check) can be
+## given a smaller value to probe with a shrunk copy of this wizard's shape
+## instead - see _update_stuck_watchdog()'s own call site for why that
+## matters there specifically. Scales shape.transform (the collision
+## shape's own LOCAL transform, before combining with this wizard's real
+## world position/rotation) rather than the final combined transform -
+## scaling the already-combined transform would slide the probe toward
+## world-origin (0,0) by shrink_ratio instead of shrinking the shape in
+## place around its own center, which is not what's wanted here.
+func _position_is_clear(pos: Vector2, shrink_ratio: float = 1.0) -> bool:
 	if shape == null or shape.shape == null:
 		return true
 	var query := PhysicsShapeQueryParameters2D.new()
 	query.shape = shape.shape
 	var probe_transform := global_transform
 	probe_transform.origin = pos
-	query.transform = probe_transform * shape.transform
+	var local_shape_transform := shape.transform
+	if shrink_ratio != 1.0:
+		local_shape_transform = local_shape_transform.scaled(Vector2(shrink_ratio, shrink_ratio))
+	query.transform = probe_transform * local_shape_transform
 	query.collision_mask = collision_mask
 	query.exclude = [get_rid()]
 	return get_world_2d().direct_space_state.intersect_shape(query, 1).is_empty()
@@ -2721,6 +3085,26 @@ var _stuck_in_wall_time: float = 0.0
 ## caused the overlap, or care whether a future one does something new.
 const STUCK_IN_WALL_RESPAWN_TIME: float = 1.0
 
+## Shrinks the shape this watchdog probes with (see _position_is_clear()'s
+## own shrink_ratio param) instead of testing this wizard's real, full-size
+## shape. Per the user's own report: simply holding a direction key INTO a
+## wall - completely ordinary movement input, nothing actually wrong -
+## could trip this failsafe on its own after a second or so. Root cause:
+## CharacterBody2D's own move_and_slide() deliberately leaves a body resting
+## in slight, continuous CONTACT with whatever it's pushed up against (this
+## is how is_on_wall()/is_on_floor() stay reliably true while leaning into
+## something), and intersect_shape() often reports that same bare contact
+## as "overlapping" even with zero or near-zero real penetration - so a
+## wizard just standing there holding a direction into a solid wall reads
+## exactly like one wedged inside it, and gets yanked to the ball spawn
+## point for doing nothing wrong at all. A shrunk probe still catches every
+## known GENUINE embedding this failsafe exists for (Growth's blocker
+## growing around a stationary wizard, a bad slam-wrap landing spot, a
+## brick closing around this wizard - all several pixels of real
+## interpenetration, not a hairline touch) while no longer confusing mere
+## contact with actually being stuck.
+const STUCK_WATCHDOG_SHRINK_RATIO: float = 0.8
+
 ## Called every physics frame from the very top of _physics_process(),
 ## unconditionally - even while frozen, despawning, or mid-ability - since a
 ## wizard that's actually wedged in a wall needs rescuing regardless of what
@@ -2733,7 +3117,7 @@ func _update_stuck_watchdog(delta: float) -> void:
 		# owns that sequence finish it undisturbed.
 		_stuck_in_wall_time = 0.0
 		return
-	if _position_is_clear(global_position):
+	if _position_is_clear(global_position, STUCK_WATCHDOG_SHRINK_RATIO):
 		_stuck_in_wall_time = 0.0
 		return
 	_stuck_in_wall_time += delta

@@ -65,6 +65,36 @@ class_name BlinkAbility
 ## rule growth uses - see wizard.gd's _try_blink(). 0 fires instantly.
 @export var blink_delay: float = 0.0
 
+## Seconds the actual teleport now takes to visually resolve, instead of
+## landing in one instant frame - see wizard.gd's _begin_blink_travel()/
+## _blink_travel_leg()/_end_blink_travel(). For that whole window this
+## wizard (or whoever else is being moved - a max-tier swap partner, a
+## grab's caught enemy) is intangible (collision cleared, no input
+## accepted - see _is_blinking's own doc comment) and visually "zips" from
+## wherever it started to wherever it's landing, sprite swapped to
+## clone_sprite_sheet's ghostly look for the trip (see that field's own
+## doc comment - reuses the exact same asset/treatment the clone already
+## uses) with the same squash _action_down's own dash dive already uses.
+## Separate from blink_delay above - that's the wind-up BEFORE the
+## teleport fires at all, purely a dodge/telegraph beat; this is the
+## teleport's own travel once it's already firing. 0 collapses back to the
+## original instant-snap behavior (no tween is even created - see
+## _blink_travel_leg()'s own doc comment for why 0 is handled as a special
+## case rather than just a very short tween).
+@export var travel_time: float = 0.15
+
+## Only read for the left/right map-edge wrap (see wizard.gd's
+## _wrap_destination(); NOT the ceiling slam-wrap, wrap_on_slam above -
+## that's a separate mechanic with no travel-time visual of its own yet).
+## How far past this wizard's actual wrap wall the zip-out leg travels
+## before snapping straight to the opposite edge and zipping back in from
+## there - see _execute_blink()'s own doc comment for the exit/snap/enter
+## shape. Should be comfortably past whatever the camera can actually
+## show at the wall (so the wizard visibly leaves the screen before the
+## snap, rather than popping out while still on-screen) - tune to taste
+## per map if one ever needs a different value than the others.
+@export var wrap_offscreen_distance: float = 700.0
+
 ## If true, landing from a blink automatically casts a fresh shield and
 ## applies a jump impulse - exactly what pressing Up normally does - the
 ## instant the teleport lands. Lets a blink double as a re-cast/repositioning

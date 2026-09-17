@@ -9,23 +9,25 @@
 
 [resource]
 script = ExtResource("1_script")
-blink_distance = 500.0
+blink_distance = 400.0
 double_tap_window = 0.25
 blink_delay = 0.01
+travel_time = 0.1
+wrap_offscreen_distance = 700.0
 cast_on_blink = false
 jump_on_blink = true
 jump_on_blink_strength = 0.1
 vfx_scene = ExtResource("3_vfx")
 vertical_vfx_scene = ExtResource("3_ddgcq")
 wrap_on_slam = true
-slam_wrap_requires_double_tap = false
+slam_wrap_requires_double_tap = true
 wrap_activation_distance = 200.0
 clone_on_max_tier = false
 swap_locations_at_max_tier = false
 grab_at_max_tier = true
 blink_grab_scene = ExtResource("1_4q2qf")
 grab_vfx_lifetime = 1.5
-grab_delay = 0.1
+grab_delay = 0.0
 grab_catch_radius = 250.0
 grab_miss_strike_cost = 2
 clone_duration = 5.0

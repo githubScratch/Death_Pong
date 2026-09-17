@@ -708,6 +708,38 @@ func _ready() -> void:
 	_resolve_ability_policy()
 
 
+## Releases every action this bot might currently be holding - guards
+## against a real bug the user hit: disabling bots for the next match (or
+## any other removal of this node - a rematch's scene reload, in practice)
+## left the NEXT seat's wizard walking straight into a wall on its own, as
+## if a key were stuck down, with no key actually held. Root cause:
+## Input.action_press()/action_release() are GLOBAL, PERSISTENT engine
+## state with nothing to do with any node's lifetime - _update_movement()
+## presses e.g. _action_left every decision tick it wants to keep moving
+## left, but if this node is freed (queue_free(), or the whole scene being
+## torn down for a fresh match) before its own next _physics_process() ever
+## gets a chance to release it, that press just stays latched forever.
+## Godot doesn't reset it on a scene change either, since it's not part of
+## the scene tree at all - a brand new wizard.gd in a freshly loaded scene
+## reads Input.is_action_pressed(_action_left) as still true from a bot
+## that no longer even exists, and walks into whatever wall is that
+## direction exactly as if a human were holding the key down.
+## _exit_tree() is guaranteed to run for every removal path at once
+## (queue_free(), a parent being freed, a scene change discarding this
+## whole tree) rather than needing every call site that might remove a bot
+## to separately remember to clean up after it - covers all five actions
+## this bot ever presses (movement, the ability-gesture direction, Growth's
+## hold, and the magic button - see _update_movement()/
+## _advance_ability_gesture()/_execute_growth()), regardless of which ones
+## happen to be held at the moment of removal.
+func _exit_tree() -> void:
+	Input.action_release(_action_up)
+	Input.action_release(_action_down)
+	Input.action_release(_action_left)
+	Input.action_release(_action_right)
+	Input.action_release(_action_magic)
+
+
 ## Picks the one BotAbilityPolicy subclass that matches _own_wizard's
 ## equipped ability class - a wizard's class (and therefore its ability) is
 ## fixed for the whole match once spawned, so this only ever needs to run
