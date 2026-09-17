@@ -68,6 +68,20 @@ class_name MeteorAbility
 ## own field since this ability doesn't extend either of those.
 @export var double_tap_window: float = 0.3
 
+## Minimum pixels this wizard must be above wherever it last actually stood
+## (wizard.gd's own _last_grounded_y) before the double-tap-and-hold or magic-
+## button gesture is even allowed to start a fall - see wizard.gd's
+## _meteor_airborne_enough() for the full reasoning. Replaces a bare
+## "not is_on_floor()" check that let the gesture fire from a single-frame,
+## ankle-high hop and left this wizard permanently stuck plunging into the
+## floor with nowhere left to land (that bug's actual root cause - see this
+## field's introduction in version control for the full story). 100 is a
+## simple, single knob deliberately chosen over any more elaborate fix: any
+## airborne moment shorter than this is one a normal jump/hop/obstacle-clear
+## already produces constantly, and none of those were ever meant to be
+## "was this really a meaningful fall to dive-bomb from" moments anyway.
+@export var min_activation_height: float = 100.0
+
 ## How fast this wizard plunges straight down while falling as a meteor -
 ## velocity.y is force-set to this every physics frame the fall is active
 ## (see wizard.gd's _physics_process()), overriding gravity entirely rather

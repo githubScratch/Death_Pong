@@ -41,6 +41,17 @@ var current_instance: Node = null
 var hit_the_ground = false
 var max_fall_speed = 6000
 
+## This wizard's own global_position.y the last time it was actually on the
+## floor - updated every time the landing-edge block below sets hit_the_
+## ground = true, and seeded to this wizard's spawn height in _ready() so it
+## reads sanely even before the first landing. Exists specifically for
+## _update_meteor()'s own min_activation_height gate: "how far above solid
+## ground is this wizard right now" needs a reference point, and this is it -
+## same shape BotController._last_grounded_y already used for the bot's own
+## (now-redundant, but left in place as a second line of defense)
+## min_airborne_height check in meteor_policy.gd.
+var _last_grounded_y: float = 0.0
+
 ## How many successful shield deflections this wizard has banked so far -
 ## core, shared per-wizard state every class's shield reports into (see
 ## _on_shield_deflected() and DeflectionShield.deflected in
@@ -387,6 +398,8 @@ func _ready() -> void:
 		if chosen != null:
 			wizard_class = chosen
 
+	_last_grounded_y = global_position.y
+
 	_action_up = InputRemap.action_for(seat, "up")
 	_action_down = InputRemap.action_for(seat, "down")
 	_action_left = InputRemap.action_for(seat, "left")
@@ -626,6 +639,7 @@ func _physics_process(delta: float) -> void:
 			hit_the_ground = false
 	if not hit_the_ground and is_on_floor():
 		hit_the_ground = true
+		_last_grounded_y = global_position.y
 		land.pitch_scale = randf_range(0.9, 1.1)
 		land.play()
 		sprite.scale.y = 0.15
@@ -2797,26 +2811,28 @@ func _update_meteor(delta: float) -> void:
 		# _physics_process()) is never affected either way - only this
 		# second-tap-into-a-fall gesture moves.
 		if mode != "button" and Input.is_action_just_pressed(_action_down):
-			if _meteor_down_tap_window_remaining > 0.0 and not is_on_floor():
-				# Second tap, still airborne, and it's a HOLD (Down is still
-				# down this same frame it was just pressed) - the "double tap
-				# and hold on the second tap" gesture. Grounded is excluded
-				# outright: there's no fall left to speed up standing on the
-				# floor already, so a double-tap-hold there just falls through
-				# to the ordinary dash instead (see that block's own
-				# `and not _is_meteor` guard, which only matters once this IS
-				# true - it never blocks the tap that gets it there).
+			if _meteor_down_tap_window_remaining > 0.0 and _meteor_airborne_enough(ability):
+				# Second tap, genuinely airborne (see _meteor_airborne_enough()'s
+				# own doc comment for why "not is_on_floor()" alone isn't good
+				# enough), and it's a HOLD (Down is still down this same frame
+				# it was just pressed) - the "double tap and hold on the second
+				# tap" gesture. Grounded/too-low is excluded outright: there's
+				# no worthwhile fall to speed up this close to the floor
+				# already, so a double-tap-hold there just falls through to the
+				# ordinary dash instead (see that block's own `and not
+				# _is_meteor` guard, which only matters once this IS true - it
+				# never blocks the tap that gets it there).
 				_meteor_down_tap_window_remaining = 0.0
 				_try_start_meteor(ability)
 			else:
 				_meteor_down_tap_window_remaining = ability.double_tap_window
 		# Magic button - single press, no double-tap needed (see
 		# _update_blink()'s own matching block for why); still requires
-		# actually being airborne, same as Down's own gesture above - that's
+		# the same genuine-height check as Down's own gesture above - that's
 		# an inherent physical requirement of a downward plunge, not a
 		# double-tap artifact, so it stays even though the tap itself no
 		# longer needs to be doubled.
-		if mode != "movement" and Input.is_action_just_pressed(_action_magic) and not is_on_floor():
+		if mode != "movement" and Input.is_action_just_pressed(_action_magic) and _meteor_airborne_enough(ability):
 			_try_start_meteor(ability)
 		return
 
@@ -2835,6 +2851,33 @@ func _update_meteor(delta: float) -> void:
 	# above - see _meteor_hover_remaining's own doc comment.
 	if _meteor_hover_remaining > 0.0:
 		_meteor_hover_remaining = maxf(_meteor_hover_remaining - delta, 0.0)
+
+
+## Single source of truth for "is this wizard actually far enough off the
+## ground to start a meteor fall" - replaces the old bare `not is_on_floor()`
+## check both of _update_meteor()'s trigger paths used to use on its own.
+## That bare check was the root of the whole "meteor fires from on the floor
+## or right next to it, then gets stuck" bug: is_on_floor() can read false
+## for as little as a single physics frame (an ankle-high hop, a landing-
+## stretch bounce, a stray platform-edge tick), which is airborne in the
+## strictest technical sense but not somewhere a straight-down plunge at
+## fall_speed should ever be allowed to start from - starting one there left
+## this wizard's own landing-edge detector (hit_the_ground, in
+## _physics_process()) unable to ever fire again, pinning _is_meteor true
+## forever (see _start_meteor()'s own doc comment for the mechanics of that).
+## Comparing against _last_grounded_y instead of a frame-to-frame flip fixes
+## it at the source: this simply refuses to arm the fall at all unless this
+## wizard is genuinely ability.min_activation_height pixels or more above
+## wherever it last actually stood, so the bug's whole precondition - a
+## meteor starting near the ground in the first place - can't occur. Same
+## height-gate idea meteor_policy.gd's own min_airborne_height already used
+## for the bot exclusively; this is that same idea moved down into wizard.gd
+## itself so it protects a human player using the same gesture too, not just
+## the bot.
+func _meteor_airborne_enough(ability: MeteorAbility) -> bool:
+	if is_on_floor():
+		return false
+	return (_last_grounded_y - global_position.y) >= ability.min_activation_height
 
 
 ## Shared landing point for both of _update_meteor()'s own double-tap paths

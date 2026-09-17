@@ -9,7 +9,7 @@
 
 [resource]
 script = ExtResource("1_script")
-blink_distance = 400.0
+blink_distance = 500.0
 double_tap_window = 0.25
 blink_delay = 0.01
 cast_on_blink = false
@@ -26,7 +26,7 @@ grab_at_max_tier = true
 blink_grab_scene = ExtResource("1_4q2qf")
 grab_vfx_lifetime = 1.5
 grab_delay = 0.1
-grab_catch_radius = 160.0
+grab_catch_radius = 250.0
 grab_miss_strike_cost = 2
 clone_duration = 5.0
 clone_transparency = 0.4

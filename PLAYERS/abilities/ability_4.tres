@@ -9,6 +9,7 @@
 [resource]
 script = ExtResource("1_script")
 double_tap_window = 0.3
+min_activation_height = 100.0
 fall_speed = 2000.0
 meteor_hover_delay = 0.2
 meteor_barrier_deflection_bonus = 2400.0
