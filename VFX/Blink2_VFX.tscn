@@ -3,9 +3,9 @@
 [ext_resource type="Texture2D" uid="uid://d2xs6vkx4ynxd" path="res://SPRITES/625.png" id="1_wtmmt"]
 [ext_resource type="Texture2D" uid="uid://cxv57wqmgm4ex" path="res://SPRITES/15.png" id="2_kf5ss"]
 [ext_resource type="AudioStream" uid="uid://qqmfym3vvv4s" path="res://SFX/magic jump.mp3" id="3_wtmmt"]
-[ext_resource type="Script" path="res://VFX/random_pitch_audio.gd" id="9_rndpx"]
 [ext_resource type="Texture2D" uid="uid://byu5lbal0oa8r" path="res://SPRITES/276.png" id="4_17lxk"]
 [ext_resource type="Texture2D" uid="uid://cn2njurkxp3iq" path="res://SPRITES/2d_lights_and_shadows_neutral_point_light.webp" id="5_8c4b7"]
+[ext_resource type="Script" uid="uid://c0pn7llswelsx" path="res://VFX/random_pitch_audio.gd" id="9_rndpx"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_kf5ss"]
 atlas = ExtResource("1_wtmmt")
@@ -312,11 +312,11 @@ libraries = {
 autoplay = "blink"
 
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
-script = ExtResource("9_rndpx")
 stream = ExtResource("3_wtmmt")
 volume_db = 4.0
 autoplay = true
 bus = &"SFX"
+script = ExtResource("9_rndpx")
 
 [node name="AnimatedSprite2D2" type="AnimatedSprite2D" parent="."]
 modulate = Color(0.53222, 0.2937, 0.89, 0.839216)

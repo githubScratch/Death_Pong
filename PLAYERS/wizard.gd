@@ -119,6 +119,16 @@ var _blink_delay_remaining: float = 0.0
 ## timer actually runs out. Meaningless while _blink_pending is false.
 var _blink_pending_swap: bool = false
 
+## Whether the blink currently queued above should also arm a grab once it
+## fires (see BlinkAbility.grab_at_max_tier and _execute_blink()'s
+## _arm_blink_grab() call) - decided once at commit time in _try_blink(),
+## same as _blink_pending_swap just above, and just as meaningless while
+## _blink_pending is false. Unlike a swap, a grab never changes WHERE this
+## teleport lands - the wizard still blinks exactly like an ordinary cast,
+## direction * blink_distance (or wrapped/blocked the same way) - a grab
+## only adds a bonus check at the landing spot on top of that.
+var _blink_pending_grab: bool = false
+
 ## Set on a wizard spawned by _spawn_blink_clone() (see BlinkAbility.
 ## clone_on_max_tier) - never true for a normally-summoned wizard. Gates
 ## _try_blink()'s AND _try_slam_wrap()'s own clone-spawn branches off (a
@@ -1741,7 +1751,7 @@ func _update_blink(delta: float) -> void:
 		# overwrite, or stack a second one.
 		_blink_delay_remaining -= delta
 		if _blink_delay_remaining <= 0.0:
-			_execute_blink(ability, _blink_pending_direction, _blink_pending_swap)
+			_execute_blink(ability, _blink_pending_direction, _blink_pending_swap, _blink_pending_grab)
 			_blink_pending = false
 		return
 
@@ -1792,18 +1802,35 @@ func _update_blink(delta: float) -> void:
 ## max_tiers-worth of banked strikes at the moment a blink commits, this
 ## blink cashes in EVERYTHING banked instead of just one tier - a bonus
 ## payoff for saving up the full amount instead of spending blinks the
-## instant one tier is affordable. Two independent, freely-combinable knobs
-## decide what that bonus actually does: ability.clone_on_max_tier spawns a
+## instant one tier is affordable. ability.clone_on_max_tier spawns a
 ## temporary clone (see _spawn_blink_clone()) at THIS wizard's position, at
 ## the moment of commit, same as always; ability.swap_locations_at_max_tier
-## instead (or ALSO - both can be on at once) makes the teleport itself, once
-## it actually fires in _execute_blink(), swap this wizard's position with
-## the nearest enemy wizard's rather than moving `direction` * blink_distance
-## like an ordinary blink - see BlinkAbility.swap_locations_at_max_tier's own
-## doc comment. A clone itself (`_is_clone`) never triggers EITHER bonus even
-## at its own max tier - it always falls through to the plain flat-tier
-## spend below - so this can never chain into a second clone, and a clone
-## can never trigger a swap of its own.
+## instead makes the teleport itself, once it actually fires in
+## _execute_blink(), swap this wizard's position with the nearest enemy
+## wizard's rather than moving `direction` * blink_distance like an ordinary
+## blink - see BlinkAbility.swap_locations_at_max_tier's own doc comment.
+##
+## ability.grab_at_max_tier is different from the other two: it's a bonus
+## bolted ON TOP of whatever teleport was already going to happen, not a
+## replacement for it - the wizard ALWAYS still blinks exactly as normal
+## here (direction * blink_distance, wrapped/blocked the same as any other
+## cast) whenever grab is what's active, same as an ordinary non-maxed
+## blink would. Only skipped when swap is what's active instead (swap
+## already decides where this wizard ends up; grabbing on top of a swap
+## would just be checking whether it landed on itself), which is why
+## should_grab below is gated on `not should_swap`. Once the teleport
+## lands, _execute_blink() arms the actual grab check - see
+## _arm_blink_grab()/_resolve_blink_grab() and BlinkAbility.
+## grab_at_max_tier's own doc comment for what happens from there,
+## including how it spends its own strikes on its own delayed timeline
+## instead of through the flat spend below (so a grab-enabled maxed cast
+## skips clone_on_max_tier too, for this cast only - see should_grab's
+## branch just below).
+##
+## A clone itself (`_is_clone`) never triggers ANY of these three bonuses
+## even at its own max tier - it always falls through to the plain
+## flat-tier spend below - so this can never chain into a second clone, and
+## a clone can never trigger a swap or a grab of its own.
 func _try_blink(ability: BlinkAbility, direction: float) -> void:
 	if strikes < ability.strikes_per_tier:
 		# TEMP DEBUG - remove once blink charges are confirmed working.
@@ -1812,9 +1839,18 @@ func _try_blink(ability: BlinkAbility, direction: float) -> void:
 	var tiers_banked := strikes / ability.strikes_per_tier if ability.strikes_per_tier > 0 else 0
 	var maxed_out := ability.strikes_per_tier > 0 and tiers_banked >= ability.max_tiers and not _is_clone
 	var should_swap := false
+	var should_grab := false
 	if maxed_out:
 		should_swap = ability.swap_locations_at_max_tier
-		if ability.clone_on_max_tier:
+		should_grab = ability.grab_at_max_tier and not should_swap
+		if should_grab:
+			# Deferred entirely to _resolve_blink_grab() once the outcome
+			# (caught someone vs whiffed) is actually known - no immediate
+			# spend here, and clone_on_max_tier is skipped for this cast
+			# since it would otherwise zero strikes out from under the
+			# grab before it even resolves.
+			pass
+		elif ability.clone_on_max_tier:
 			strikes = 0
 			_update_strike_gauge()
 			_spawn_blink_clone(ability)
@@ -1828,11 +1864,12 @@ func _try_blink(ability: BlinkAbility, direction: float) -> void:
 		_update_strike_gauge()
 	_spawn_blink_vfx(ability.vfx_scene, Vector2(direction, 0.0), true)
 	if ability.blink_delay <= 0.0:
-		_execute_blink(ability, direction, should_swap)
+		_execute_blink(ability, direction, should_swap, should_grab)
 		return
 	_blink_pending = true
 	_blink_pending_direction = direction
 	_blink_pending_swap = should_swap
+	_blink_pending_grab = should_grab
 	_blink_delay_remaining = ability.blink_delay
 	# TEMP DEBUG - remove once blink charges are confirmed working.
 	print("[DEBUG seat %d] blink queued %s - %d strikes remain, firing in %.2fs" % [seat, ("left" if direction < 0.0 else "right"), strikes, ability.blink_delay])
@@ -1996,6 +2033,33 @@ func _despawn_clone() -> void:
 		queue_free()
 
 
+## The AnimatedSprite2D _spawn_blink_vfx() drives (facing flip, explicit
+## play(), and the animation_finished cleanup hookup) - a direct child
+## literally named "AnimatedSprite2D" if there is one (the convention
+## Blink_VFX.tscn/Blink2_VFX.tscn both use), otherwise the first
+## AnimatedSprite2D child found by TYPE instead, in whatever order the
+## scene declares its children. Falls back this way because not every vfx
+## scene follows that naming convention - Blink_Grab.tscn's two smoke
+## sprites are named "smoke1"/"smoke2", and a plain get_node_or_null(
+## "AnimatedSprite2D") would just silently find nothing and skip them
+## entirely (no facing flip, and cleanup left ENTIRELY to the fixed-
+## duration safety-net timer instead of firing the moment the vfx actually
+## finishes). A scene with more than one AnimatedSprite2D - like
+## Blink_Grab.tscn's two smoke layers - still only gets ONE of them wired
+## up as "the" cleanup signal; the other keeps playing off its own autoplay
+## and gets torn down along with the rest of the vfx root either way
+## (whichever fires first: the wired sprite finishing, or the safety-net
+## timer).
+func _find_blink_vfx_sprite(vfx: Node) -> AnimatedSprite2D:
+	var named := vfx.get_node_or_null("AnimatedSprite2D") as AnimatedSprite2D
+	if named != null:
+		return named
+	for child in vfx.get_children():
+		if child is AnimatedSprite2D:
+			return child
+	return null
+
+
 ## Drops `scene` (if assigned) at the wizard's CURRENT position - whatever
 ## that is at the moment this is called, so where it ends up depends
 ## entirely on the caller and when in its flow it calls this. Every
@@ -2038,6 +2102,25 @@ func _despawn_clone() -> void:
 ## call, whose direction has no horizontal component to flip off of in the
 ## first place).
 ##
+## `lifetime_override`, when >= 0.0, replaces BOTH of the cleanup paths
+## described below with a single fixed timer of that many seconds - no
+## animation_finished hookup at all, just this one delay. For a vfx whose
+## audio (or any other element) needs to keep running LONGER than its own
+## AnimatedSprite2D animation does - see _arm_blink_grab(), which passes
+## ability.grab_vfx_lifetime here so Blink_Grab.tscn's "darkgrabSFX" isn't
+## cut off mid-clip by its much shorter smoke animation finishing first (or
+## by the generic 2s safety net, if that also turned out too short/too
+## long). Left at the default -1.0 sentinel, behavior is exactly what's
+## described below - unchanged for every other call site.
+##
+## Returns the spawned vfx instance itself (or null if `scene` wasn't
+## assigned) so a caller that needs to reach back into it later can - see
+## _arm_blink_grab()/_resolve_blink_grab(), which hold onto this to play a
+## grab scene's own sound effect only on a successful catch. Every OTHER
+## call site just discards the return value, which is fine - GDScript
+## doesn't require using it, and nothing about this vfx's own cleanup
+## depends on anyone keeping a reference (see the timers below).
+##
 ## Cleanup is wired as a direct signal connection on the vfx's own
 ## AnimatedSprite2D (or the fallback timer) rather than an `await
 ## anim.animation_finished` sitting right here before the queue_free()
@@ -2054,13 +2137,13 @@ func _despawn_clone() -> void:
 ## on vfx/the timer themselves instead of awaiting on self makes it fully
 ## self-contained: it fires no matter what happens to whichever wizard
 ## happened to spawn it.
-func _spawn_blink_vfx(scene: PackedScene, direction: Vector2, is_exit: bool, flip_h_override: bool = false) -> void:
+func _spawn_blink_vfx(scene: PackedScene, direction: Vector2, is_exit: bool, flip_h_override: bool = false, lifetime_override: float = -1.0) -> Node2D:
 	if not is_instance_valid(scene):
-		return
+		return null
 	var vfx: Node2D = scene.instantiate()
 	vfx.global_position = global_position
 	get_tree().current_scene.add_child(vfx)
-	var anim := vfx.get_node_or_null("AnimatedSprite2D") as AnimatedSprite2D
+	var anim := _find_blink_vfx_sprite(vfx)
 	if anim != null:
 		# The exit-side vfx faces the direction of travel; the entry-side
 		# one faces back the opposite way - see this function's own doc
@@ -2069,8 +2152,15 @@ func _spawn_blink_vfx(scene: PackedScene, direction: Vector2, is_exit: bool, fli
 		anim.flip_h = flip_h_override or facing.x < 0.0
 		anim.flip_v = facing.y < 0.0
 		anim.play()
-		anim.animation_finished.connect(_free_blink_vfx.bind(vfx), CONNECT_ONE_SHOT)
-	# Safety-net timer, always armed now - not just the "no AnimatedSprite2D"
+		if lifetime_override < 0.0:
+			anim.animation_finished.connect(_free_blink_vfx.bind(vfx), CONNECT_ONE_SHOT)
+	if lifetime_override >= 0.0:
+		# Overridden lifetime: this is the ONLY cleanup path armed - see
+		# this function's own doc comment on `lifetime_override`.
+		get_tree().create_timer(lifetime_override).timeout.connect(_free_blink_vfx.bind(vfx), CONNECT_ONE_SHOT)
+		return vfx
+	# Safety-net timer, armed alongside animation_finished above whenever
+	# lifetime_override isn't set - not just the "no AnimatedSprite2D"
 	# fallback this used to be. Blink_VFX.tscn/Blink2_VFX.tscn each carry
 	# their own internal AnimationPlayer ("blink", autoplaying) whose own
 	# track reassigns the AnimatedSprite2D's `animation` property straight
@@ -2088,13 +2178,25 @@ func _spawn_blink_vfx(scene: PackedScene, direction: Vector2, is_exit: bool, fli
 	# is_instance_valid check makes whichever of the two firings loses a
 	# harmless no-op.
 	get_tree().create_timer(2.0).timeout.connect(_free_blink_vfx.bind(vfx), CONNECT_ONE_SHOT)
+	return vfx
 
 
 ## Shared queue_free target for _spawn_blink_vfx()'s two independent cleanup
 ## paths (the AnimatedSprite2D's own animation_finished, and the fixed-
 ## duration safety-net timer) - guards against whichever fires second
 ## trying to free an already-freed node.
-func _free_blink_vfx(vfx: Node) -> void:
+##
+## `vfx` is deliberately UNTYPED (Variant), not `Node` - whichever of the
+## two paths fires SECOND is, by definition, handing this a reference to a
+## node the other path already queue_free()'d. A freed object reports its
+## own class as plain Object, not whatever it used to be, so a statically
+## typed `Node` parameter here fails Godot's argument conversion before
+## this function's body even runs ("Cannot convert argument 1 from Object
+## to Object" straight out of emit_signalp) - is_instance_valid() below
+## never gets the chance to make that a harmless no-op. Variant accepts the
+## stale reference without that upfront class check, so is_instance_valid()
+## actually gets to do its job.
+func _free_blink_vfx(vfx: Variant) -> void:
 	if is_instance_valid(vfx):
 		vfx.queue_free()
 
@@ -2136,7 +2238,15 @@ func _free_blink_vfx(vfx: Node) -> void:
 ## speed it had built up right before blinking - a clean reset instead of
 ## instantly resuming a fast fall that visually has nothing to do with the
 ## teleport that just happened.
-func _execute_blink(ability: BlinkAbility, direction: float, should_swap: bool = false) -> void:
+##
+## should_grab (see BlinkAbility.grab_at_max_tier and _try_blink()'s own doc
+## comment) never changes any of the above - the wizard still lands exactly
+## where should_swap/the ordinary directional move puts it. It only arms an
+## additional check at that landing spot afterward, via _arm_blink_grab(),
+## using `origin` (this wizard's position from BEFORE this function moved
+## it at all) as where a caught enemy gets pulled to.
+func _execute_blink(ability: BlinkAbility, direction: float, should_swap: bool = false, should_grab: bool = false) -> void:
+	var origin := global_position
 	if should_swap:
 		var swap_target := _nearest_enemy_wizard()
 		if swap_target != null:
@@ -2199,6 +2309,8 @@ func _execute_blink(ability: BlinkAbility, direction: float, should_swap: bool =
 	# is the arrival end, so it faces back the opposite way from the
 	# cast-point one, which faces the direction of travel.
 	_spawn_blink_vfx(ability.vfx_scene, Vector2(direction, 0.0), false)
+	if should_grab:
+		_arm_blink_grab(ability, direction, origin)
 	if ability.cast_on_blink:
 		_cast_and_jump()
 	elif ability.jump_on_blink:
@@ -2207,6 +2319,45 @@ func _execute_blink(ability: BlinkAbility, direction: float, should_swap: bool =
 		velocity.y = 0.0
 	# TEMP DEBUG - remove once blink charges are confirmed working.
 	print("[DEBUG seat %d] blinked %s" % [seat, ("left" if direction < 0.0 else "right")])
+
+
+## The bonus half of a grab-enabled maxed-out blink (see BlinkAbility.
+## grab_at_max_tier and _try_blink()/_execute_blink()'s own doc comments) -
+## called right after this wizard's ordinary teleport has already landed,
+## `origin` being wherever it blinked FROM. Drops ability.blink_grab_scene
+## at the landing spot purely as a visual (via _spawn_blink_vfx(), which
+## already guarantees that vfx gets cleaned up one way or another - see its
+## own doc comment) and arms a one-shot timer for ability.grab_delay seconds
+## later, when _resolve_blink_grab() actually checks who's standing there.
+## `target` is snapshotted as this wizard's global_position right now, at
+## the moment it lands - not read live at resolve time - since this wizard
+## itself may well have moved on again by then and the grab is meant to
+## check the SPOT it landed on, not wherever it currently happens to be.
+##
+## Passes ability.grab_vfx_lifetime through as _spawn_blink_vfx()'s
+## lifetime_override, rather than leaving this vfx's removal timing to that
+## function's usual animation_finished/2s-safety-net default - see
+## grab_vfx_lifetime's own doc comment: Blink_Grab.tscn's "darkgrabSFX"
+## sound can easily outlast the much shorter smoke animation that would
+## otherwise free the whole vfx (audio player included) out from under it
+## mid-clip. This one knob controls exactly how long the grab vfx sticks
+## around, independent of whatever its own sprite animation does.
+##
+## Holds onto _spawn_blink_vfx()'s return value (the vfx instance itself,
+## e.g. Blink_Grab.tscn) and hands it on to _resolve_blink_grab() so a
+## successful catch can play that scene's own "darkgrabSFX" - see that
+## function's doc comment for why the sound is triggered from here instead
+## of the scene autoplaying it on spawn.
+func _arm_blink_grab(ability: BlinkAbility, direction: float, origin: Vector2) -> void:
+	var target := global_position
+	var grab_vfx := _spawn_blink_vfx(
+		ability.blink_grab_scene, Vector2(direction, 0.0), false, false, ability.grab_vfx_lifetime
+	)
+	get_tree().create_timer(ability.grab_delay).timeout.connect(
+		_resolve_blink_grab.bind(ability, target, origin, grab_vfx), CONNECT_ONE_SHOT
+	)
+	# TEMP DEBUG - remove once blink charges are confirmed working.
+	print("[DEBUG seat %d] blink grab armed at landing spot, resolving in %.2fs" % [seat, ability.grab_delay])
 
 
 ## The closest OTHER wizard not on this wizard's own team, by plain
@@ -2238,6 +2389,85 @@ func _nearest_enemy_wizard() -> Wizard:
 			nearest_distance = distance
 			nearest = other
 	return nearest
+
+
+## The nearest OTHER wizard not on this wizard's own team, but only counted
+## if it's within `radius` pixels of `point` - the catch check for a
+## max-tier grab (see BlinkAbility.grab_at_max_tier and
+## _resolve_blink_grab()). Same team/despawn filtering as
+## _nearest_enemy_wizard() just above (a teammate is never a valid catch,
+## and a wizard already mid-despawn via _despawn_clone() never counts), just
+## measured against an arbitrary point instead of this wizard's own
+## position, and bounded to `radius` instead of unconditionally returning
+## whichever enemy happens to be closest anywhere on the map. Returns null
+## if nobody in range qualifies - the "caught nothing"/whiff case
+## _resolve_blink_grab() spends grab_miss_strike_cost for instead of the
+## full gauge.
+func _enemy_wizard_within(point: Vector2, radius: float) -> Wizard:
+	var my_team := GameSettings.team_color_for_seat(seat)
+	var nearest: Wizard = null
+	var nearest_distance := radius
+	for node in get_tree().get_nodes_in_group("wizard"):
+		var other := node as Wizard
+		if other == null or other == self or other._despawning:
+			continue
+		if GameSettings.team_color_for_seat(other.seat) == my_team:
+			continue
+		var distance := point.distance_to(other.global_position)
+		if distance <= nearest_distance:
+			nearest_distance = distance
+			nearest = other
+	return nearest
+
+
+## Fires ability.grab_delay seconds after _arm_blink_grab() arms - checks
+## LIVE (same "read it when it matters" rule _nearest_enemy_wizard() already
+## follows for a swap) whether an enemy wizard is within
+## ability.grab_catch_radius of `target` (the spot this wizard's own blink
+## landed on) right now, not back when the grab was first armed. A catch
+## snaps that enemy straight to `origin` (wherever this wizard blinked FROM)
+## and spends the entire strike gauge; a whiff only spends ability.
+## grab_miss_strike_cost tiers, since nothing actually happened. If this
+## wizard itself gets queue_freed before this timer fires (match ended,
+## despawned, whatever), Godot simply never calls a bound method on a freed
+## instance - no guard needed here for that, same as every other
+## timer-based cleanup in this file.
+##
+## `grab_vfx` is whatever _arm_blink_grab() got back from _spawn_blink_vfx()
+## (ability.blink_grab_scene's own instance, or null if that scene isn't
+## assigned) - on a successful catch, its "darkgrabSFX" child (if present)
+## is played explicitly, right here, rather than the scene autoplaying it
+## the instant it spawns. Deliberately NOT tied to the vfx's own animation
+## or an AnimationPlayer track inside the scene: the outcome (caught vs
+## whiffed) isn't known until THIS function runs, grab_delay seconds after
+## the vfx already appeared, so nothing inside that scene can know whether
+## to play the sound on its own - it has to be told from here. `grab_vfx`
+## may already be gone by the time this fires (its own animation finished,
+## or the safety-net timer beat this to it - see _spawn_blink_vfx()'s doc
+## comment) if ability.grab_delay is set longer than that vfx's own
+## lifetime; is_instance_valid() below just skips the sound in that case
+## rather than erroring, same "whichever fires second is a no-op" shape
+## _free_blink_vfx() already uses. `grab_vfx` is UNTYPED (Variant), not
+## `Node`, for the exact same reason _free_blink_vfx()'s own parameter is -
+## see its doc comment: a freed object fails a statically typed parameter's
+## argument conversion before this function's body (and its
+## is_instance_valid() check) ever runs.
+func _resolve_blink_grab(ability: BlinkAbility, target: Vector2, origin: Vector2, grab_vfx: Variant) -> void:
+	var caught := _enemy_wizard_within(target, ability.grab_catch_radius)
+	if caught != null:
+		caught.global_position = origin
+		strikes = 0
+		if is_instance_valid(grab_vfx):
+			var grab_sfx := grab_vfx.get_node_or_null("darkgrabSFX") as AudioStreamPlayer2D
+			if grab_sfx != null:
+				grab_sfx.play()
+		# TEMP DEBUG - remove once blink charges are confirmed working.
+		print("[DEBUG seat %d] blink grab caught seat %d and pulled them back" % [seat, caught.seat])
+	else:
+		strikes = maxi(strikes - ability.grab_miss_strike_cost * ability.strikes_per_tier, 0)
+		# TEMP DEBUG - remove once blink charges are confirmed working.
+		print("[DEBUG seat %d] blink grab caught nothing - spent %d tier(s) instead of the full gauge" % [seat, ability.grab_miss_strike_cost])
+	_update_strike_gauge()
 
 
 ## Returns the WrapDestination marker for a blocked blink's collider, or
@@ -2514,6 +2744,23 @@ func _update_stuck_watchdog(delta: float) -> void:
 ## or crashing, so adding a new map without this method is a silent no-op
 ## here, not a broken build - worth remembering to add it there too.
 func _respawn_at_ball_spawn() -> void:
+	# A meteor fall forces velocity to _meteor_fall_speed() every physics
+	# frame for as long as _is_meteor stays true (see the `if _is_meteor:`
+	# override in _physics_process(), right before move_and_slide()) - that
+	# override doesn't care where this wizard's position came from, so if
+	# whatever wedged it into geometry in the first place was itself a
+	# meteor fall, just teleporting it out here and leaving _is_meteor true
+	# solves nothing: the very next frame re-applies the same forced dive
+	# from the new spot, and if THAT spot isn't real floor either (the ball
+	# spawn point sits in open air on more than one map), it just falls,
+	# gets wedged again, and the watchdog above fires again a second later -
+	# a repeating respawn-to-center loop instead of a one-time rescue. Only
+	# _cancel_meteor() actually stops the override (see its own doc
+	# comment); _land_meteor() isn't used here since this is explicitly an
+	# external interrupt with no real landing to speak of, same as the
+	# freeze-catch case in _physics_process() already treats it.
+	if _is_meteor:
+		_cancel_meteor()
 	var scene := get_tree().current_scene
 	if scene == null or not scene.has_method("get_ball_spawn_position"):
 		return
@@ -2637,6 +2884,29 @@ func _start_meteor(ability: MeteorAbility) -> void:
 	_spawn_meteor_vfx(ability)
 	if ability.disable_platform_collision_while_meteor_form:
 		collision_mask &= ~_PLATFORMS_COLLISION_LAYER_BIT
+	# Forcibly re-arms the landing-edge detector down in _physics_process()
+	# (`if not hit_the_ground and is_on_floor(): ... if _is_meteor:
+	# _land_meteor()`) instead of trusting whatever hit_the_ground already
+	# was. That detector's only other writer is the airborne branch just
+	# above it, which sets hit_the_ground = false while airborne ONLY once
+	# abs(velocity.y) climbs past 350 - fine for a real fall, but this
+	# trigger only ever requires `not is_on_floor()` (see _update_meteor()),
+	# no minimum height or speed at all. A bare ankle-high hop satisfies
+	# that gate (is_on_floor() reads false for a frame or two) without ever
+	# nearing 350, so hit_the_ground can still be sitting true from this
+	# wizard's last real landing when this fires - meaning the very next
+	# frame this wizard touches back down, `not hit_the_ground` is already
+	# false and the landing check above never fires, _land_meteor() never
+	# runs, and _is_meteor is stuck true forever with velocity forced to
+	# _meteor_fall_speed() every frame (see the `if _is_meteor:` override
+	# right before move_and_slide()) - the wizard just gets pinned into
+	# whatever floor/wall it's touching instead of ever landing. That's the
+	# "activates on the floor and gets stuck" bug this line fixes: setting
+	# it false here guarantees the landing check reads true the instant
+	# is_on_floor() does, whether that's later this SAME physics frame
+	# (_update_meteor() runs before the landing check each frame, so a
+	# same-frame stale is_on_floor() resolves as an instant, harmless
+	# landing rather than a fall) or the next one.
 
 
 ## Ends a meteor fall WITHOUT any landing effect - only ever an external

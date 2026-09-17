@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="BlinkAbility" load_steps=6 format=3 uid="uid://bwr6n0i8gyqc5"]
+[gd_resource type="Resource" script_class="BlinkAbility" load_steps=7 format=3 uid="uid://bwr6n0i8gyqc5"]
 
+[ext_resource type="PackedScene" uid="uid://diytsjxkre4m2" path="res://VFX/Blink_Grab.tscn" id="1_4q2qf"]
 [ext_resource type="Texture2D" uid="uid://bwugeg67ivce3" path="res://SPRITES/fulloutline.png" id="1_odwrn"]
 [ext_resource type="Script" uid="uid://o0g4qpy0c3w6" path="res://PLAYERS/blink_ability.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://b8nh7yxds3rl1" path="res://PLAYERS/spell_1.tscn" id="2_shield"]
@@ -8,19 +9,25 @@
 
 [resource]
 script = ExtResource("1_script")
-blink_distance = 300.0
+blink_distance = 400.0
 double_tap_window = 0.25
 blink_delay = 0.01
-barrier_on_blink = false
+cast_on_blink = false
 jump_on_blink = true
 jump_on_blink_strength = 0.1
 vfx_scene = ExtResource("3_vfx")
 vertical_vfx_scene = ExtResource("3_ddgcq")
 wrap_on_slam = true
 slam_wrap_requires_double_tap = false
-wrap_activation_distance = 80.0
-clone_on_max_tier = true
+wrap_activation_distance = 200.0
+clone_on_max_tier = false
 swap_locations_at_max_tier = false
+grab_at_max_tier = true
+blink_grab_scene = ExtResource("1_4q2qf")
+grab_vfx_lifetime = 1.5
+grab_delay = 0.1
+grab_catch_radius = 160.0
+grab_miss_strike_cost = 2
 clone_duration = 5.0
 clone_transparency = 0.4
 clone_sprite_sheet = ExtResource("1_odwrn")

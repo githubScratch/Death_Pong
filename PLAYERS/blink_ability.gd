@@ -32,6 +32,21 @@ class_name BlinkAbility
 ## teleport swaps this wizard's position with the nearest enemy wizard's
 ## instead of moving in `direction` by blink_distance. Fully independent of
 ## clone_on_max_tier: either, both, or neither can be on at once.
+##
+## A FOURTH max-tier bonus, grab_at_max_tier further below, is different in
+## kind from the other three: it's a bonus bolted ON TOP of the ordinary
+## teleport rather than a replacement for it - this wizard still blinks
+## exactly as normal (direction * blink_distance, wrapped/blocked the same
+## as any other cast) whenever grab is what's active. Only skipped when
+## swap_locations_at_max_tier is ALSO on (swap already decides the
+## destination; see wizard.gd's _try_blink()) - otherwise, once the
+## teleport lands, it reaches back out to that landing spot a beat later
+## and pulls whichever enemy wizard is still standing there back to wherever
+## THIS wizard blinked FROM. See grab_at_max_tier's own doc comment for the
+## full mechanic (added after swap_locations_at_max_tier started feeling too
+## easy/cheesy as a guaranteed reposition-to-anywhere: a grab can whiff
+## entirely if nothing's standing where it reaches, where a swap always
+## finds SOME nearest enemy to land on).
 
 ## Pixels teleported per blink.
 @export var blink_distance: float = 300.0
@@ -58,7 +73,7 @@ class_name BlinkAbility
 ## wizard.gd's _execute_blink()/_cast_and_jump(). Takes priority over
 ## jump_on_blink just below when both are somehow on, since this already
 ## includes the jump that one adds on its own.
-@export var barrier_on_blink: bool = false
+@export var cast_on_blink: bool = false
 
 ## If true, landing from a LEFT/RIGHT blink (not the ceiling-wrap slam
 ## wrap - see _execute_blink() vs _try_slam_wrap()) immediately applies a
@@ -177,6 +192,79 @@ class_name BlinkAbility
 ## gone), falls back to the ordinary directional teleport instead of doing
 ## nothing.
 @export var swap_locations_at_max_tier: bool = false
+
+## A FOURTH max-tier bonus - see this resource's own top doc comment and
+## swap_locations_at_max_tier just above for how it relates to that one
+## (skipped outright whenever swap is also on). Unlike swap or
+## clone_on_max_tier, this ISN'T an alternative to the ordinary teleport -
+## the wizard still blinks exactly as normal, direction * blink_distance,
+## wrapped/blocked the same as any other cast. Once that teleport lands,
+## it's ALSO where blink_grab_scene gets spawned, purely as a visual marking
+## the spot, and grab_delay seconds later (checked live, at resolve time -
+## same "read it when it matters" rule _nearest_enemy_wizard() already
+## follows for a swap) whichever enemy wizard is still standing within
+## grab_catch_radius of that landing spot gets yanked back to wherever THIS
+## wizard blinked FROM. A successful catch spends this wizard's entire
+## strike gauge, the same size payoff clone_on_max_tier/swap_locations_at_
+## max_tier get (and, for this cast, replaces clone_on_max_tier's own
+## immediate full-spend-and-spawn, since that can't coexist with a payoff
+## that isn't known until grab_delay elapses); catching nobody only spends
+## grab_miss_strike_cost tiers instead, since nothing actually happened - a
+## real whiff is possible here in a way a swap (which always finds SOME
+## nearest enemy to land on) never allowed. See wizard.gd's
+## _arm_blink_grab()/_resolve_blink_grab(). Like every other max-tier bonus
+## on this resource, a clone's own maxed-out cast (_is_clone) never triggers
+## this - see wizard.gd's _try_blink() doc comment.
+@export var grab_at_max_tier: bool = false
+
+## The scene instanced at the blink's own landing spot when grab_at_max_tier
+## fires - purely visual, spawned via the same wizard.gd _spawn_blink_vfx()
+## every other blink vfx goes through, just as a second, separate instance
+## dropped on top of that same spot. Removal timing is its OWN knob though -
+## see grab_vfx_lifetime just below - rather than vfx_scene's own default
+## (that scene's AnimatedSprite2D finishing, or a fixed 2s safety net).
+## Whether anything actually gets caught there is decided separately, in
+## wizard.gd's _enemy_wizard_within() - this scene never needs its own
+## collision shape or script for that. Null/unset skips spawning it
+## entirely, same opt-in shape as every other optional scene on this
+## resource, though a grab with no assigned visual still works
+## mechanically.
+@export var blink_grab_scene: PackedScene
+
+## Seconds this wizard keeps blink_grab_scene's instance alive before
+## removing it - see wizard.gd's _arm_blink_grab()/_spawn_blink_vfx()'s own
+## `lifetime_override` doc comment. Deliberately its OWN timer rather than
+## reusing that scene's AnimatedSprite2D finishing (or the generic 2s
+## safety net every other blink vfx falls back on): blink_grab_scene's
+## "darkgrabSFX" sound effect can easily run longer than its much shorter
+## smoke animation, and the old default cleanup was freeing the whole vfx -
+## audio player included - the instant that animation finished, cutting the
+## sound off mid-clip. Set this to at least as long as darkgrabSFX's actual
+## audio clip so it always finishes playing before the vfx (and the sound
+## with it) gets torn down.
+@export var grab_vfx_lifetime: float = 1.5
+
+## Seconds between casting a grab and it actually resolving (catching
+## whichever enemy wizard, if any, is standing within grab_catch_radius of
+## the target spot at THAT moment) - a beat for the grab vfx to read before
+## the yank happens, purely feel. 0 resolves instantly, the same frame it
+## was cast.
+@export var grab_delay: float = 0.1
+
+## How close an enemy wizard must be standing to the grab's target spot,
+## grab_delay seconds after it was cast, to actually get caught - see
+## wizard.gd's _enemy_wizard_within(). Too small and a grab whiffs on
+## anything but a dead-center hit; too large and it starts catching enemies
+## who were never really standing in the target square at all.
+@export var grab_catch_radius: float = 48.0
+
+## Strike-gauge TIERS (not raw strikes - multiplied by strikes_per_tier in
+## wizard.gd's _resolve_blink_grab()) spent on a grab that catches nobody.
+## A successful catch always spends the full gauge instead - see
+## grab_at_max_tier's own doc comment above - so this only matters on a
+## whiff, as a smaller consolation cost for the attempt rather than the
+## full payoff price of a hit.
+@export var grab_miss_strike_cost: int = 2
 
 ## Seconds a clone spawned by a maxed-out blink or slam wrap sticks around
 ## before despawning - see wizard.gd's _spawn_blink_clone()/_despawn_clone(). Any
