@@ -29,8 +29,16 @@ class_name GrowthAbility
 ## Seconds of continuous holding one tier's growth takes.
 @export var growth_duration_per_tier: float = 0.5
 
-## Seconds the shield takes to snap back to 1.0 once a channel ends.
-@export var shrink_duration: float = 0.1
+## Seconds the shield takes to snap back to 1.0 once a channel ends, PER
+## TIER actually reached - not a flat duration. A value of 1 means a barrier
+## that only reached tier 1 takes 1 second to shrink back down; a barrier
+## that reached tier 4 takes 4 seconds, since it has that much further to
+## visually collapse and that much more presence to justify lingering for.
+## See wizard.gd's _end_growth_channel(), which multiplies this by whatever
+## _channel_tier the channel actually reached (floored at 1, so a channel
+## that ends before landing even tier 1 still gets one tier's worth of
+## shrink/VFX-fade time rather than snapping out instantly).
+@export var shrink_time_per_tier: float = 0.1
 
 ## How long Up must be held before a hold-to-grow channel actually commits
 ## (starts hovering and spending strikes), instead of being a normal jump.
@@ -65,7 +73,7 @@ class_name GrowthAbility
 ## same opt-in shape as BlinkAbility.vfx_scene.
 @export var vfx_scene: PackedScene
 
-## Seconds vfx_scene takes to fade out and disappear once shrink_duration's
+## Seconds vfx_scene takes to fade out and disappear once shrink_time_per_tier's
 ## own scale-back tween finishes - see wizard.gd's _end_growth_vfx(), called
 ## from _end_growth_channel(). Only used as a fallback: if vfx_scene's own
 ## AnimationPlayer has an "end" or "fade" clip authored on it, that plays
@@ -89,7 +97,7 @@ class_name GrowthAbility
 ## (faded out) by it the way an ordinary grown barrier would be.
 ## It still shrinks back down at its own normal pace either way (releasing
 ## Up, or running out of strikes/tiers mid-hold, still ends the channel and
-## starts the usual shrink_duration-paced snap back to scale 1.0 - see
+## starts the usual shrink_time_per_tier-paced snap back to scale 1.0 - see
 ## _end_growth_channel()) - but because nothing still calls it "the current
 ## barrier", nothing would ever naturally retire it once it's back to
 ## normal size. So instead, the moment it finishes shrinking back to 1.0,

@@ -8781,7 +8781,7 @@ metadata/_edit_use_anchors_ = true
 
 [node name="platform" type="StaticBody2D" parent="moving platforms"]
 position = Vector2(64, 274)
-collision_layer = 2
+collision_layer = 32
 collision_mask = 7
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="moving platforms/platform"]
@@ -8805,7 +8805,7 @@ one_way_collision = true
 
 [node name="platform2" type="StaticBody2D" parent="moving platforms"]
 position = Vector2(592, 728)
-collision_layer = 2
+collision_layer = 32
 collision_mask = 7
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="moving platforms/platform2"]
@@ -8829,7 +8829,7 @@ one_way_collision = true
 
 [node name="platform3" type="StaticBody2D" parent="moving platforms"]
 position = Vector2(40, 1176)
-collision_layer = 2
+collision_layer = 32
 collision_mask = 7
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="moving platforms/platform3"]
@@ -8853,7 +8853,7 @@ one_way_collision = true
 
 [node name="platform4" type="StaticBody2D" parent="moving platforms"]
 position = Vector2(600, 1624)
-collision_layer = 2
+collision_layer = 32
 collision_mask = 7
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="moving platforms/platform4"]
@@ -9682,30 +9682,30 @@ energy = 5.0
 range_item_cull_mask = 2
 texture = ExtResource("8_2t7hb")
 
-[node name="StaticBody2D" type="StaticBody2D" parent="Decorations"]
+[node name="colum1" type="StaticBody2D" parent="Decorations"]
 position = Vector2(288, 2320)
-collision_layer = 2
-collision_mask = 7
+collision_layer = 0
+collision_mask = 39
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Decorations/StaticBody2D"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Decorations/colum1"]
 shape = SubResource("RectangleShape2D_nsywk")
 one_way_collision = true
 
-[node name="StaticBody2D2" type="StaticBody2D" parent="Decorations"]
+[node name="column2" type="StaticBody2D" parent="Decorations"]
 position = Vector2(576, 2320)
-collision_layer = 2
-collision_mask = 7
+collision_layer = 0
+collision_mask = 39
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Decorations/StaticBody2D2"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Decorations/column2"]
 shape = SubResource("RectangleShape2D_nsywk")
 one_way_collision = true
 
-[node name="StaticBody2D3" type="StaticBody2D" parent="Decorations"]
+[node name="column3" type="StaticBody2D" parent="Decorations"]
 position = Vector2(864, 2320)
-collision_layer = 2
-collision_mask = 7
+collision_layer = 0
+collision_mask = 39
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Decorations/StaticBody2D3"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Decorations/column3"]
 shape = SubResource("RectangleShape2D_nsywk")
 one_way_collision = true
 

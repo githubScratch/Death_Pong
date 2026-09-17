@@ -68,6 +68,14 @@ var frozen_ball_overlay: PackedScene
 var frozen_wizard_overlay: PackedScene
 var self_vfx_scene: PackedScene
 
+## Passed straight through to a caught wizard's freeze_in_place() (see
+## IceAbility.lock_actions_while_frozen for the actual knob this comes
+## from) - has no effect on a caught ball, which ignores the same
+## parameter. True (the default) matches every zone's behavior before this
+## field existed: jump/dive/casting/holds fully locked out for as long as a
+## wizard stays inside.
+var lock_actions_while_frozen: bool = true
+
 ## The direction this zone was thrown in (-1.0 left, 1.0 right - same sign
 ## wizard.gd's _cast_ice_zone() itself uses) - purely so self_vfx_scene can
 ## be mirrored to actually face the cast direction instead of always
@@ -90,7 +98,7 @@ var _despawning: bool = false
 ## own Node2D scale so the collision shape and the (code-instantiated)
 ## self_vfx_scene visual both grow together for free, no separate sizing
 ## math needed per child.
-func configure(p_scale: float, p_slow_amount: float, p_duration: float, p_despawn_delay: float, p_caster: Node, p_affects_caster: bool, p_affects_other_wizards: bool, p_frozen_ball_overlay: PackedScene, p_frozen_wizard_overlay: PackedScene, p_self_vfx_scene: PackedScene, p_cast_direction: float) -> void:
+func configure(p_scale: float, p_slow_amount: float, p_duration: float, p_despawn_delay: float, p_caster: Node, p_affects_caster: bool, p_affects_other_wizards: bool, p_frozen_ball_overlay: PackedScene, p_frozen_wizard_overlay: PackedScene, p_self_vfx_scene: PackedScene, p_cast_direction: float, p_lock_actions_while_frozen: bool = true) -> void:
 	scale = Vector2.ONE * p_scale
 	slow_amount = p_slow_amount
 	duration = p_duration
@@ -102,6 +110,7 @@ func configure(p_scale: float, p_slow_amount: float, p_duration: float, p_despaw
 	frozen_wizard_overlay = p_frozen_wizard_overlay
 	self_vfx_scene = p_self_vfx_scene
 	cast_direction = p_cast_direction
+	lock_actions_while_frozen = p_lock_actions_while_frozen
 
 
 func _ready() -> void:
@@ -166,7 +175,7 @@ func _on_body_entered(body: Node) -> void:
 	if not _bodies_inside.has(body):
 		_bodies_inside.append(body)
 	var overlay := frozen_ball_overlay if body.is_in_group("ball") else frozen_wizard_overlay
-	body.freeze_in_place(_NEVER_EXPIRES, slow_amount, overlay)
+	body.freeze_in_place(_NEVER_EXPIRES, slow_amount, overlay, lock_actions_while_frozen)
 
 
 ## Ends this body's slow the moment it actually leaves the zone - not on a

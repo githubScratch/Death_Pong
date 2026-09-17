@@ -26,7 +26,7 @@ script = ExtResource("0_seat")
 [node name="CharacterBody2D" type="CharacterBody2D" parent="." groups=["wizard"]]
 z_index = 2
 position = Vector2(0, -20)
-collision_mask = 18
+collision_mask = 50
 script = ExtResource("1_chassis")
 
 [node name="shape" type="CollisionShape2D" parent="CharacterBody2D"]

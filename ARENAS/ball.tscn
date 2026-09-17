@@ -85,6 +85,7 @@ linear_damp = 0.5
 angular_damp = 1.0
 script = ExtResource("1_41u45")
 max_speed = 2000.0
+hitstop_duration = 0.03
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D"]
 visible = false

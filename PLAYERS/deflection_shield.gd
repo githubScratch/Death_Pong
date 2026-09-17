@@ -90,6 +90,12 @@ func deflect_ball(ball, direction):
 			ball.thaw()
 		var new_velocity = direction * deflection_force
 		ball.linear_velocity = new_velocity
+		# Duck-typed, same shape as the thaw() call just above - a shield
+		# deflect is as much "the ball got struck" as a paddle or wall
+		# contact, so it gets the same hitstop treatment (see ball.gd's
+		# trigger_hitstop() for the mechanism and its shared cooldown).
+		if ball.has_method("trigger_hitstop"):
+			ball.trigger_hitstop()
 		deflect_sfx.pitch_scale = randf_range(0.9, 1.1)
 		deflect_sfx.play()
 		# Deferred, not called directly: deflect_ball() runs from

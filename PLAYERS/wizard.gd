@@ -111,6 +111,14 @@ var _blink_pending: bool = false
 var _blink_pending_direction: float = 0.0
 var _blink_delay_remaining: float = 0.0
 
+## Whether the blink currently queued above should swap positions with the
+## nearest enemy wizard once it fires, instead of the ordinary directional
+## teleport - decided once, at commit time in _try_blink() (see
+## BlinkAbility.swap_locations_at_max_tier), and just carried through
+## blink_delay's wind-up here so _execute_blink() still has it once the
+## timer actually runs out. Meaningless while _blink_pending is false.
+var _blink_pending_swap: bool = false
+
 ## Set on a wizard spawned by _spawn_blink_clone() (see BlinkAbility.
 ## clone_on_max_tier) - never true for a normally-summoned wizard. Gates
 ## _try_blink()'s AND _try_slam_wrap()'s own clone-spawn branches off (a
@@ -251,14 +259,15 @@ var _meteor_barrier: Node2D = null
 ## True while THIS wizard is standing inside someone ELSE's Ice Zone (see
 ## IceZone._on_body_entered(), which always skips the caster's own zone
 ## unless IceAbility.self_affected is true) - mirrors Ball.freeze_in_place()/
-## thaw() with the CharacterBody2D-appropriate version below. Jump, dive,
-## casting, and every hold-based ability are still fully locked out while
-## this is true (_physics_process()'s frozen branch returns before reaching
-## any of that), but LEFT/RIGHT movement is NOT - it's read and applied right
-## there in the frozen branch too, just scaled by (1.0 - _frozen_slow_amount),
-## so a partial slow_amount actually reads as reduced walking speed instead
-## of a full lockout regardless of the knob's value. Only at slow_amount 1.0
-## does movement input stop mattering at all.
+## thaw() with the CharacterBody2D-appropriate version below. By default,
+## jump, dive, casting, and every hold-based ability are still fully locked
+## out while this is true (_physics_process()'s frozen branch returns before
+## reaching any of that) - see _frozen_lock_actions below for the toggle that
+## controls this - but LEFT/RIGHT movement is NOT locked out either way: it's
+## read and applied right there in the frozen branch too, just scaled by
+## (1.0 - _frozen_slow_amount), so a partial slow_amount actually reads as
+## reduced walking speed instead of a full lockout regardless of the knob's
+## value. Only at slow_amount 1.0 does movement input stop mattering at all.
 ##
 ## Deliberately a SEPARATE flag from _frozen_remaining, rather than just
 ## checking _frozen_remaining > 0.0 everywhere (which an earlier version of
@@ -274,6 +283,20 @@ var _is_frozen: bool = false
 var _frozen_remaining: float = 0.0
 var _frozen_slow_amount: float = 0.0
 var _frozen_overlay: Node2D = null
+
+## Whether THIS particular freeze also locks out jump/dive/casting/holds,
+## same "checkbox" convention every other per-cast IceAbility knob uses -
+## set from whatever IceAbility caught this wizard (see freeze_in_place()'s
+## own lock_actions_while_frozen parameter and IceAbility.
+## lock_actions_while_frozen), not hand-tuned here. True (the default, and
+## what every call site got before this flag existed) preserves the original
+## "frozen always locks actions" behavior exactly - see _physics_process()'s
+## frozen branch. False lets a slowed wizard still jump, dive, and cast
+## normally (still paying whatever cost/cooldown that ability already
+## charges) while LEFT/RIGHT movement stays scaled by _frozen_slow_amount
+## same as always - a knob purely for balance experimentation on how
+## punishing getting caught in a zone should feel.
+var _frozen_lock_actions: bool = true
 
 ## Counts down MeteorAbility.tier2_meteor_form_duration seconds after a
 ## TIER-2 landing (see _land_meteor()'s tiers_banked >= 2 branch) while
@@ -295,6 +318,17 @@ var _frozen_overlay: Node2D = null
 ## wins in that corner case, same as it always has; this timer just keeps
 ## ticking harmlessly in the background either way.
 var _meteor_form_lock_remaining: float = 0.0
+
+## Bit for 2d_physics/layer_6 "Platforms" in project.godot (layer_1 is bit 0,
+## so layer_6 is bit 5) - see MeteorAbility.disable_platform_collision_while_
+## meteor_form's own doc comment. Cleared from/restored to this wizard's own
+## collision_mask by _start_meteor()/_cancel_meteor()/_land_meteor()/
+## _end_meteor_form_lingering() below, using &=~/|= rather than a cached
+## snapshot - both operations are safe to call redundantly (e.g. a fresh fall
+## re-triggered mid-lingering-form clears an already-cleared bit, a no-op)
+## without risking clobbering any other mask bit that changes for unrelated
+## reasons.
+const _PLATFORMS_COLLISION_LAYER_BIT := 1 << 5
 
 # Cached per-seat action names, so the hot path in _physics_process isn't
 # rebuilding strings ("p%d_up" % seat) every frame.
@@ -457,69 +491,99 @@ func _physics_process(delta: float) -> void:
 	# overlapping solid geometry" as a baseline again from here on this frame.
 	_update_stuck_watchdog(delta)
 
-	# Frozen still locks out jumping, diving, casting, and growth/blink/zone
-	# holds unconditionally - a slowed wizard can't burst out of it with a
-	# jump-dash or interrupt it with a fresh cast, no matter how partial
-	# _frozen_slow_amount is. LEFT/RIGHT movement is the one thing that
-	# actually scales with that knob now: at 0.0 it's full walking speed
-	# (caught, but not hindered at all), at 1.0 it's genuinely 0 ("remains
-	# in place" - "at 1 we have stopped entirely state"), and anything
-	# between moves at that fraction of normal SPEED - a wizard slowed by,
-	# say, 0.5 visibly keeps shuffling around at half speed instead of
-	# reading as fully frozen regardless of the knob, which is what made a
-	# partial slow_amount invisible before (no input at all ever reached
-	# movement, only gravity's pull scaled). Gravity gets the same
-	# (1.0 - _frozen_slow_amount) treatment it always did: freeze_in_place()
-	# already cut whatever velocity this wizard had once, at the moment of
-	# catching it (see that function), so from here it's just how much of
-	# gravity's ongoing pull gets through each frame - 0 at slow_amount 1.0,
-	# the same 2x gravity the normal branch below uses at slow_amount 0.0,
-	# something in between otherwise.
+	# Multiplies the ordinary (non-frozen) gravity/movement code further down
+	# this function - stays 1.0 (no effect at all) except for one specific
+	# case: this wizard is frozen AND _frozen_lock_actions is false, so the
+	# `if _is_frozen:` block below sets this instead of doing its own
+	# dedicated movement/gravity handling and returning. The normal
+	# `_frozen_lock_actions == true` path (today's only behavior, still the
+	# default) never touches this at all - it keeps its own separate
+	# gravity/movement handling exactly as before and returns before this
+	# variable would ever matter.
+	var frozen_scale := 1.0
+
+	# Frozen locks out jumping, diving, casting, and growth/blink/zone holds
+	# by default (_frozen_lock_actions true) - a slowed wizard can't burst
+	# out of it with a jump-dash or interrupt it with a fresh cast, no matter
+	# how partial _frozen_slow_amount is. See _frozen_lock_actions's own doc
+	# comment for the toggle that lets a specific IceAbility opt out of this
+	# and allow acting while slowed instead. LEFT/RIGHT movement is the one
+	# thing that actually scales with _frozen_slow_amount either way: at 0.0
+	# it's full walking speed (caught, but not hindered at all), at 1.0 it's
+	# genuinely 0 ("remains in place" - "at 1 we have stopped entirely
+	# state"), and anything between moves at that fraction of normal SPEED -
+	# a wizard slowed by, say, 0.5 visibly keeps shuffling around at half
+	# speed instead of reading as fully frozen regardless of the knob, which
+	# is what made a partial slow_amount invisible before (no input at all
+	# ever reached movement, only gravity's pull scaled). Gravity gets the
+	# same (1.0 - _frozen_slow_amount) treatment it always did: freeze_in_
+	# place() already cut whatever velocity this wizard had once, at the
+	# moment of catching it (see that function), so from here it's just how
+	# much of gravity's ongoing pull gets through each frame - 0 at
+	# slow_amount 1.0, the same 2x gravity the normal branch below uses at
+	# slow_amount 0.0, something in between otherwise.
 	if _is_frozen:
 		# A meteor fall caught mid-plunge by someone else's ice zone shouldn't
 		# leave its vfx/barrier dangling on a now-frozen wizard forever -
-		# cancel it the instant freezing takes over. Checked here, at the
-		# very top of this branch, since a frozen wizard never reaches
-		# _update_meteor() below at all (this whole branch returns before
-		# that point).
+		# cancel it the instant freezing takes over, regardless of
+		# _frozen_lock_actions - this is about being caught mid-fall, not
+		# about whether new actions are allowed afterward.
 		if _is_meteor:
 			_cancel_meteor()
 		_frozen_remaining -= delta
-		# Deliberately NOT gated behind is_on_floor(), unlike the identical-
-		# looking check in the normal branch below. Ball.freeze_in_place()
-		# gives a partially-slowed ball a persistent gravity_scale that the
-		# physics engine just keeps integrating regardless of whether the
-		# ball happens to be resting against anything at any given instant
-		# (a RigidBody2D has no is_on_floor() to gate on in the first place),
-		# so a caught ball always visibly reflects a mid slow_amount setting.
-		# Gating this the same way the normal branch does meant a wizard
-		# caught while already standing on solid ground got NO gravity term
-		# at all, at ANY slow_amount - 0.5 and 1.0 looked identical (fully
-		# frozen), since there was nothing pulling it down either way. move_
-		# and_slide() below still keeps a grounded wizard pinned to the floor
-		# exactly like it always does outside a freeze, so this doesn't let
-		# one sink through the ground - it just means a value below 1.0 now
-		# actually reads as "slowed" rather than "frozen" even for a wizard
-		# that was standing still the instant it got caught.
-		velocity += get_gravity() * 2 * delta * (1.0 - _frozen_slow_amount)
-		if velocity.y > max_fall_speed:
-			velocity.y = max_fall_speed
+		frozen_scale = 1.0 - _frozen_slow_amount
 
-		var frozen_move_scale := 1.0 - _frozen_slow_amount
-		var frozen_direction := Input.get_axis(_action_left, _action_right)
-		if frozen_direction:
-			velocity.x = frozen_direction * SPEED * frozen_move_scale
-			if frozen_direction > 0:
-				sprite.flip_h = false
-			elif frozen_direction < 0:
-				sprite.flip_h = true
-		else:
-			velocity.x = move_toward(velocity.x, 0, SPEED * frozen_move_scale)
+		if _frozen_lock_actions:
+			# Deliberately NOT gated behind is_on_floor(), unlike the
+			# identical-looking check in the normal branch below.
+			# Ball.freeze_in_place() gives a partially-slowed ball a
+			# persistent gravity_scale that the physics engine just keeps
+			# integrating regardless of whether the ball happens to be
+			# resting against anything at any given instant (a RigidBody2D
+			# has no is_on_floor() to gate on in the first place), so a
+			# caught ball always visibly reflects a mid slow_amount setting.
+			# Gating this the same way the normal branch does meant a
+			# wizard caught while already standing on solid ground got NO
+			# gravity term at all, at ANY slow_amount - 0.5 and 1.0 looked
+			# identical (fully frozen), since there was nothing pulling it
+			# down either way. move_and_slide() below still keeps a
+			# grounded wizard pinned to the floor exactly like it always
+			# does outside a freeze, so this doesn't let one sink through
+			# the ground - it just means a value below 1.0 now actually
+			# reads as "slowed" rather than "frozen" even for a wizard that
+			# was standing still the instant it got caught.
+			velocity += get_gravity() * 2 * delta * frozen_scale
+			if velocity.y > max_fall_speed:
+				velocity.y = max_fall_speed
 
-		move_and_slide()
+			var frozen_direction := Input.get_axis(_action_left, _action_right)
+			if frozen_direction:
+				velocity.x = frozen_direction * SPEED * frozen_scale
+				if frozen_direction > 0:
+					sprite.flip_h = false
+				elif frozen_direction < 0:
+					sprite.flip_h = true
+			else:
+				velocity.x = move_toward(velocity.x, 0, SPEED * frozen_scale)
+
+			move_and_slide()
+			if _frozen_remaining <= 0.0:
+				thaw()
+			return
+
+		# _frozen_lock_actions is false on whatever IceAbility caught this
+		# wizard - rather than this block owning movement/gravity and
+		# returning, it just leaves frozen_scale set above (still capturing
+		# THIS frame's slow amount even if thaw() below ends the freeze this
+		# same frame, exactly like the locked path above does) and falls
+		# through into the ordinary chassis code below: jump/dive/casting,
+		# growth/blink/ice-zone/meteor updates, and the normal movement
+		# block all run as usual, just with gravity and LEFT/RIGHT movement
+		# multiplied by frozen_scale wherever they'd otherwise use a bare 2x
+		# gravity or full SPEED - see those spots further down. A wizard
+		# caught this way can still act, just at reduced speed while it does.
 		if _frozen_remaining <= 0.0:
 			thaw()
-		return
 
 	if not _despawning:
 		_update_growth_channel(delta)
@@ -543,7 +607,7 @@ func _physics_process(delta: float) -> void:
 	# paused) and was dropped; see _ice_input_lock_remaining's doc comment
 	# for what replaced it.
 	if not is_on_floor():
-		velocity += get_gravity() * 2 * delta
+		velocity += get_gravity() * 2 * delta * frozen_scale
 		if velocity.y > max_fall_speed:
 			velocity.y = max_fall_speed
 		if abs(velocity.y) > 350.0:
@@ -615,13 +679,13 @@ func _physics_process(delta: float) -> void:
 	if _ice_input_lock_remaining <= 0.0:
 		var direction := Input.get_axis(_action_left, _action_right)
 		if direction:
-			velocity.x = direction * SPEED
+			velocity.x = direction * SPEED * frozen_scale
 			if direction > 0:
 				sprite.flip_h = false  # Face right
 			elif direction < 0:
 				sprite.flip_h = true   # Face left
 		else:
-			velocity.x = move_toward(velocity.x, 0, SPEED)
+			velocity.x = move_toward(velocity.x, 0, SPEED * frozen_scale)
 
 	# Hold-to-grow hovers in place - whatever gravity/jump/dive/movement code
 	# above just computed for this frame gets overridden here, every frame,
@@ -675,6 +739,7 @@ func _end_meteor_form_lingering() -> void:
 		return
 	_end_meteor_vfx(_current_ability() as MeteorAbility)
 	_end_meteor_barrier()
+	collision_mask |= _PLATFORMS_COLLISION_LAYER_BIT
 
 
 ## Reparents this wizard's current standing barrier (current_instance, if
@@ -1247,6 +1312,9 @@ func _try_pay_next_growth_step(ability: GrowthAbility) -> bool:
 ## for the other half of this).
 func _end_growth_channel() -> void:
 	_is_channeling = false
+	# Captured before _channel_tier resets below - shrink_time needs to know
+	# how far this channel actually got.
+	var tier_reached := _channel_tier
 	_channel_tier = 0
 	_channel_hold_time = 0.0
 	_channel_stutter_remaining = 0.0
@@ -1256,7 +1324,16 @@ func _end_growth_channel() -> void:
 	_growth_target = null
 	if is_instance_valid(barrier):
 		var ability := _current_ability() as GrowthAbility
-		var shrink_time: float = ability.shrink_duration if ability != null else 0.1
+		# Per GrowthAbility.shrink_time_per_tier's own doc comment: total
+		# shrink time scales with how far this barrier actually grew, not a
+		# flat duration - tier 4 lingers 4x longer than tier 1 does. Floored
+		# at 1 tier's worth even if the channel ended at tier 0 (released
+		# before the first tier ever landed) - the barrier itself never
+		# visually grew so the snap-back tween is a no-op either way, but
+		# _end_growth_vfx() below also waits this long before starting its
+		# own fade, and an instant 0-second cutoff there would be jarring for
+		# no reason.
+		var shrink_time: float = (ability.shrink_time_per_tier * maxi(tier_reached, 1)) if ability != null else 0.1
 		# Unique Barrier Mode: `barrier` was detached from current_instance
 		# the instant this channel committed (see _update_growth_channel()),
 		# with a fresh normal barrier already standing in as the new
@@ -1492,6 +1569,7 @@ func _cast_ice_zone(ability: IceAbility, direction: float) -> void:
 			ability.frozen_wizard_overlay,
 			ability.self_vfx_scene,
 			direction,
+			ability.lock_actions_while_frozen,
 		)
 		get_tree().current_scene.add_child(zone)
 
@@ -1556,11 +1634,18 @@ func _set_ice_knockback_velocity_x(value: float) -> void:
 ## overlay_scene (if assigned on the IceAbility that owns this zone - see
 ## IceAbility.frozen_wizard_overlay) is spawned as a child for as long as
 ## that lasts, same opt-in vfx shape used everywhere else in this file. Null
-## skips spawning anything.
-func freeze_in_place(duration: float, slow_amount: float, overlay_scene: PackedScene = null) -> void:
+## skips spawning anything. lock_actions_while_frozen (from IceAbility.
+## lock_actions_while_frozen - see that field's own doc comment) sets
+## _frozen_lock_actions for the duration of this freeze; true (the default)
+## is every call site's behavior before this parameter existed. Ball.
+## freeze_in_place() takes the same parameter purely so IceZone's shared,
+## duck-typed call site can pass one argument list to either body type - it
+## has no actions to lock, so it accepts and ignores it.
+func freeze_in_place(duration: float, slow_amount: float, overlay_scene: PackedScene = null, lock_actions_while_frozen: bool = true) -> void:
 	_is_frozen = true
 	_frozen_remaining = duration
 	_frozen_slow_amount = clampf(slow_amount, 0.0, 1.0)
+	_frozen_lock_actions = lock_actions_while_frozen
 	velocity *= (1.0 - _frozen_slow_amount)
 	_spawn_frozen_overlay(overlay_scene)
 
@@ -1592,6 +1677,7 @@ func thaw() -> void:
 	_is_frozen = false
 	_frozen_remaining = 0.0
 	_frozen_slow_amount = 0.0
+	_frozen_lock_actions = true
 	_clear_frozen_overlay()
 
 
@@ -1655,7 +1741,7 @@ func _update_blink(delta: float) -> void:
 		# overwrite, or stack a second one.
 		_blink_delay_remaining -= delta
 		if _blink_delay_remaining <= 0.0:
-			_execute_blink(ability, _blink_pending_direction)
+			_execute_blink(ability, _blink_pending_direction, _blink_pending_swap)
 			_blink_pending = false
 		return
 
@@ -1703,36 +1789,50 @@ func _update_blink(delta: float) -> void:
 ## back if they want, or save them for later.
 ##
 ## The one exception: if this wizard is already sitting on a full
-## max_tiers-worth of banked strikes at the moment a blink commits, and
-## ability.clone_on_max_tier is true, this blink cashes in EVERYTHING banked
-## instead of just one tier and spawns a temporary clone (see
-## _spawn_blink_clone()) - a bonus payoff for saving up the full amount
-## instead of spending blinks the instant one tier is affordable. A clone
-## itself (`_is_clone`) never triggers this branch even at its own max tier -
-## it always falls through to the plain flat-tier spend below - so this can
-## never chain into a second clone.
+## max_tiers-worth of banked strikes at the moment a blink commits, this
+## blink cashes in EVERYTHING banked instead of just one tier - a bonus
+## payoff for saving up the full amount instead of spending blinks the
+## instant one tier is affordable. Two independent, freely-combinable knobs
+## decide what that bonus actually does: ability.clone_on_max_tier spawns a
+## temporary clone (see _spawn_blink_clone()) at THIS wizard's position, at
+## the moment of commit, same as always; ability.swap_locations_at_max_tier
+## instead (or ALSO - both can be on at once) makes the teleport itself, once
+## it actually fires in _execute_blink(), swap this wizard's position with
+## the nearest enemy wizard's rather than moving `direction` * blink_distance
+## like an ordinary blink - see BlinkAbility.swap_locations_at_max_tier's own
+## doc comment. A clone itself (`_is_clone`) never triggers EITHER bonus even
+## at its own max tier - it always falls through to the plain flat-tier
+## spend below - so this can never chain into a second clone, and a clone
+## can never trigger a swap of its own.
 func _try_blink(ability: BlinkAbility, direction: float) -> void:
 	if strikes < ability.strikes_per_tier:
 		# TEMP DEBUG - remove once blink charges are confirmed working.
 		print("[DEBUG seat %d] blink denied - only %d strikes banked, need %d" % [seat, strikes, ability.strikes_per_tier])
 		return
 	var tiers_banked := strikes / ability.strikes_per_tier if ability.strikes_per_tier > 0 else 0
-	var maxed_out := ability.strikes_per_tier > 0 and tiers_banked >= ability.max_tiers
-	if maxed_out and ability.clone_on_max_tier and not _is_clone:
-		strikes = 0
-		_update_strike_gauge()
-		_spawn_blink_clone(ability)
-		# TEMP DEBUG - remove once blink charges are confirmed working.
-		print("[DEBUG seat %d] blink at max tier - consumed all strikes and spawned a clone" % seat)
+	var maxed_out := ability.strikes_per_tier > 0 and tiers_banked >= ability.max_tiers and not _is_clone
+	var should_swap := false
+	if maxed_out:
+		should_swap = ability.swap_locations_at_max_tier
+		if ability.clone_on_max_tier:
+			strikes = 0
+			_update_strike_gauge()
+			_spawn_blink_clone(ability)
+			# TEMP DEBUG - remove once blink charges are confirmed working.
+			print("[DEBUG seat %d] blink at max tier - consumed all strikes and spawned a clone" % seat)
+		else:
+			strikes -= ability.strikes_per_tier
+			_update_strike_gauge()
 	else:
 		strikes -= ability.strikes_per_tier
 		_update_strike_gauge()
 	_spawn_blink_vfx(ability.vfx_scene, Vector2(direction, 0.0), true)
 	if ability.blink_delay <= 0.0:
-		_execute_blink(ability, direction)
+		_execute_blink(ability, direction, should_swap)
 		return
 	_blink_pending = true
 	_blink_pending_direction = direction
+	_blink_pending_swap = should_swap
 	_blink_delay_remaining = ability.blink_delay
 	# TEMP DEBUG - remove once blink charges are confirmed working.
 	print("[DEBUG seat %d] blink queued %s - %d strikes remain, firing in %.2fs" % [seat, ("left" if direction < 0.0 else "right"), strikes, ability.blink_delay])
@@ -1969,28 +2069,66 @@ func _spawn_blink_vfx(scene: PackedScene, direction: Vector2, is_exit: bool, fli
 		anim.flip_h = flip_h_override or facing.x < 0.0
 		anim.flip_v = facing.y < 0.0
 		anim.play()
-		anim.animation_finished.connect(vfx.queue_free, CONNECT_ONE_SHOT)
-	else:
-		get_tree().create_timer(1.0).timeout.connect(vfx.queue_free, CONNECT_ONE_SHOT)
+		anim.animation_finished.connect(_free_blink_vfx.bind(vfx), CONNECT_ONE_SHOT)
+	# Safety-net timer, always armed now - not just the "no AnimatedSprite2D"
+	# fallback this used to be. Blink_VFX.tscn/Blink2_VFX.tscn each carry
+	# their own internal AnimationPlayer ("blink", autoplaying) whose own
+	# track reassigns the AnimatedSprite2D's `animation` property straight
+	# from "blinks" to "default" partway through playback - a direct
+	# property override, not the animation completing on its own - so
+	# `animation_finished` never fires and the connection above never
+	# runs. That silently leaked one whole vfx instance (AnimatedSprite2D,
+	# AnimationPlayer, AudioStreamPlayer2D, and a PointLight2D) per call,
+	# forever, on every blink cast and landing - the reported "class 1
+	# barrier gets dimmer over a match" turned out to be this: a match's
+	# worth of blinks leaves a match's worth of un-freed PointLight2D nodes
+	# behind, competing with every barrier's own light for the same
+	# rendering budget. This timer frees the vfx on a fixed clock no matter
+	# what its internal animation does to itself; _free_blink_vfx()'s
+	# is_instance_valid check makes whichever of the two firings loses a
+	# harmless no-op.
+	get_tree().create_timer(2.0).timeout.connect(_free_blink_vfx.bind(vfx), CONNECT_ONE_SHOT)
+
+
+## Shared queue_free target for _spawn_blink_vfx()'s two independent cleanup
+## paths (the AnimatedSprite2D's own animation_finished, and the fixed-
+## duration safety-net timer) - guards against whichever fires second
+## trying to free an already-freed node.
+func _free_blink_vfx(vfx: Node) -> void:
+	if is_instance_valid(vfx):
+		vfx.queue_free()
 
 
 ## Actually performs the teleport - immediately from _try_blink() if
 ## blink_delay is 0, otherwise once _update_blink()'s countdown reaches 0.
-## Uses test_move() rather than blindly offsetting position, so a blink can
-## never tunnel the wizard partway (or fully) into a wall or the arena edge
-## - it sweeps the wizard's own collision shape along the blink, using the
-## same collision_mask that already governs normal movement, and if
-## anything solid is in the way, only the clear portion of the motion is
-## taken instead of the full blink_distance. A raycast alone would miss
-## this: it's a single infinitely-thin line, but the wizard's actual body
-## has width, so a ray down the center could clear a wall's edge that the
-## wizard's shoulders would still clip - test_move() checks the real shape,
-## not a point, so no separate collision geometry is needed for this.
-## Also handles landing feel, in order of precedence: if ability.cast_on_blink
-## is true, lands exactly like an Up press - a fresh shield plus the normal
-## jump impulse, via _cast_and_jump() - letting a blink double as a
-## re-cast/repositioning move in one motion. Otherwise, if ability.
-## jump_on_blink is true, applies just the jump impulse via
+## should_swap (see BlinkAbility.swap_locations_at_max_tier and _try_blink()'s
+## own doc comment for exactly when this is true) skips the ordinary
+## directional move entirely and instead swaps this wizard's global_position
+## with the nearest enemy wizard's, found fresh right here at the moment the
+## teleport actually fires (not back when the blink was first committed) via
+## _nearest_enemy_wizard() - same "read it live" reasoning the VFX spawn
+## below already uses, so a slow blink_delay can't leave this swapping into
+## somewhere an enemy no longer is. Falls back to the ordinary directional
+## teleport below if there's no enemy to swap with at all (e.g. Training's
+## single-seat scene) rather than silently doing nothing.
+##
+## Otherwise (should_swap false, or no enemy found), uses test_move() rather
+## than blindly offsetting position, so a blink can never tunnel the wizard
+## partway (or fully) into a wall or the arena edge - it sweeps the wizard's
+## own collision shape along the blink, using the same collision_mask that
+## already governs normal movement, and if anything solid is in the way,
+## only the clear portion of the motion is taken instead of the full
+## blink_distance. A raycast alone would miss this: it's a single
+## infinitely-thin line, but the wizard's actual body has width, so a ray
+## down the center could clear a wall's edge that the wizard's shoulders
+## would still clip - test_move() checks the real shape, not a point, so no
+## separate collision geometry is needed for this.
+##
+## Either way, also handles landing feel, in order of precedence: if
+## ability.cast_on_blink is true, lands exactly like an Up press - a fresh
+## shield plus the normal jump impulse, via _cast_and_jump() - letting a
+## blink double as a re-cast/repositioning move in one motion. Otherwise, if
+## ability.jump_on_blink is true, applies just the jump impulse via
 ## _apply_jump_impulse(), scaled by ability.jump_on_blink_strength (1.0 =
 ## full jump, 0.5 = a half-height hop) - same feel, but without summoning a
 ## shield. Otherwise (the default, with neither on) just zeroes vertical velocity,
@@ -1998,48 +2136,62 @@ func _spawn_blink_vfx(scene: PackedScene, direction: Vector2, is_exit: bool, fli
 ## speed it had built up right before blinking - a clean reset instead of
 ## instantly resuming a fast fall that visually has nothing to do with the
 ## teleport that just happened.
-func _execute_blink(ability: BlinkAbility, direction: float) -> void:
-	var motion := Vector2(direction * ability.blink_distance, 0.0)
-	var collision := KinematicCollision2D.new()
-	if test_move(global_transform, motion, collision):
-		var wrap_target := _wrap_destination(collision.get_collider())
-		var travel: Vector2 = collision.get_travel()
-		# A wrap wall only actually wraps if this wizard was already within
-		# ability.wrap_activation_distance of it BEFORE this blink started -
-		# travel.length() is exactly that clear distance (test_move() only
-		# swept this far before hitting the wall). Without this check, any
-		# blink_distance long enough to reach a wrap wall from anywhere -
-		# mid-arena, mid-fight - would launch the wizard clean across the
-		# map; gating it on proximity keeps that an "already sneaking up on
-		# the wall" move instead of an accident (see BlinkAbility.
-		# wrap_activation_distance's own doc comment).
-		if wrap_target != null and travel.length() <= ability.wrap_activation_distance:
-			# Close enough to the wall AND it's a wrap boundary (see
-			# arena.tscn's map_wall_left/map_wall_right groups) - reappear at
-			# that wall's own WrapDestination marker instead of stopping
-			# short. Only X moves; Y is left untouched - this is a left/right
-			# wrap only, vertical wrap is a separate mechanic (the slam-wrap
-			# landing one), not this one.
-			global_position.x = wrap_target.global_position.x
+func _execute_blink(ability: BlinkAbility, direction: float, should_swap: bool = false) -> void:
+	if should_swap:
+		var swap_target := _nearest_enemy_wizard()
+		if swap_target != null:
+			var my_position := global_position
+			global_position = swap_target.global_position
+			swap_target.global_position = my_position
 			# TEMP DEBUG - remove once blink charges are confirmed working.
-			print("[DEBUG seat %d] blink %s wrapped to the opposite side" % [seat, ("left" if direction < 0.0 else "right")])
+			print("[DEBUG seat %d] max-tier blink swapped positions with seat %d" % [seat, swap_target.seat])
 		else:
-			# Blocked by something that isn't a wrap boundary (another
-			# wizard, an untagged wall, a mid-arena platform), or it IS one
-			# but this wizard started too far from it to count as a
-			# deliberate wrap - either way, only take the portion of the
-			# motion that's actually clear, so the wizard stops flush
-			# against whatever it hit instead of ending up inside it (or,
-			# for a too-far wrap wall, instead of launching clean across the
-			# map).
-			motion = travel
+			# Nobody to swap with (no other wizard in play, or every other
+			# wizard is on this one's own team) - fall through to the
+			# ordinary directional teleport below instead of doing nothing.
+			should_swap = false
+	if not should_swap:
+		var motion := Vector2(direction * ability.blink_distance, 0.0)
+		var collision := KinematicCollision2D.new()
+		if test_move(global_transform, motion, collision):
+			var wrap_target := _wrap_destination(collision.get_collider())
+			var travel: Vector2 = collision.get_travel()
+			# A wrap wall only actually wraps if this wizard was already within
+			# ability.wrap_activation_distance of it BEFORE this blink started -
+			# travel.length() is exactly that clear distance (test_move() only
+			# swept this far before hitting the wall). Without this check, any
+			# blink_distance long enough to reach a wrap wall from anywhere -
+			# mid-arena, mid-fight - would launch the wizard clean across the
+			# map; gating it on proximity keeps that an "already sneaking up on
+			# the wall" move instead of an accident (see BlinkAbility.
+			# wrap_activation_distance's own doc comment).
+			if wrap_target != null and travel.length() <= ability.wrap_activation_distance:
+				# Close enough to the wall AND it's a wrap boundary (see
+				# arena.tscn's map_wall_left/map_wall_right groups) - reappear at
+				# that wall's own WrapDestination marker instead of stopping
+				# short. Only X moves; Y is left untouched - this is a left/right
+				# wrap only, vertical wrap is a separate mechanic (the slam-wrap
+				# landing one), not this one.
+				global_position.x = wrap_target.global_position.x
+				# TEMP DEBUG - remove once blink charges are confirmed working.
+				print("[DEBUG seat %d] blink %s wrapped to the opposite side" % [seat, ("left" if direction < 0.0 else "right")])
+			else:
+				# Blocked by something that isn't a wrap boundary (another
+				# wizard, an untagged wall, a mid-arena platform), or it IS one
+				# but this wizard started too far from it to count as a
+				# deliberate wrap - either way, only take the portion of the
+				# motion that's actually clear, so the wizard stops flush
+				# against whatever it hit instead of ending up inside it (or,
+				# for a too-far wrap wall, instead of launching clean across the
+				# map).
+				motion = travel
+				global_position += motion
+				# TEMP DEBUG - remove once blink charges are confirmed working.
+				print("[DEBUG seat %d] blink %s blocked - only %.1f of %.1f px clear" % [seat, ("left" if direction < 0.0 else "right"), motion.length(), ability.blink_distance])
+		else:
 			global_position += motion
-			# TEMP DEBUG - remove once blink charges are confirmed working.
-			print("[DEBUG seat %d] blink %s blocked - only %.1f of %.1f px clear" % [seat, ("left" if direction < 0.0 else "right"), motion.length(), ability.blink_distance])
-	else:
-		global_position += motion
 	# global_position is fully settled by this point in every branch above
-	# (wrapped, blocked-and-clipped, or the full unblocked distance) -
+	# (swapped, wrapped, blocked-and-clipped, or the full unblocked distance) -
 	# _spawn_blink_vfx() reads it live, so calling it here drops a second
 	# VFX at wherever the wizard actually ended up (the landing point),
 	# matching _try_blink()'s existing spawn at the cast point - same
@@ -2055,6 +2207,37 @@ func _execute_blink(ability: BlinkAbility, direction: float) -> void:
 		velocity.y = 0.0
 	# TEMP DEBUG - remove once blink charges are confirmed working.
 	print("[DEBUG seat %d] blinked %s" % [seat, ("left" if direction < 0.0 else "right")])
+
+
+## The closest OTHER wizard not on this wizard's own team, by plain
+## global_position distance - the target for a max-tier swap blink (see
+## BlinkAbility.swap_locations_at_max_tier and _execute_blink()). Team
+## membership is read the same way _apply_team_outline() already colors a
+## seat's outline (GameSettings.team_color_for_seat()) rather than
+## duplicating that seat-to-team split's own math here - two seats are
+## teammates exactly when they'd get the same outline color. Skips this
+## wizard itself, any wizard still on this wizard's own team (so a 2v2 match
+## never swaps two teammates into each other), and anything mid-despawn (a
+## blink clone already on its way out via _despawn_clone() - see
+## _despawning's own doc comment; a normal wizard never sets this). Returns
+## null if nothing qualifies - e.g. Training's single-seat scene, or a 1v1
+## where the only other wizard happens to already be gone - which
+## _execute_blink() falls back on to mean "just do the ordinary blink."
+func _nearest_enemy_wizard() -> Wizard:
+	var my_team := GameSettings.team_color_for_seat(seat)
+	var nearest: Wizard = null
+	var nearest_distance := INF
+	for node in get_tree().get_nodes_in_group("wizard"):
+		var other := node as Wizard
+		if other == null or other == self or other._despawning:
+			continue
+		if GameSettings.team_color_for_seat(other.seat) == my_team:
+			continue
+		var distance := global_position.distance_to(other.global_position)
+		if distance < nearest_distance:
+			nearest_distance = distance
+			nearest = other
+	return nearest
 
 
 ## Returns the WrapDestination marker for a blocked blink's collider, or
@@ -2452,6 +2635,8 @@ func _start_meteor(ability: MeteorAbility) -> void:
 	velocity = Vector2.ZERO if ability.meteor_hover_delay > 0.0 else Vector2(0.0, ability.fall_speed)
 	_attach_meteor_barrier(ability)
 	_spawn_meteor_vfx(ability)
+	if ability.disable_platform_collision_while_meteor_form:
+		collision_mask &= ~_PLATFORMS_COLLISION_LAYER_BIT
 
 
 ## Ends a meteor fall WITHOUT any landing effect - only ever an external
@@ -2466,6 +2651,7 @@ func _cancel_meteor() -> void:
 	_meteor_hover_remaining = 0.0
 	_end_meteor_vfx(_current_ability() as MeteorAbility)
 	_end_meteor_barrier()
+	collision_mask |= _PLATFORMS_COLLISION_LAYER_BIT
 
 
 ## Called from _physics_process()'s own airborne-to-grounded transition the
@@ -2479,7 +2665,9 @@ func _cancel_meteor() -> void:
 ## banked, or the tier2_meteor_form_enabled knob off) runs the usual
 ## end-of-fall cleanup right here, same as _cancel_meteor() does; a
 ## qualifying tier-2 landing deliberately skips all of that instead - see
-## the branch below.
+## the branch below. Either way, if ability.jump_after_landing is true, this
+## finishes by firing _cast_and_jump() automatically - see that field's own
+## doc comment.
 func _land_meteor() -> void:
 	_is_meteor = false
 	_meteor_hover_remaining = 0.0
@@ -2487,6 +2675,7 @@ func _land_meteor() -> void:
 	if ability == null:
 		_end_meteor_vfx(null)
 		_end_meteor_barrier()
+		collision_mask |= _PLATFORMS_COLLISION_LAYER_BIT
 		return
 
 	var tiers_banked := 0
@@ -2509,6 +2698,17 @@ func _land_meteor() -> void:
 		strikes -= tiers_banked * ability.strikes_per_tier
 		_update_strike_gauge()
 		_meteor_form_lock_remaining = ability.tier2_meteor_form_duration
+		# The initial ground slam still needs its own impact moment even
+		# though the fall's own vfx/barrier keep riding for the tier-2
+		# payoff - a plain landing's meteor_lands_vfx_scene burst was
+		# skipped entirely here before, so tier 2 read as landing with no
+		# impact at all until the barrier/trail eventually faded out later.
+		# _play_dropped_vfx() spawns a fresh, independent one-shot instance
+		# at this wizard's current position (see that function) - it's a
+		# completely separate scene/field from _meteor_vfx (meteor_fall_
+		# vfx_scene) and _meteor_barrier, so this doesn't touch, restart, or
+		# interfere with either one continuing to ride along afterward.
+		_play_dropped_vfx(ability.meteor_lands_vfx_scene, ability.meteor_lands_vfx_lifetime)
 		# TEMP DEBUG - remove once meteor strikes are confirmed working.
 		print("[DEBUG seat %d] meteor tier-2 landing - barrier extended %.1fs, %d strikes spent, %d remain" % [seat, ability.tier2_meteor_form_duration, tiers_banked * ability.strikes_per_tier, strikes])
 	else:
@@ -2523,6 +2723,17 @@ func _land_meteor() -> void:
 		_end_meteor_vfx(ability)
 		_end_meteor_barrier()
 		_play_dropped_vfx(ability.meteor_lands_vfx_scene, ability.meteor_lands_vfx_lifetime)
+		collision_mask |= _PLATFORMS_COLLISION_LAYER_BIT
+
+	# Runs after EITHER landing branch above, not just the plain one - see
+	# MeteorAbility.jump_after_landing's own doc comment for why a tier-2
+	# landing still safely reaches this: _meteor_form_lock_remaining is
+	# already set by the tier-2 branch above by the time this runs, so
+	# _cast_and_jump()'s own create_new_instance() call already sees it and
+	# respects tier2_meteor_form_blocks_barrier exactly like a manual jump
+	# would, while the jump impulse/sounds still always fire.
+	if ability.jump_after_landing:
+		_cast_and_jump()
 
 
 ## Attaches ability.meteor_fall_vfx_scene (if assigned) directly to this

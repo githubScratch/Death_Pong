@@ -105,6 +105,21 @@ class_name IceAbility
 ## just as vulnerable to being immediately overwritten as it always was.
 @export var knockback_lock_time: float = 0.2
 
+## Whether a wizard caught in the zone is also locked out of jumping,
+## diving, casting, and every hold-based ability for as long as they stay
+## slowed - the "checkbox," matching every other knob on this ability. True
+## (the default) is the original behavior: getting caught fully shuts down
+## everything except LEFT/RIGHT movement (still scaled by slow_amount either
+## way - see wizard.gd's freeze_in_place()/_physics_process()). Flip false
+## to let a slowed wizard keep jumping/diving/casting normally (still paying
+## whatever cost or cooldown that ability already charges) while caught -
+## a knob purely for tuning how punishing Ice's slow should feel; balance it
+## alongside slow_amount/zone_duration rather than in isolation, since a
+## wizard that can still freely cast a fresh barrier while slowed is a very
+## different threat than one that's fully locked down. Has no effect on a
+## ball caught in the same zone either way - a ball has no actions to lock.
+@export var lock_actions_while_frozen: bool = true
+
 ## Whether the ice mage's own zones can slow the ice mage that cast them -
 ## the checkbox. False (the default) matches every other class's "never
 ## affects the caster" convention (Growth's own hold, Blink's own

@@ -26,6 +26,12 @@ class_name BlinkAbility
 ## is detected and this hooks in - both go through the identical check, so
 ## a maxed-out player gets the same payoff no matter which of the two they
 ## use to spend it.
+##
+## A THIRD max-tier bonus, swap_locations_at_max_tier below, only applies to
+## the ordinary left/right blink (not the slam-wrap landing) - if true, that
+## teleport swaps this wizard's position with the nearest enemy wizard's
+## instead of moving in `direction` by blink_distance. Fully independent of
+## clone_on_max_tier: either, both, or neither can be on at once.
 
 ## Pixels teleported per blink.
 @export var blink_distance: float = 300.0
@@ -52,7 +58,7 @@ class_name BlinkAbility
 ## wizard.gd's _execute_blink()/_cast_and_jump(). Takes priority over
 ## jump_on_blink just below when both are somehow on, since this already
 ## includes the jump that one adds on its own.
-@export var cast_on_blink: bool = false
+@export var barrier_on_blink: bool = false
 
 ## If true, landing from a LEFT/RIGHT blink (not the ceiling-wrap slam
 ## wrap - see _execute_blink() vs _try_slam_wrap()) immediately applies a
@@ -151,6 +157,26 @@ class_name BlinkAbility
 ## see _is_clone's doc comment in wizard.gd - so this can never chain into a
 ## second clone.
 @export var clone_on_max_tier: bool = true
+
+## If true, a blink cast while max_tiers is already fully banked swaps this
+## wizard's position with the NEAREST ENEMY wizard's (team read the same way
+## GameSettings.team_color_for_seat() already colors outlines - never a
+## teammate, even in a 4-player 2v2 match) instead of the ordinary
+## directional teleport (`direction` * blink_distance) - see wizard.gd's
+## _execute_blink()/_nearest_enemy_wizard(). Completely independent of
+## clone_on_max_tier above: both can be on at once (spend everything, leave
+## a clone behind at the old spot, AND swap into the enemy's position), or
+## just this one on its own (no clone, but the max-tier payoff is landing
+## square where an enemy was standing rather than a longer/further blink).
+## False (the default) leaves a maxed-out blink exactly as it always
+## was - just a bigger flat spend if clone_on_max_tier is also on, otherwise
+## indistinguishable from any other blink. Like clone_on_max_tier, a clone's
+## own maxed-out cast (_is_clone) never triggers this either - see
+## wizard.gd's _try_blink() doc comment. If there's no enemy wizard to swap
+## with at all (Training's single-seat scene, or every other wizard already
+## gone), falls back to the ordinary directional teleport instead of doing
+## nothing.
+@export var swap_locations_at_max_tier: bool = false
 
 ## Seconds a clone spawned by a maxed-out blink or slam wrap sticks around
 ## before despawning - see wizard.gd's _spawn_blink_clone()/_despawn_clone(). Any

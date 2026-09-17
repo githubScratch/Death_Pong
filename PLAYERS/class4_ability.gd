@@ -183,6 +183,27 @@ class_name MeteorAbility
 ## Meaningless while tier2_meteor_form_enabled is false.
 @export var tier2_meteor_form_blocks_barrier: bool = true
 
+## If true, landing a meteor fall automatically fires _cast_and_jump() -
+## exactly what a real Up press does (fresh shield cast plus the normal jump
+## impulse/sounds - see wizard.gd's create_new_instance()/_apply_jump_impulse()),
+## the instant _land_meteor() finishes handling whichever of the two landings
+## just played. Same "auto-fire the real Up behavior" idea as BlinkAbility.
+## cast_on_blink, just triggered by a meteor's own landing instead of a
+## blink's. Lets a meteor double as a hit-and-recover move (drop, land, and
+## immediately have a fresh barrier up and be airborne again) without the
+## player needing to press Up themselves right as they touch down.
+##
+## Fires for EITHER landing type - a plain landing (barrier already ended,
+## so this casts a genuinely fresh one) or a qualifying tier-2 landing
+## (barrier/vfx still riding out tier2_meteor_form_duration - since this
+## runs through the exact same create_new_instance() a manual jump would,
+## tier2_meteor_form_blocks_barrier is still respected automatically: true
+## there still gives the jump impulse/sounds but leaves the lingering
+## barrier alone, same as if the player had jumped manually during that
+## window). False (the default) leaves landing exactly as it always was -
+## no shield, no jump, until the player presses Up on their own.
+@export var jump_after_landing: bool = false
+
 ## True disables banking any NEW strikes for as long as this wizard is in
 ## any part of meteor form - falling (_is_meteor) or tier-2 lingering
 ## (_meteor_form_lock_remaining > 0.0) alike - see wizard.gd's
@@ -193,3 +214,20 @@ class_name MeteorAbility
 ## (the old behavior) leaves strikes banking normally the whole time, same
 ## as standing behind an ordinary shield.
 @export var disable_strikes_while_meteor_form: bool = false
+
+## True drops the "Platforms" physics layer (2d_physics/layer_6 in
+## project.godot) out of this wizard's own collision_mask for as long as
+## he's in any part of meteor form - falling (_is_meteor) or tier-2
+## lingering (_meteor_form_lock_remaining > 0.0) alike, same "either phase
+## counts" shape as disable_strikes_while_meteor_form just above - see
+## wizard.gd's _start_meteor()/_cancel_meteor()/_land_meteor()/
+## _end_meteor_form_lingering(). Lets the plunge (and, with the tier-2
+## payoff, the lingering barrier too) pass straight through small stage
+## platforms instead of being stopped short by them, without touching
+## collision with anything else that still shares other layers (Arena's
+## walls/floor/roof, WizardWall, etc.) - the mask bit is restored the moment
+## meteor form actually ends, never left off. False (the default) leaves
+## collision with Platforms completely untouched, same as before this knob
+## existed - a fall stops on a small platform exactly like a normal jump
+## would.
+@export var disable_platform_collision_while_meteor_form: bool = false

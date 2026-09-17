@@ -1,7 +1,7 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=3 format=3 uid="uid://41jb4kuvwvbu"]
 
-[ext_resource type="PackedScene" path="res://PLAYERS/wizard.tscn" id="1_chassis"]
-[ext_resource type="Resource" path="res://PLAYERS/classes/class_2.tres" id="2_class"]
+[ext_resource type="PackedScene" uid="uid://c7wd648uhhby4" path="res://PLAYERS/wizard.tscn" id="1_chassis"]
+[ext_resource type="Resource" uid="uid://djofs4a0pxb01" path="res://PLAYERS/classes/class_2.tres" id="2_class"]
 
 [node name="Node2D" instance=ExtResource("1_chassis")]
 seat = 2

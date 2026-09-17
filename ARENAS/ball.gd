@@ -76,6 +76,80 @@ var audio_pool = []
 @export var pool_size = 3
 @export var min_velocity_for_sound = 50.0  # Minimum velocity to play sound
 
+## Hit Stop
+##
+## A brief, full-game freeze (SceneTree.paused - a true stop, not a
+## slow-motion via Engine.time_scale) the instant a ball is struck by a
+## wizard's deflection shield ("barrier" - see deflection_shield.gd, which
+## groups its own Area2D under "barrier"), giving players a beat to
+## actually register whatever effect just landed instead of it flashing
+## past mid-bounce. Deliberately NOT triggered by ordinary paddle/wall/brick
+## contact (see _on_sfx_area_body_entered() below) - those happen far too
+## often for a freeze to read as anything but the game stuttering; a shield
+## deflect is comparatively rare and already the moment worth a beat of
+## emphasis. See trigger_hitstop()/_do_hitstop() below for the mechanism,
+## and deflection_shield.gd's deflect_ball() for the one place it's
+## actually triggered from.
+##
+## hitstop_cooldown exists because a ball can clip more than one barrier in
+## quick succession - without a cooldown, each deflect would fire its own
+## 0.05s freeze back to back, which reads exactly like the game hanging
+## rather than a series of readable little punches. The cooldown measures
+## from the START of the previous hitstop, so it can never be defeated by
+## hits landing faster than it can refire.
+##
+## _last_hitstop_msec/_hitstop_active are STATIC - shared across every Ball
+## instance, not per-instance state - deliberately, because this project
+## supports more than one ball on screen at once (see ball_big.tscn,
+## Yonder's enlarged ball, and paddle.gd's own
+## get_tree().get_nodes_in_group("ball") handling). A per-instance cooldown
+## would let two different balls each freely trigger their own hitstop
+## within the same fraction of a second - exactly the "game freezes during
+## a crazy rebound" failure this feature exists to prevent, just spread
+## across two RigidBody2Ds instead of one. One shared clock means only one
+## hitstop can ever be in effect or in cooldown game-wide, no matter which
+## ball (or how many) caused it.
+##
+## Uses Time.get_ticks_msec() - real, unscaled, wall-clock time that keeps
+## advancing even while the tree is paused (same clock deflection_shield.gd's
+## own freeze_frame() already reads) - rather than anything _process-driven,
+## since the whole point of a hitstop is that normal processing is paused
+## for part of it.
+@export_group("Hit Stop")
+## How long the whole game freezes for on a hit, in seconds. 0 disables
+## hitstop entirely.
+@export_range(0.0, 0.5, 0.01, "suffix:s") var hitstop_duration: float = 0.05
+## Minimum real time between the start of one hitstop and the next,
+## game-wide - see the doc comment above for why this is shared rather than
+## per-ball.
+@export_range(0.0, 2.0, 0.05, "suffix:s") var hitstop_cooldown: float = 0.5
+
+static var _last_hitstop_msec: int = -1000000
+static var _hitstop_active: bool = false
+
+## Call this any time THIS ball is struck. Silently does nothing if
+## hitstop_duration is 0, a hitstop is already in progress, or the last one
+## started less than hitstop_cooldown ago - see the class doc comment above.
+func trigger_hitstop() -> void:
+	if hitstop_duration <= 0.0 or _hitstop_active:
+		return
+	var now := Time.get_ticks_msec()
+	if now - _last_hitstop_msec < int(hitstop_cooldown * 1000):
+		return
+	_last_hitstop_msec = now
+	_do_hitstop()
+
+func _do_hitstop() -> void:
+	_hitstop_active = true
+	get_tree().paused = true
+	# process_always defaults to true for SceneTree timers - this one keeps
+	# counting down in real time despite the pause above, which is exactly
+	# what unpauses the game again a moment later instead of freezing it for
+	# good.
+	await get_tree().create_timer(hitstop_duration).timeout
+	get_tree().paused = false
+	_hitstop_active = false
+
 func _ready():
 	add_to_group("ball")
 	for i in range(pool_size):
@@ -195,7 +269,7 @@ func _on_sfx_area_body_entered(body):  # Changed function name to match signal
 		var impact_force = min(linear_velocity.length() / 1000.0, 1.0)
 		play_collision_sound(impact_force)  # Pass the volume scale, not the audio player
 	if body is RigidBody2D and linear_velocity.length() > min_velocity_for_sound:
-	
+
 		#var impact_force = min(linear_velocity.length() / 1000.0, 1.0)
 		#play_collision_sound(impact_force)  # Pass the volume scale, not the audio player
 		if body.is_in_group("brick") and is_instance_valid(body):
@@ -239,7 +313,13 @@ func play_collision_sound(volume_scale = 1.0):
 ## IceAbility that owns the zone - see IceAbility.frozen_ball_overlay) is
 ## spawned as a child for as long as that lasts; null skips spawning
 ## anything, same opt-in shape used elsewhere in this project.
-func freeze_in_place(duration: float, slow_amount: float, overlay_scene: PackedScene = null) -> void:
+##
+## Accepts (and ignores) a trailing lock_actions_while_frozen parameter a
+## ball has no use for - see wizard.gd's own freeze_in_place() for what it
+## actually does there. It only exists here so IceZone's shared, duck-typed
+## _on_body_entered() can call body.freeze_in_place(...) with one identical
+## argument list regardless of whether body is a Ball or a Wizard.
+func freeze_in_place(duration: float, slow_amount: float, overlay_scene: PackedScene = null, _lock_actions_while_frozen: bool = true) -> void:
 	if not _is_frozen:
 		_frozen_base_gravity_scale = gravity_scale
 	_is_frozen = true
